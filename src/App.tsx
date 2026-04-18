@@ -301,6 +301,32 @@ function KycSection({ profile, usage, onOpen }: { profile: any; usage: any; onOp
           <span>💸</span>
           <div>
             <div style={{fontSize: 10, color: '#94a3b8'}}>Вывод</div>
+            <button
+              type="button"
+              onClick={openBuyCon}
+              style={{
+                width: '100%',
+                padding: '14px 16px',
+                marginTop: 10,
+                marginBottom: 14,
+                background: 'linear-gradient(135deg,#10b981,#06b6d4)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 12,
+                fontSize: 15,
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 10,
+                boxShadow: '0 6px 20px rgba(6,182,212,0.35)',
+              }}
+            >
+              <span style={{ fontSize: 18 }}>💎</span>
+              <span>Купить CON</span>
+              <span style={{ fontSize: 12, opacity: 0.85 }}>↗</span>
+            </button>
             <div style={{fontSize: 12, fontWeight: 700}}>{current.limits.withdraw}</div>
           </div>
         </div>
@@ -328,31 +354,6 @@ function HistorySection({ history, onClear }: { history: Transaction[]; onClear:
       ...fade, animationDelay: '0.14s'
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <button
-            type="button"
-            onClick={openBuyCon}
-            style={{
-              width: '100%',
-              padding: '14px 16px',
-              marginBottom: 14,
-              background: 'linear-gradient(135deg,#10b981,#06b6d4)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 12,
-              fontSize: 15,
-              fontWeight: 800,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 10,
-              boxShadow: '0 6px 20px rgba(6,182,212,0.35)',
-            }}
-          >
-            <span style={{ fontSize: 18 }}>💎</span>
-            <span>Купить CON</span>
-            <span style={{ fontSize: 12, opacity: 0.85 }}>↗</span>
-          </button>
 
         <div style={{ fontSize: 16, fontWeight: 800 }}>📜 История обменов</div>
         <button
