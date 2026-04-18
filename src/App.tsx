@@ -160,9 +160,9 @@ function App() {
           <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,0.85)',letterSpacing:1,marginBottom:4}}>🏪 ДЛЯ БИЗНЕСА</div>
           <div style={{fontSize:17,fontWeight:900,color:'#fff',marginBottom:10,lineHeight:1.2}}>Подключите лояльность на КОН</div>
           <div style={{fontSize:12.5,color:'#fff',opacity:0.95,marginBottom:12,lineHeight:1.55}}>
-            ✓ Без разработки — за 15 минут<br/>
-            ✓ 0% эквайринг (оплата в TON)<br/>
-            ✓ +22% повторных визитов
+            ✓ Запуск за 15 минут — без разработки<br/>
+            ✓ +22% повторных визитов за 3 месяца<br/>
+            ✓ Без абонплаты — платите за результат
           </div>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',background:'rgba(255,255,255,0.18)',borderRadius:10,padding:'10px 14px'}}>
             <span style={{color:'#fff',fontSize:14,fontWeight:800}}>🚀 Оставить заявку</span>
