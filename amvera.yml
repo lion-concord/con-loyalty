@@ -4,11 +4,8 @@ meta:
     name: npm
     version: 20
 build:
-  image: node:20-alpine
-  script:
-    - npm ci --omit=dev || npm install --production
+  skip: false
 run:
-  image: node:20-alpine
-  script:
-    - node bot.cjs
+  command: node bot.cjs
   persistenceMount: /data
+  containerPort: 80
