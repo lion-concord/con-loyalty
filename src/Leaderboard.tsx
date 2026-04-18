@@ -89,7 +89,7 @@ export function Leaderboard() {
               </div>
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
                 <div style={{ fontWeight: 800, fontSize: 13 }}>
-                  {bal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  {bal >= 1e4 ? (bal >= 1e9 ? (bal/1e9).toFixed(1).replace(/\.0$/,'') + ' млрд' : bal >= 1e6 ? (bal/1e6).toFixed(1).replace(/\.0$/,'') + ' млн' : Math.round(bal/1e3) + ' тыс') : bal.toLocaleString('ru')}
                 </div>
                 <div style={{ fontSize: 10, color: '#94a3b8' }}>CON</div>
               </div>

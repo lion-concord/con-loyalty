@@ -10,6 +10,15 @@ const Leaderboard = lazy(() => import('./Leaderboard').then(m => ({ default: m.L
 
 const fade = { animation: 'fadeIn 0.6s ease-out both' }
 
+
+function fmtCompact(n: number): string {
+  if (n >= 1e12) return (n/1e12).toFixed(1).replace(/\.0$/,'') + ' трлн';
+  if (n >= 1e9)  return (n/1e9 ).toFixed(1).replace(/\.0$/,'') + ' млрд';
+  if (n >= 1e6)  return (n/1e6 ).toFixed(1).replace(/\.0$/,'') + ' млн';
+  if (n >= 1e4)  return Math.round(n/1e3) + ' тыс';
+  return n.toLocaleString('ru');
+}
+
 const parseLimit = (limitStr: string): number => {
   if (/без\s*лимит/i.test(limitStr)) return Infinity;
   if (/недоступ/i.test(limitStr)) return 0;
@@ -321,37 +330,37 @@ function HistorySection({ history, onClear }: { history: Transaction[]; onClear:
       <div style={{ display: 'grid', gap: 8 }}>
         {visible.map((tx) => (
           <div key={tx.id} style={{
-            display: 'flex', alignItems: 'center', gap: 12,
+            display: 'flex', alignItems: 'flex-start', gap: 10,
             padding: '10px 12px',
             background: 'rgba(15,23,42,0.6)',
             border: '1px solid rgba(255,255,255,0.06)',
             borderRadius: 10,
           }}>
             <div style={{
-              width: 36, height: 36, borderRadius: 10,
+              width: 32, height: 32, borderRadius: 9,
               background: 'linear-gradient(135deg, rgba(37,99,235,0.2), rgba(124,58,237,0.2))',
               border: '1px solid rgba(124,58,237,0.3)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 16, flexShrink: 0,
+              fontSize: 15, flexShrink: 0,
             }}>🔄</div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span>{tx.konAmount.toLocaleString('ru')} КОН</span>
-                <span style={{ color: '#64748b', fontSize: 12 }}>→</span>
-                <span style={{ color: '#a78bfa' }}>{tx.conAmount.toFixed(2)} CON</span>
+              <div style={{ fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+<span title={tx.konAmount.toLocaleString('ru') + ' КОН'}>{fmtCompact(tx.konAmount)} КОН</span>
+                <span style={{ color: '#64748b', fontSize: 11 }}>→</span>
+                <span style={{ color: '#a78bfa' }} title={tx.conAmount.toLocaleString('ru') + ' CON'}>{fmtCompact(tx.conAmount)} CON</span>
+                <span style={{
+                  fontSize: 9, fontWeight: 700,
+                  padding: '2px 6px', borderRadius: 5,
+                  background: 'rgba(34,197,94,0.15)',
+                  color: '#86efac',
+                  border: '1px solid rgba(34,197,94,0.3)',
+                  marginLeft: 'auto',
+                }}>✓</span>
               </div>
-              <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
-                {formatRelativeTime(tx.timestamp)} · ~{Math.round(tx.rubAmount).toLocaleString('ru')} ₽
+              <div style={{ fontSize: 11, color: '#64748b', marginTop: 3 }} title={'~' + Math.round(tx.rubAmount).toLocaleString('ru') + ' ₽'}>
+                {formatRelativeTime(tx.timestamp)} · ~{fmtCompact(Math.round(tx.rubAmount))} ₽
               </div>
             </div>
-            <div style={{
-              fontSize: 10, fontWeight: 700,
-              padding: '3px 7px', borderRadius: 6,
-              background: 'rgba(34,197,94,0.15)',
-              color: '#86efac',
-              border: '1px solid rgba(34,197,94,0.3)',
-              flexShrink: 0,
-            }}>✓ Успех</div>
           </div>
         ))}
       </div>
