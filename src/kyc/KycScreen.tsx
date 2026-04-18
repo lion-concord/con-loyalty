@@ -455,26 +455,29 @@ if (!selfie) return setError('Загрузите селфи');
 
 
 function BirthDateInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  // value хранится в ISO: YYYY-MM-DD
   const [mode, setMode] = useState<'select' | 'text'>('select');
   const parse = (v: string) => {
     const m = v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     return m ? { y: m[1], mo: m[2], d: m[3] } : { y: '', mo: '', d: '' };
   };
-  const { y, mo, d } = parse(value);
+  const initial = parse(value);
+  const [d, setD] = useState(initial.d);
+  const [mo, setMo] = useState(initial.mo);
+  const [y, setY] = useState(initial.y);
   const [textVal, setTextVal] = useState(
     value ? `${parse(value).d}.${parse(value).mo}.${parse(value).y}` : ''
   );
 
-  const update = (day: string, month: string, year: string) => {
-    if (day && month && year) {
-      const dd = day.padStart(2, '0');
-      const mm = month.padStart(2, '0');
-      onChange(`${year}-${mm}-${dd}`);
+  const pushUp = (nd: string, nm: string, ny: string) => {
+    if (nd && nm && ny) {
+      onChange(`${ny}-${nm.padStart(2, '0')}-${nd.padStart(2, '0')}`);
     } else {
       onChange('');
     }
   };
+  const onD = (v: string) => { setD(v); pushUp(v, mo, y); };
+  const onMo = (v: string) => { setMo(v); pushUp(d, v, y); };
+  const onY = (v: string) => { setY(v); pushUp(d, mo, v); };
 
   const applyText = (t: string) => {
     setTextVal(t);
@@ -515,15 +518,15 @@ function BirthDateInput({ value, onChange }: { value: string; onChange: (v: stri
     <div>
       {mode === 'select' ? (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr 1fr', gap: 6 }}>
-          <select style={selectStyle} value={d} onChange={e => update(e.target.value, mo, y)}>
+          <select style={selectStyle} value={d} onChange={e => onD(e.target.value)}>
             <option value="">День</option>
             {days.map(x => <option key={x} value={x}>{x}</option>)}
           </select>
-          <select style={selectStyle} value={mo} onChange={e => update(d, e.target.value, y)}>
+          <select style={selectStyle} value={mo} onChange={e => onMo(e.target.value)}>
             <option value="">Месяц</option>
             {months.map(x => <option key={x.v} value={x.v}>{x.n}</option>)}
           </select>
-          <select style={selectStyle} value={y} onChange={e => update(d, mo, e.target.value)}>
+          <select style={selectStyle} value={y} onChange={e => onY(e.target.value)}>
             <option value="">Год</option>
             {years.map(x => <option key={x} value={x}>{x}</option>)}
           </select>
