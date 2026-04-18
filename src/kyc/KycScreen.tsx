@@ -49,6 +49,14 @@ export function KycScreen({ onClose }: { onClose: () => void }) {
   const [codeError, setCodeError] = useState('');
   const [resendTimer, setResendTimer] = useState(0);
   const [shake, setShake] = useState(false);
+  const [phone, setPhone] = useState(profile.phone || '');
+  const [phoneVerifiedLocal, setPhoneVerifiedLocal] = useState(false);
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [sentPhoneCode, setSentPhoneCode] = useState('');
+  const [phoneCodeDigits, setPhoneCodeDigits] = useState(['', '', '', '', '', '']);
+  const [phoneCodeError, setPhoneCodeError] = useState('');
+  const [phoneResendTimer, setPhoneResendTimer] = useState(0);
+  const [phoneShake, setPhoneShake] = useState(false);
 
   useEffect(() => {
     const p = getKycProfile();
@@ -60,6 +68,7 @@ export function KycScreen({ onClose }: { onClose: () => void }) {
     setPassport(p.passportSubmitted || false);
     setSelfie(p.selfieSubmitted || false);
     setSource(p.sourceOfFundsSubmitted || false);
+    setPhone(p.phone || '');
   }, [mode]);
 
   const currentInfo = LEVEL_INFO[profile.level];
@@ -98,6 +107,77 @@ export function KycScreen({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     if (profile.emailVerified && profile.email === email) setEmailVerifiedLocal(true);
   }, [profile.emailVerified, profile.email, email]);
+
+  useEffect(() => {
+    if (phoneResendTimer <= 0) return;
+    const t = setTimeout(() => setPhoneResendTimer(phoneResendTimer - 1), 1000);
+    return () => clearTimeout(t);
+  }, [phoneResendTimer]);
+
+  useEffect(() => {
+    if (profile.phoneVerified && profile.phone === phone) setPhoneVerifiedLocal(true);
+  }, [profile.phoneVerified, profile.phone, phone]);
+
+  const validatePhone = (v: string): string => {
+    if (!v) return 'Укажите номер телефона';
+    const digits = v.replace(/\D/g, '');
+    if (digits.length < 10 || digits.length > 15) return 'Некорректный номер';
+    return '';
+  };
+
+  const sendPhoneCode = () => {
+    const err = validatePhone(phone);
+    if (err) { setError(err); return; }
+    setError('');
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    setSentPhoneCode(code);
+    setPhoneCodeDigits(['', '', '', '', '', '']);
+    setPhoneCodeError('');
+    setPhoneResendTimer(60);
+    setShowPhoneModal(true);
+    setTimeout(() => alert('SMS отправлено на ' + phone + '\n\nВаш код: ' + code), 300);
+  };
+
+  const handlePhoneCodeChange = (idx: number, val: string) => {
+    const digit = val.replace(/\D/g, '').slice(0, 1);
+    const next = [...phoneCodeDigits];
+    next[idx] = digit;
+    setPhoneCodeDigits(next);
+    setPhoneCodeError('');
+if (digit && idx < 5) {
+      const el = document.getElementById('phone-code-' + (idx + 1));
+      if (el) (el as HTMLInputElement).focus();
+    }
+  };
+
+  const handlePhoneCodeKeyDown = (idx: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !phoneCodeDigits[idx] && idx > 0) {
+      const el = document.getElementById('phone-code-' + (idx - 1));
+      if (el) (el as HTMLInputElement).focus();
+    }
+  };
+
+  const handlePhoneCodePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const txt = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    if (txt.length === 6) {
+      setPhoneCodeDigits(txt.split(''));
+      setPhoneCodeError('');
+    }
+  };
+
+  const verifyPhoneCode = () => {
+    const entered = phoneCodeDigits.join('');
+    if (entered.length !== 6) { setPhoneCodeError('Введите все 6 цифр'); return; }
+    if (entered !== sentPhoneCode) {
+      setPhoneCodeError('Неверный код');
+      setPhoneShake(true);
+      setTimeout(() => setPhoneShake(false), 400);
+      return;
+    }
+    setPhoneVerifiedLocal(true);
+    setShowPhoneModal(false);
+  };
 
   const sendEmailCode = () => {
     const emErr = validateEmail(email);
@@ -165,8 +245,11 @@ export function KycScreen({ onClose }: { onClose: () => void }) {
       if (!emailVerifiedLocal) return setError('Подтвердите email кодом');
     }
     if (targetLevel >= 2) {
+      const phErr = validatePhone(phone);
+      if (phErr) return setError(phErr);
+      if (!phoneVerifiedLocal) return setError('Подтвердите телефон кодом');
       if (!passport) return setError('Загрузите паспорт');
-if (!selfie) return setError('Загрузите селфи');
+      if (!selfie) return setError('Загрузите селфи');
     }
     if (targetLevel >= 3) {
       if (!source) return setError('Подтвердите источник дохода');
@@ -178,6 +261,8 @@ if (!selfie) return setError('Загрузите селфи');
       birthDate,
       email: email.trim(),
       emailVerified: true,
+      phone: phone.trim(),
+      phoneVerified: phoneVerifiedLocal,
       passportSubmitted: passport,
       selfieSubmitted: selfie,
       sourceOfFundsSubmitted: source,
@@ -285,6 +370,43 @@ if (!selfie) return setError('Загрузите селфи');
           {targetLevel >= 2 && (
             <>
               <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 14 }}>
+                <label style={labelStyle}>Телефон *</label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input
+                    type="tel"
+                    inputMode="tel"
+                    style={{ ...field, flex: 1 }}
+                    value={phone}
+                    onChange={e => { setPhone(e.target.value); setPhoneVerifiedLocal(false); }}
+                    placeholder="+7 900 000 00 00"
+                    disabled={phoneVerifiedLocal}
+                  />
+                  {phoneVerifiedLocal ? (
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      padding: '0 14px',
+                      background: 'rgba(34,197,94,0.15)',
+                      border: '1px solid rgba(34,197,94,0.4)',
+                      color: '#86efac', borderRadius: 10,
+                      fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap'
+                    }}>Подтверждён</div>
+                  ) : (
+                    <button
+                      type="button"
+onClick={sendPhoneCode}
+                      style={{
+                        padding: '0 14px',
+                        background: 'linear-gradient(135deg,#2563eb,#7c3aed)',
+                        color: '#fff', border: 'none', borderRadius: 10,
+                        fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >Подтвердить</button>
+                  )}
+                </div>
+                <div style={hintStyle}>На номер придёт SMS с 6-значным кодом.</div>
+              </div>
+              <div>
                 <label style={labelStyle}>Паспорт *</label>
                 <button onClick={() => setPassport(!passport)} style={{
                   ...field, cursor: 'pointer', textAlign: 'left',
@@ -388,6 +510,69 @@ if (!selfie) return setError('Загрузите селфи');
                 cursor: resendTimer > 0 ? 'not-allowed' : 'pointer'
               }}>{resendTimer > 0 ? 'Повторно через ' + resendTimer + ' сек' : 'Отправить код повторно'}</button>
 <button onClick={() => setShowEmailModal(false)} style={{
+                width: '100%', padding: 8, marginTop: 8,
+                background: 'transparent', color: '#64748b',
+                border: 'none', fontSize: 12, cursor: 'pointer'
+              }}>Отмена</button>
+            </div>
+          </div>
+        )}
+
+
+        {showPhoneModal && (
+          <div onClick={() => setShowPhoneModal(false)} style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 10000, padding: 16
+          }}>
+            <div onClick={e => e.stopPropagation()} style={{
+              background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+              border: '1px solid rgba(139,92,246,0.3)',
+              borderRadius: 20, padding: 24, maxWidth: 380, width: '100%',
+              animation: phoneShake ? 'shake 0.4s' : 'none'
+            }}>
+              <h3 style={{ margin: 0, fontSize: 20, fontWeight: 800, textAlign: 'center' }}>Подтверждение телефона</h3>
+              <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: 13, margin: '8px 0 20px' }}>
+                SMS отправлено на <span style={{ color: '#a78bfa', fontWeight: 700 }}>{phone}</span>
+              </p>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 16 }}>
+                {phoneCodeDigits.map((d, i) => (
+                  <input
+                    key={i}
+                    id={'phone-code-' + i}
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={d}
+                    onChange={e => handlePhoneCodeChange(i, e.target.value)}
+                    onKeyDown={e => handlePhoneCodeKeyDown(i, e)}
+                    onPaste={i === 0 ? handlePhoneCodePaste : undefined}
+                    autoFocus={i === 0}
+                    style={{
+                      width: 44, height: 52, textAlign: 'center',
+                      fontSize: 22, fontWeight: 800,
+                      background: d ? 'rgba(139,92,246,0.15)' : 'rgba(15,23,42,0.8)',
+                      border: '2px solid ' + (phoneCodeError ? '#ef4444' : d ? '#a78bfa' : 'rgba(255,255,255,0.15)'),
+                      borderRadius: 10, color: '#fff', outline: 'none'
+                    }}
+                  />
+                ))}
+              </div>
+              {phoneCodeError && (<div style={{ color: '#fca5a5', fontSize: 13, textAlign: 'center', marginBottom: 12 }}>{phoneCodeError}</div>)}
+              <button onClick={verifyPhoneCode} style={{
+                width: '100%', padding: 13,
+                background: 'linear-gradient(135deg,#2563eb,#7c3aed)',
+                color: '#fff', border: 'none', borderRadius: 12,
+                fontSize: 15, fontWeight: 700, cursor: 'pointer', marginBottom: 10
+              }}>Подтвердить код</button>
+              <button onClick={sendPhoneCode} disabled={phoneResendTimer > 0} style={{
+                width: '100%', padding: 10, background: 'transparent',
+                color: phoneResendTimer > 0 ? '#64748b' : '#a78bfa',
+                border: '1px solid rgba(255,255,255,0.1)',
+borderRadius: 10, fontSize: 13, fontWeight: 600,
+                cursor: phoneResendTimer > 0 ? 'not-allowed' : 'pointer'
+              }}>{phoneResendTimer > 0 ? 'Повторно через ' + phoneResendTimer + ' сек' : 'Отправить SMS повторно'}</button>
+              <button onClick={() => setShowPhoneModal(false)} style={{
                 width: '100%', padding: 8, marginTop: 8,
                 background: 'transparent', color: '#64748b',
                 border: 'none', fontSize: 12, cursor: 'pointer'

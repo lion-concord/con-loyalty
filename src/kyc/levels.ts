@@ -8,6 +8,8 @@ export interface KycProfile {
   birthDate?: string;
   email?: string;
   emailVerified?: boolean;
+  phone?: string;
+  phoneVerified?: boolean;
   passportSubmitted?: boolean;
   selfieSubmitted?: boolean;
   sourceOfFundsSubmitted?: boolean;
@@ -35,7 +37,7 @@ export const LEVEL_INFO: Record<KycLevel, {
   },
   2: {
     title: 'Стандартный',
-    description: 'Паспорт + селфи',
+    description: 'Телефон + паспорт + селфи',
     features: ['Полный обмен', 'Вывод в рубли', 'Стейкинг'],
     limits: { convert: '600 000 ₽/мес', withdraw: '200 000 ₽/сутки' },
   },
