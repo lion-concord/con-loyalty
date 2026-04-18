@@ -1,0 +1,256 @@
+import { WalletPanel } from "./WalletPanel";
+import { useState, useEffect } from 'react'
+import { TonConnectButton, useTonWallet } from '@tonconnect/ui-react'
+import { KycScreen } from './kyc/KycScreen'
+import { getKycProfile, LEVEL_INFO } from './kyc/levels'
+import { LevelCard } from './LevelCard'
+import { Leaderboard } from './Leaderboard'
+
+const fade = { animation: 'fadeIn 0.6s ease-out both' }
+
+function App() {
+  // @ts-ignore
+  let tgUser: any = null
+  try { const W = (window as any).Telegram?.WebApp; if(W){W.ready();W.expand();tgUser=W.initDataUnsafe?.user} } catch(e){console.error("TG ERR:",e)}
+
+  const [kon, setKon] = useState(100)
+  const ton = (kon * 0.01).toFixed(2)
+  const wallet = useTonWallet()
+  const [prices, setPrices] = useState<{ton:number|null,btc:number|null,con:number|null}>({ton:null,btc:null,con:null})
+  const [showKyc, setShowKyc] = useState(false)
+  const [kycProfile, setKycProfile] = useState(getKycProfile())
+  const totalKon = 142
+
+  useEffect(() => { if (!showKyc) setKycProfile(getKycProfile()) }, [showKyc])
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=the-open-network,bitcoin&vs_currencies=usd')
+        const d = await r.json()
+        const tonPrice = d['the-open-network']?.usd || null
+        const btcPrice = d['bitcoin']?.usd || null
+        const conPrice = tonPrice ? tonPrice * 0.01 : null
+        setPrices({ton:tonPrice,btc:btcPrice,con:conPrice})
+      } catch(e) { console.error(e) }
+    }
+    load()
+    const i = setInterval(load, 30000)
+    return () => clearInterval(i)
+  }, [])
+
+  const share = () => {
+    if (navigator.share) {
+      navigator.share({title:'Токен КОН',text:'Лояльность теперь в крипте!',url:window.location.href})
+    } else {
+      navigator.clipboard.writeText(window.location.href)
+      alert('Ссылка скопирована!')
+    }
+  }
+
+  return (
+    <div style={{minHeight:'100vh',background:'linear-gradient(to bottom,#0f172a,#111827 45%,#020617)',color:'white',fontFamily:'system-ui,sans-serif',padding:'12px 10px',boxSizing:'border-box'}}>
+      <style>{"@keyframes fadeIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}} *{box-sizing:border-box} body{margin:0}"}</style>
+      <div style={{maxWidth:900,margin:'0 auto',display:'grid',gap:12,width:'100%'}}>
+        <header style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:8,padding:'8px 0',flexWrap:'wrap',...fade}}>
+          <div style={{minWidth:0,flex:'1 1 auto'}}>
+            <div style={{fontSize:22,fontWeight:800}}>Токен КОН</div>
+            <div style={{color:'#94a3b8',marginTop:2,fontSize:13}}>Лояльность на КОН</div>
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}><WalletPanel /><TonConnectButton /></div>
+        </header>
+
+        <section style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,...fade,animationDelay:'0.05s'}}>
+          <PriceCard name="TON" price={prices.ton}/>
+          <PriceCard name="BTC" price={prices.btc}/>
+          <PriceCard name="CON" price={prices.con}/>
+        </section>
+
+        <section style={{...fade,animationDelay:'0.08s'}}>
+          <LevelCard totalKon={totalKon} />
+        </section>
+
+        {}
+<KycSection profile={kycProfile} onOpen={() => setShowKyc(true)} />
+
+        <section style={{border:'1px solid rgba(255,255,255,0.12)',background:'rgba(255,255,255,0.04)',borderRadius:16,padding:16,...fade,animationDelay:'0.15s'}}>
+          <h2 style={{fontSize:20,fontWeight:800,margin:0,lineHeight:1.2}}>Твоя лояльность теперь в крипте</h2>
+          <p style={{fontSize:14,lineHeight:1.5,color:'#cbd5e1',marginTop:8,marginBottom:0}}>КОН — токен системы лояльности. Получай бонусы, копи награды и обменивай на КОН.</p>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginTop:14}}>
+            <a href="https://app.ston.fi/swap?chartVisible=false&ft=TON&tt=EQBSQLwtqeXlA2AhnErNpA4vR6AimD81Cj5GpxIqgoXPDURX" target="_blank" rel="noreferrer" style={{textDecoration:'none',color:'white',background:'linear-gradient(135deg,#2563eb,#7c3aed)',padding:'12px 10px',borderRadius:12,fontWeight:700,fontSize:14,textAlign:'center',gridColumn:'1 / -1'}}>Купить КОН</a>
+            <a href="#converter" style={{textDecoration:'none',color:'white',border:'1px solid rgba(255,255,255,0.14)',background:'rgba(255,255,255,0.04)',padding:'10px',borderRadius:12,fontWeight:700,fontSize:14,textAlign:'center'}}>Конвертер</a>
+            <button onClick={share} style={{cursor:'pointer',color:'white',border:'1px solid rgba(255,255,255,0.14)',background:'rgba(255,255,255,0.04)',padding:'10px',borderRadius:12,fontWeight:700,fontSize:14}}>Поделиться</button>
+          </div>
+        </section>
+
+        <section id="converter" style={{border:'1px solid rgba(255,255,255,0.12)',background:'rgba(255,255,255,0.04)',borderRadius:16,padding:16,...fade,animationDelay:'0.2s'}}>
+          <div style={{fontSize:18,fontWeight:800,marginBottom:12}}>Конвертер КОН → TON</div>
+          <div style={{display:'grid',gap:10}}>
+            <label style={{display:'grid',gap:6}}>
+              <span style={{color:'#cbd5e1',fontSize:13}}>Количество КОН</span>
+              <input type="number" value={kon} onChange={(e)=>setKon(Number(e.target.value))} style={{width:'100%',padding:'12px 14px',borderRadius:12,border:'1px solid rgba(255,255,255,0.14)',background:'rgba(15,23,42,0.8)',color:'white',fontSize:16,outline:'none',boxSizing:'border-box'}}/>
+            </label>
+            <div style={{padding:'12px 14px',borderRadius:12,background:'rgba(59,130,246,0.12)',border:'1px solid rgba(59,130,246,0.18)',fontSize:15}}>
+              Это примерно <b>{ton} TON</b>
+            </div>
+          </div>
+        </section>
+
+        <section style={{...fade,animationDelay:'0.25s'}}>
+          <Leaderboard />
+        </section>
+
+        <section style={{display:'grid',gridTemplateColumns:'1fr',gap:10,...fade,animationDelay:'0.3s'}}>
+          <Card title="Бонусы" text="Начисляй награды за покупки."/>
+          <Card title="Рефералы" text="Приглашай друзей и получай бонус."/>
+          <Card title="Безопасность" text="Операции через TON и STON.fi."/>
+        </section>
+
+        <footer style={{padding:'14px 0 80px',color:'#94a3b8',fontSize:13,textAlign:'center'}}>Токен КОН — Лояльность на КОН</footer>
+      </div>
+      {showKyc && <KycScreen onClose={() => setShowKyc(false)} />}
+    </div>
+  )
+}
+
+function KycSection({ profile, onOpen }: { profile: any; onOpen: () => void }) {
+  const current = LEVEL_INFO[profile.level as keyof typeof LEVEL INFO];
+  const nextLvl = profile.level < 3 ? (profile.level + 1) as keyof typeof LEVEL_INFO : null;
+  const next = nextLvl !== null ? LEVEL_INFO[nextLvl] : null;
+
+  const levels = [
+    { n: 0, icon: '👤', short: 'Аноним' },
+    { n: 1, icon: '📧', short: 'Базовый' },
+    { n: 2, icon: '🪪', short: 'Стандарт' },
+{ n: 3, icon: '💎', short: 'VIP' },
+  ];
+
+  const steps = [
+    { icon: '👤', label: 'Имя и фамилия', done: !!(profile.firstName && profile.lastName), need: 1 },
+    { icon: '🎂', label: 'Дата рождения', done: !!profile.birthDate, need: 1 },
+    { icon: '📧', label: 'Email', done: !!profile.email, need: 1 },
+    { icon: '📄', label: 'Паспорт', done: !!profile.passportSubmitted, need: 2 },
+    { icon: '🤳', label: 'Селфи', done: !!profile.selfieSubmitted, need: 2 },
+    { icon: '💼', label: 'Источник дохода', done: !!profile.sourceOfFundsSubmitted, need: 3 },
+  ];
+  const targetLvl = nextLvl || profile.level;
+  const visibleSteps = steps.filter(s => s.need <= targetLvl);
+
+  const statusBadge = profile.status === 'active'
+    ? { text: '✓ Активен', bg: 'rgba(34,197,94,0.18)', color: '#86efac', border: 'rgba(34,197,94,0.4)' }
+    : profile.status === 'under_review'
+    ? { text: '⏳ Проверка', bg: 'rgba(234,179,8,0.18)', color: '#fde047', border: 'rgba(234,179,8,0.4)' }
+    : { text: '⛔ Блок', bg: 'rgba(239,68,68,0.18)', color: '#fca5a5', border: 'rgba(239,68,68,0.4)' };
+
+  return (
+    <section style={{
+      position: 'relative', border: '1px solid rgba(139,92,246,0.3)',
+      background: 'linear-gradient(135deg, rgba(30,41,59,0.95), rgba(15,23,42,0.95))',
+      borderRadius: 18, padding: 16, overflow: 'hidden', ...fade, animationDelay: '0.12s',
+    }}>
+      <div style={{ position: 'absolute', top: -40, right: -40, width: 160, height: 160, background: 'radial-gradient(circle, rgba(139,92,246,0.3), transparent 70%)', pointerEvents: 'none' }}/>
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 14, position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ fontSize: 22, width: 42, height: 42, borderRadius: 12, background: 'linear-gradient(135deg, #6366f1, #a855f7)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(139,92,246,0.4)' }}>🛡</div>
+          <div>
+            <div style={{ fontSize: 11, color: '#a78bfa', fontWeight: 700, letterSpacing: 0.8, textTransform: 'uppercase' }}>Верификация KYC</div>
+            <div style={{ fontSize: 17, fontWeight: 800, lineHeight: 1.2 }}>{current.title}</div>
+          </div>
+        </div>
+        <div style={{ background: statusBadge.bg, color: statusBadge.color, border: `1px solid ${statusBadge.border}`, padding: '5px 10px', borderRadius: 8, fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap' }}>{statusBadge.text}</div>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 16, position: 'relative' }}>
+        {levels.map((lv, i) => {
+          const done = lv.n < profile.level;
+          const active = lv.n === profile.level;
+          return (
+            <div key={lv.n} style={{ display: 'flex', alignItems: 'center', flex: i === levels.length - 1 ? '0 0 auto' : 1 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                <div style={{
+                  width: 36, height: 36, borderRadius: 10,
+                  background: active ? 'linear-gradient(135deg, #6366f1, #a855f7)' : done ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.05)',
+                  border: active ? '2px solid #a78bfa' : done ? '2px solid #22c55e' : '2px solid rgba(255,255,255,0.1)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, transition: 'all 0.3s',
+                }}>
+                  {done ? '✓' : lv.icon}
+                </div>
+<div style={{ fontSize: 9, fontWeight: 700, color: active ? '#fff' : done ? '#86efac' : '#64748b' }}>{lv.short}</div>
+              </div>
+              {i < levels.length - 1 && (
+                <div style={{ flex: 1, height: 2, margin: '0 4px', marginBottom: 14, background: lv.n < profile.level ? '#22c55e' : 'rgba(255,255,255,0.1)', borderRadius: 1 }}/>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ fontSize: 13, color: '#cbd5e1', lineHeight: 1.5, marginBottom: 12, padding: '10px 12px', background: 'rgba(0,0,0,0.25)', borderRadius: 10, borderLeft: '3px solid #a78bfa' }}>
+        {current.description}
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 }}>
+        <div style={chipStyle}><span>💱</span><div><div style={chipLabel}>Обмен</div><div style={chipVal}>{current.limits.convert}</div></div></div>
+        <div style={chipStyle}><span>💸</span><div><div style={chipLabel}>Вывод</div><div style={chipVal}>{current.limits.withdraw}</div></div></div>
+      </div>
+
+      {next && (
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontSize: 11, color: '#a78bfa', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>⬆ Для уровня {nextLvl} — {next.title}</div>
+          <div style={{ display: 'grid', gap: 6 }}>
+            {visibleSteps.map((s, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px',
+                background: s.done ? 'rgba(34,197,94,0.1)' : 'rgba(255,255,255,0.03)',
+                border: `1px solid ${s.done ? 'rgba(34,197,94,0.3)' : 'rgba(255,255,255,0.08)'}`,
+                borderRadius: 10, fontSize: 13,
+              }}>
+                <span>{s.icon}</span>
+                <span style={{ flex: 1, color: s.done ? '#86efac' : '#cbd5e1' }}>{s.label}</span>
+                {s.done && <span style={{ color: '#22c55e', fontWeight: 800 }}>✓</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <button onClick={onOpen} style={{
+        width: '100%', padding: '13px', borderRadius: 12, border: 'none', color: '#fff', fontWeight: 700,
+        background: next ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(34,197,94,0.2)',
+        cursor: 'pointer', boxShadow: next ? '0 4px 14px rgba(139,92,246,0.4)' : 'none'
+      }}>
+        {next ? `Перейти на уровень ${nextLvl} →` : '🏆 Максимальный уровень'}
+      </button>
+    </section>
+  );
+}
+
+const chipStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, minWidth: 0 };
+const chipLabel: React.CSSProperties = { fontSize: 10, color: '#94a3b8', textTransform: 'uppercase' };
+const chipVal: React.CSSProperties = { fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' };
+
+function PriceCard({name,price}:{name:string;price:number|null}) {
+  const fmt = (p:number) => {
+    if (name==='BTC') return '$'+Math.round(p).toLocaleString('en-US')
+    if (p<1) return '$'+p.toFixed(4)
+    return '$'+p.toFixed(2)
+  }
+  return (
+    <div style={{border:'1px solid rgba(255,255,255,0.12)',background:'rgba(255,255,255,0.04)',borderRadius:12,padding:'10px 8px',textAlign:'center',minWidth:0,overflow:'hidden'}}>
+      <div style={{color:'#94a3b8',fontSize:11}}>{name}</div>
+<div style={{fontSize:15,fontWeight:800,marginTop:4,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{price!==null?fmt(price):'...'}</div>
+    </div>
+  )
+}
+
+function Card({title,text}:{title:string;text:string}) {
+  return (
+    <div style={{border:'1px solid rgba(255,255,255,0.12)',background:'rgba(255,255,255,0.04)',borderRadius:14,padding:14}}>
+      <div style={{fontWeight:800,fontSize:15,marginBottom:4}}>{title}</div>
+      <div style={{color:'#cbd5e1',fontSize:13,lineHeight:1.5}}>{text}</div>
+    </div>
+  )
+}
+
+export default App

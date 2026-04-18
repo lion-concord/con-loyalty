@@ -1,0 +1,335 @@
+import { useState, useEffect } from 'react';
+import { getKycProfile, saveKycProfile, upgradeLevel, LEVEL_INFO } from './levels';
+import type { KycProfile, KycLevel } from './levels';
+
+const field: React.CSSProperties = {
+  width: '100%',
+  padding: '12px 14px',
+  borderRadius: 10,
+  border: '1px solid rgba(255,255,255,0.14)',
+  background: 'rgba(15,23,42,0.8)',
+  color: '#fff',
+  fontSize: 15,
+  outline: 'none',
+  boxSizing: 'border-box',
+};
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontSize: 12,
+  color: '#94a3b8',
+  marginBottom: 6,
+  fontWeight: 600,
+};
+
+const hintStyle: React.CSSProperties = {
+  fontSize: 11,
+  color: '#64748b',
+  marginTop: 4,
+};
+
+export function KycScreen({ onClose }: { onClose: () => void }) {
+  const [profile, setProfile] = useState<KycProfile>(getKycProfile());
+  const [mode, setMode] = useState<'overview' | 'form'>('overview');
+  const [targetLevel, setTargetLevel] = useState<KycLevel>(1);
+
+  // поля формы
+  const [firstName, setFirstName] = useState(profile.firstName || '');
+  const [lastName, setLastName] = useState(profile.lastName || '');
+  const [birthDate, setBirthDate] = useState(profile.birthDate || '');
+  const [email, setEmail] = useState(profile.email || '');
+  const [passport, setPassport] = useState(profile.passportSubmitted || false);
+  const [selfie, setSelfie] = useState(profile.selfieSubmitted || false);
+  const [source, setSource] = useState(profile.sourceOfFundsSubmitted || false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const p = getKycProfile();
+    setProfile(p);
+    setFirstName(p.firstName || '');
+    setLastName(p.lastName || '');
+    setBirthDate(p.birthDate || '');
+    setEmail(p.email || '');
+    setPassport(p.passportSubmitted || false);
+    setSelfie(p.selfieSubmitted || false);
+    setSource(p.sourceOfFundsSubmitted || false);
+  }, [mode]);
+
+  const currentInfo = LEVEL_INFO[profile.level];
+  const nextLevel = (profile.level < 3 ? profile.level + 1 : null) as KycLevel | null;
+
+  const openForm = (lvl: KycLevel) => {
+    setTargetLevel(lvl);
+    setError('');
+    setMode('form');
+  };
+
+  const validateBirthDate = (v: string): string => {
+    if (!v) return 'Укажите дату рождения';
+    const d = new Date(v);
+    if (isNaN(d.getTime())) return 'Некорректная дата';
+    const now = new Date();
+    if (d > now) return 'Дата рождения не может быть в будущем';
+    const ms = now.getTime() - d.getTime(); const age = ms / 31557600000;
+    if (age < 14) return 'Минимальный возраст — 14 лет';
+    if (age > 120) return 'Проверьте дату рождения';
+    return '';
+  };
+
+  const validateEmail = (v: string): string => {
+    if (!v) return 'Укажите email';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return 'Некорректный email';
+    return '';
+  };
+
+  const submit = () => {
+    setError('');
+    // Уровень 1 — ФИО, email, дата рождения
+    if (targetLevel >= 1) {
+      if (!firstName.trim()) return setError('Укажите имя');
+      if (!lastName.trim()) return setError('Укажите фамилию');
+      const bdErr = validateBirthDate(birthDate);
+      if (bdErr) return setError(bdErr);
+      const emErr = validateEmail(email);
+      if (emErr) return setError(emErr);
+    }
+    if (targetLevel >= 2) {
+      if (!passport) return setError('Загрузите паспорт');
+if (!selfie) return setError('Загрузите селфи');
+    }
+    if (targetLevel >= 3) {
+      if (!source) return setError('Подтвердите источник дохода');
+    }
+
+    upgradeLevel(targetLevel, {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      birthDate,
+      email: email.trim(),
+      emailVerified: true,
+      passportSubmitted: passport,
+      selfieSubmitted: selfie,
+      sourceOfFundsSubmitted: source,
+    });
+    setProfile(getKycProfile());
+    setMode('overview');
+  };
+
+  const saveWithoutLevelChange = () => {
+    setError('');
+    if (firstName || lastName || birthDate || email) {
+      if (birthDate) {
+        const bdErr = validateBirthDate(birthDate);
+        if (bdErr) return setError(bdErr);
+      }
+      if (email) {
+        const emErr = validateEmail(email);
+        if (emErr) return setError(emErr);
+      }
+    }
+    saveKycProfile({
+      ...profile,
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      birthDate,
+      email: email.trim(),
+    });
+    setProfile(getKycProfile());
+    setMode('overview');
+  };
+
+  const resetAll = () => {
+    if (!confirm('Сбросить все данные верификации? Уровень станет 0.')) return;
+    localStorage.removeItem('con_kyc_profile');
+    const fresh = getKycProfile();
+    setProfile(fresh);
+    setFirstName(''); setLastName(''); setBirthDate(''); setEmail('');
+    setPassport(false); setSelfie(false); setSource(false);
+    setMode('overview');
+  };
+
+  // ===== FORM VIEW =====
+  if (mode === 'form') {
+    const info = LEVEL_INFO[targetLevel];
+    return (
+      <Modal onClose={onClose}>
+        <button onClick={() => setMode('overview')} style={backBtn}>← Назад</button>
+        <h2 style={{ margin: '10px 0 4px', fontSize: 22 }}>Уровень {targetLevel} — {info.title}</h2>
+        <p style={{ color: '#94a3b8', fontSize: 13, margin: '0 0 18px' }}>{info.description}</p>
+
+        <div style={{ display: 'grid', gap: 14 }}>
+          {targetLevel >= 1 && (
+            <>
+              <div>
+                <label style={labelStyle}>Имя *</label>
+                <input style={field} value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Иван" />
+              </div>
+              <div>
+                <label style={labelStyle}>Фамилия *</label>
+                <input style={field} value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Иванов" />
+              </div>
+              <div>
+                <label style={labelStyle}>Дата рождения *</label>
+                <input type="date" style={field} value={birthDate} onChange={e => setBirthDate(e.target.value)} max={new Date().toISOString().split('T')[0]} />
+                <div style={hintStyle}>Формат: ДД.ММ.ГГГГ. Возраст не младше 14 лет.</div>
+              </div>
+              <div>
+                <label style={labelStyle}>Email *</label>
+                <input type="email" style={field} value={email} onChange={e => setEmail(e.target.value)} placeholder="ivan@example.com" />
+              </div>
+            </>
+          )}
+
+          {targetLevel >= 2 && (
+            <>
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 14 }}>
+                <label style={labelStyle}>Паспорт *</label>
+                <button onClick={() => setPassport(!passport)} style={{
+                  ...field, cursor: 'pointer', textAlign: 'left',
+                  background: passport ? 'rgba(34,197,94,0.15)' : 'rgba(15,23,42,0.8)',
+                  borderColor: passport ? '#22c55e' : 'rgba(255,255,255,0.14)',
+                }}>
+{passport ? '✓ Паспорт загружен' : '📄 Загрузить скан паспорта'}
+                </button>
+              </div>
+              <div>
+                <label style={labelStyle}>Селфи с паспортом *</label>
+                <button onClick={() => setSelfie(!selfie)} style={{
+                  ...field, cursor: 'pointer', textAlign: 'left',
+                  background: selfie ? 'rgba(34,197,94,0.15)' : 'rgba(15,23,42,0.8)',
+                  borderColor: selfie ? '#22c55e' : 'rgba(255,255,255,0.14)',
+                }}>
+                  {selfie ? '✓ Селфи загружено' : '🤳 Загрузить селфи'}
+                </button>
+              </div>
+            </>
+          )}
+
+          {targetLevel >= 3 && (
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 14 }}>
+              <label style={labelStyle}>Источник дохода *</label>
+              <button onClick={() => setSource(!source)} style={{
+                ...field, cursor: 'pointer', textAlign: 'left',
+                background: source ? 'rgba(34,197,94,0.15)' : 'rgba(15,23,42,0.8)',
+                borderColor: source ? '#22c55e' : 'rgba(255,255,255,0.14)',
+              }}>
+                {source ? '✓ Документы загружены' : '💼 Загрузить 2-НДФЛ / выписку'}
+              </button>
+            </div>
+          )}
+
+          {error && (
+            <div style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', color: '#fca5a5', padding: '10px 12px', borderRadius: 10, fontSize: 13 }}>
+              ⚠ {error}
+            </div>
+          )}
+
+          <button onClick={submit} style={primaryBtn}>
+            Подтвердить и повысить до {info.title}
+          </button>
+          <button onClick={saveWithoutLevelChange} style={secondaryBtn}>
+            Только сохранить данные (без повышения)
+          </button>
+        </div>
+      </Modal>
+    );
+  }
+
+  // ===== OVERVIEW =====
+  return (
+    <Modal onClose={onClose}>
+      <button onClick={onClose} style={backBtn}>← Закрыть</button>
+      <h2 style={{ margin: '10px 0 18px', fontSize: 22 }}>Моя верификация</h2>
+
+      <div style={{
+        background: 'linear-gradient(135deg,rgba(37,99,235,0.2),rgba(124,58,237,0.2))',
+        border: '1px solid rgba(147,197,253,0.3)',
+        borderRadius: 14, padding: 16, marginBottom: 16,
+      }}>
+        <div style={{ fontSize: 12, color: '#93c5fd', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>Текущий уровень</div>
+        <div style={{ fontSize: 20, fontWeight: 800, marginTop: 4 }}>
+          Уровень {profile.level} — {currentInfo.title}
+        </div>
+        <div style={{ fontSize: 13, color: '#cbd5e1', marginTop: 4 }}>{currentInfo.description}</div>
+
+        {(profile.firstName || profile.email || profile.birthDate) && (
+          <div style={{ marginTop: 12, padding: '10px 12px', background: 'rgba(0,0,0,0.25)', borderRadius: 10, fontSize: 12, color: '#cbd5e1', display: 'grid', gap: 4 }}>
+            {(profile.firstName || profile.lastName) && <div><span style={{ color: '#94a3b8' }}>ФИО:</span> {profile.lastName} {profile.firstName}</div>}
+            {profile.birthDate && <div><span style={{ color: '#94a3b8' }}>Дата рождения:</span> {new Date(profile.birthDate).toLocaleDateString('ru-RU')}</div>}
+            {profile.email && <div><span style={{ color: '#94a3b8' }}>Email:</span> {profile.email}</div>}
+          </div>
+        )}
+
+        {profile.level >= 1 && (
+          <button onClick={() => openForm(profile.level)} style={{ ...secondaryBtn, marginTop: 12, padding: 10, fontSize: 13 }}>
+            ✏ Изменить данные
+          </button>
+        )}
+      </div>
+{nextLevel !== null && (
+        <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: 16, marginBottom: 16 }}>
+          <div style={{ fontSize: 12, color: '#a78bfa', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>Следующий уровень</div>
+          <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4 }}>
+            Уровень {nextLevel} — {LEVEL_INFO[nextLevel].title}
+          </div>
+          <div style={{ fontSize: 13, color: '#cbd5e1', marginTop: 4 }}>{LEVEL_INFO[nextLevel].description}</div>
+          <ul style={{ margin: '10px 0 0', paddingLeft: 20, fontSize: 13, color: '#cbd5e1' }}>
+            {LEVEL_INFO[nextLevel].features.map((f, i) => <li key={i} style={{ marginBottom: 3 }}>{f}</li>)}
+          </ul>
+          <button onClick={() => openForm(nextLevel)} style={{ ...primaryBtn, marginTop: 14 }}>
+            Повысить до уровня {nextLevel}
+          </button>
+        </div>
+      )}
+
+      <button onClick={resetAll} style={{ ...secondaryBtn, color: '#fca5a5', borderColor: 'rgba(239,68,68,0.3)' }}>
+        🗑 Сбросить все данные верификации
+      </button>
+    </Modal>
+  );
+}
+
+// === helpers ===
+const backBtn: React.CSSProperties = {
+  background: 'transparent', color: '#93c5fd', border: 'none',
+  fontSize: 14, cursor: 'pointer', padding: 4,
+};
+const primaryBtn: React.CSSProperties = {
+  width: '100%', padding: '14px', borderRadius: 12,
+  background: 'linear-gradient(135deg,#2563eb,#7c3aed)',
+  color: '#fff', border: 'none', fontWeight: 700, fontSize: 15, cursor: 'pointer',
+};
+const secondaryBtn: React.CSSProperties = {
+  width: '100%', padding: '12px', borderRadius: 12,
+  background: 'rgba(255,255,255,0.04)', color: '#fff',
+  border: '1px solid rgba(255,255,255,0.14)',
+  fontWeight: 600, fontSize: 14, cursor: 'pointer',
+};
+
+function Modal({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 1000,
+        background: 'rgba(0,0,0,0.7)',
+        display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+        padding: '20px 12px', overflowY: 'auto',
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: 'linear-gradient(to bottom,#0f172a,#020617)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: 18, padding: 20,
+          width: '100%', maxWidth: 500,
+          color: '#fff', fontFamily: 'system-ui,sans-serif',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}

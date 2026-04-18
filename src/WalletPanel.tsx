@@ -1,121 +1,121 @@
-import { useState, useEffect, useRef } from 'react';
-import { useTonAddress, useTonConnectUI } from '@tonconnect/ui-react';
-import { getTonBalance, getJettonBalances } from './lib/ton-balance';
-import type { TokenBalance } from './lib/ton-balance';
+import { useEffect, useState } from 'react';
+import { useTonAddress } from '@tonconnect/ui-react';
+
+const CON_ADDRESS = 'EQBSQLwtqeXlA2AhnErNpA4vR6AimD81Cj5GpxIqgoXPDURX';
+
+const TON_LOGO = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzAwODhDQyI+PHBhdGggZD0iTTEyIDBDNS4zNzMgMCAwIDUuMzczIDAgMTJzNS4zNzMgMTIgMTIgMTIgMTItNS4zNzMgMTItMTJTMTguNjI3IDAgMTIgMHptNS4zMTEgOC43MzFsLTQuNzI5IDguMDk1YTEgMSAwIDAxLTEuNzI0IDBMNi4xMjkgOC43MzFhMSAxIDAgMDEuODYyLTEuNTAyaDkuNDU4YTEgMSAwIDAxLjg2MiAxLjUwMnoiLz48L3N2Zz4=';
+
+type ConBalance = {
+  balance: string;
+  decimals: number;
+  symbol: string;
+  name: string;
+  image?: string;
+};
 
 export function WalletPanel() {
   const address = useTonAddress();
-  const [tonConnectUI] = useTonConnectUI();
-  const [tonBal, setTonBal] = useState<string | null>(null);
-  const [jettons, setJettons] = useState<TokenBalance[]>([]);
+  const [tonBalance, setTonBalance] = useState<number | null>(null);
+  const [con, setCon] = useState<ConBalance | null>(null);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [jettons, setJettons] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!address) { setTonBal(null); setJettons([]); return; }
-    setLoading(true);
-    Promise.all([getTonBalance(address), getJettonBalances(address)])
-      .then(([ton, tokens]) => { setTonBal(ton); setJettons(tokens); })
-      .finally(() => setLoading(false));
+    if (!address) {
+      setTonBalance(null);
+      setCon(null);
+      setJettons([]);
+      return;
+    }
+
+    const loadTon = async () => {
+      try {
+        const res = await fetch(`https://toncenter.com/api/v2/getAddressBalance?address=${address}`);
+        const data = await res.json();
+        const nano = parseInt(data.result || '0', 10);
+        setTonBalance(nano / 1e9);
+      } catch {}
+    };
+
+    const loadCon = async () => {
+      try {
+        const res = await fetch(`https://tonapi.io/v2/accounts/${address}/jettons/${CON_ADDRESS}`);
+        const data = await res.json();
+        if (data && data.balance) {
+          setCon({
+            balance: data.balance,
+            decimals: data.jetton?.decimals ?? 9,
+            symbol: data.jetton?.symbol ?? 'CON',
+            name: data.jetton?.name ?? 'CON',
+            image: data.jetton?.image,
+          });
+        } else {
+          setCon({ balance: '0', decimals: 9, symbol: 'CON', name: 'CON' });
+        }
+      } catch {
+        setCon({ balance: '0', decimals: 9, symbol: 'CON', name: 'CON' });
+      }
+    };
+
+    const loadJettons = async () => {
+      try {
+        const res = await fetch(`https://tonapi.io/v2/accounts/${address}/jettons`);
+        const data = await res.json();
+        setJettons(data.balances || []);
+      } catch {}
+    };
+
+    loadTon();
+    loadCon();
+    loadJettons();
   }, [address]);
 
-  useEffect(() => {
-    const h = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', h);
-    return () => document.removeEventListener('mousedown', h);
-  }, []);
+  if (!address) return null;
 
-  if (!address) return null; // TonConnectButton уже есть
-
-  const short = address.slice(0, 4) + '…' + address.slice(-4);
-
-  const card: React.CSSProperties = {
-    border: '1px solid rgba(255,255,255,0.12)',
-    background: 'rgba(255,255,255,0.06)',
-    borderRadius: 16, padding: '10px 16px',
-    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10,
-  };
-
-  const dropdown: React.CSSProperties = {
-    position: 'absolute', right: 0, top: '110%', width: 280,
-    background: '#1e293b', borderRadius: 20,
-    border: '1px solid rgba(255,255,255,0.12)',
-    boxShadow: '0 20px 60px rgba(0,0,0,0.5)', zIndex: 100,
-    overflow: 'hidden',
-  };
-
-  const row: React.CSSProperties = {
-    display: 'flex', alignItems: 'center', gap: 12,
-    padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)',
-  };
-
-  const img: React.CSSProperties = {
-    width: 32, height: 32, borderRadius: '50%', background: '#334155',
-  };
+  const conAmount = con ? Number(con.balance) / Math.pow(10, con.decimals) : 0;
 
   return (
-    <div ref={ref} style={{ position: 'relative' }}>
-      <div style={card} onClick={() => setOpen(!open)}>
-<div style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e' }} />
-        <span style={{ color: '#94a3b8', fontSize: 13 }}>{short}</span>
-        <span style={{ color: '#00ff88', fontWeight: 700, fontSize: 14 }}>
-          {tonBal ?? '…'} TON
-        </span>
-        <span style={{ color: '#64748b', fontSize: 11 }}>{open ? '▲' : '▼'}</span>
+    <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 14, boxSizing: 'border-box' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+        <img src={TON_LOGO} alt="TON" width={28} height={28} style={{ flexShrink: 0 }} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ color: '#94a3b8', fontSize: 11 }}>Баланс TON</div>
+          <div style={{ fontWeight: 800, fontSize: 18 }}>
+            {tonBalance !== null ? tonBalance.toFixed(4) : '...'} TON
+          </div>
+        </div>
+      </div>
+<div style={{ marginTop: 10, padding: 10, background: 'linear-gradient(135deg, rgba(37,99,235,0.12), rgba(124,58,237,0.12))', border: '1px solid rgba(124,58,237,0.25)', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+        {con?.image ? (
+          <img src={con.image} alt="CON" width={28} height={28} style={{ borderRadius: '50%', flexShrink: 0 }} />
+        ) : (
+          <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg,#2563eb,#7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 12, flexShrink: 0 }}>C</div>
+        )}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ color: '#94a3b8', fontSize: 11 }}>Баланс CON</div>
+          <div style={{ fontWeight: 800, fontSize: 18 }}>
+            {con ? conAmount.toLocaleString(undefined, { maximumFractionDigits: 4 }) : '...'} {con?.symbol || 'CON'}
+          </div>
+        </div>
       </div>
 
+      <button onClick={() => setOpen(!open)} style={{ marginTop: 10, width: '100%', color: '#e2e8f0', background: 'rgba(255,255,255,0.06)', padding: 10, borderRadius: 10, fontWeight: 600, border: 'none', cursor: 'pointer', fontSize: 13 }}>
+        {open ? 'Скрыть жетоны' : `Показать все жетоны (${jettons.length})`}
+      </button>
+
       {open && (
-        <div style={dropdown}>
-          {}
-          <div style={row}>
-            <img src="https://ton.org/download/ton_symbol.svg" alt="TON" style={img} />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 700, color: '#fff' }}>TON</div>
-              <div style={{ fontSize: 11, color: '#64748b' }}>Toncoin</div>
-            </div>
-            <div style={{ fontWeight: 700, color: '#00ff88' }}>{tonBal}</div>
-          </div>
-
-          {}
-          {loading ? (
-            <div style={{ padding: 16, textAlign: 'center', color: '#64748b', fontSize: 13 }}>
-              Загрузка…
-            </div>
-          ) : jettons.length === 0 ? (
-            <div style={{ padding: 16, textAlign: 'center', color: '#64748b', fontSize: 13 }}>
-              Нет других токенов
-            </div>
-          ) : (
-            <div style={{ maxHeight: 240, overflowY: 'auto' }}>
-              {jettons.map((t) => (
-                <div key={t.address} style={row}>
-                  {t.image ? (
-                    <img src={t.image} alt={t.symbol} style={img} />
-                  ) : (
-                    <div style={{ ...img, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, color: '#94a3b8' }}>
-                      {t.symbol.slice(0, 2)}
-                    </div>
-                  )}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, color: '#fff' }}>{t.symbol}</div>
-                    <div style={{ fontSize: 11, color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.name}</div>
-                  </div>
-                  <div style={{ fontWeight: 700, color: '#fff', fontSize: 13 }}>{t.balance}</div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {}
-          <div
-            onClick={() => { tonConnectUI.disconnect(); setOpen(false); }}
-            style={{ padding: '12px 16px', textAlign: 'center', color: '#ef4444', fontSize: 13, cursor: 'pointer', borderTop: '1px solid rgba(255,255,255,0.08)' }}
-          >
-            Отключить кошелёк
-          </div>
+        <div style={{ marginTop: 8, maxHeight: 200, overflowY: 'auto', background: '#1e293b', borderRadius: 10, padding: 8 }}>
+          {jettons.length === 0 && <div style={{ color: '#94a3b8', fontSize: 12, textAlign: 'center', padding: 8 }}>Жетонов нет</div>}
+          {jettons.map((j) => {
+            const bal = Number(j.balance) / Math.pow(10, j.jetton?.decimals ?? 9);
+            return (
+              <div key={j.jetton?.address} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: 6, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                {j.jetton?.image && <img src={j.jetton.image} alt="" width={20} height={20} style={{ borderRadius: '50%' }} />}
+                <div style={{ flex: 1, fontSize: 12 }}>{j.jetton?.symbol || '—'}</div>
+                <div style={{ fontSize: 12, fontWeight: 700 }}>{bal.toLocaleString(undefined, { maximumFractionDigits: 4 })}</div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
