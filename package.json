@@ -7,11 +7,13 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "bot": "node bot.cjs"
   },
   "dependencies": {
     "@tonconnect/ui-react": "^2.4.4",
     "@twa-dev/sdk": "^8.0.2",
+    "dotenv": "^17.4.2",
     "node-telegram-bot-api": "^0.67.0",
     "qrcode.react": "^4.2.0",
     "react": "^19.2.4",

@@ -34,3 +34,4 @@ _.before-_
 src/_.before-_
 src/App.tsx.before-*
 src/*.before-*
+.env
