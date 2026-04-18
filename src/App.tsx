@@ -156,7 +156,7 @@ function App() {
             ...fade, animationDelay: '0.09s'
           }}
         >
-          <div style={{position:'absolute',top:10,right:10,background:'rgba(0,0,0,0.35)',color:'#fde68a',fontSize:10,fontWeight:800,padding:'3px 8px',borderRadius:6,letterSpacing:0.5}}>NEW</div>
+          <div style={{position:'absolute',top:10,right:10,background:'#dc2626',color:'#fff',fontSize:10,fontWeight:800,padding:'4px 9px',borderRadius:6,letterSpacing:0.3,boxShadow:'0 2px 8px rgba(220,38,38,0.5)'}}>− 30% до 1 мая</div>
           <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,0.85)',letterSpacing:1,marginBottom:4}}>🏪 ДЛЯ БИЗНЕСА</div>
           <div style={{fontSize:17,fontWeight:900,color:'#fff',marginBottom:10,lineHeight:1.2}}>Подключите лояльность на КОН</div>
           <div style={{fontSize:12.5,color:'#fff',opacity:0.95,marginBottom:12,lineHeight:1.55}}>
