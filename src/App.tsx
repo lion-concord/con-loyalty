@@ -1,12 +1,12 @@
 import { WalletPanel } from "./WalletPanel";
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { TonConnectButton, useTonWallet } from '@tonconnect/ui-react'
-import { KycScreen } from './kyc/KycScreen'
+const KycScreen = lazy(() => import('./kyc/KycScreen').then(m => ({ default: m.KycScreen })))
 import { getKycProfile, LEVEL_INFO } from './kyc/levels'
 import { getUsage, addConvertUsage } from './kyc/usage'
 import { getHistory, addTransaction, clearHistory, formatRelativeTime, type Transaction } from './kyc/history'
 import { LevelCard } from './LevelCard'
-import { Leaderboard } from './Leaderboard'
+const Leaderboard = lazy(() => import('./Leaderboard').then(m => ({ default: m.Leaderboard })))
 
 const fade = { animation: 'fadeIn 0.6s ease-out both' }
 
@@ -125,12 +125,12 @@ function App() {
 
         <HistorySection history={history} onClear={() => { clearHistory(); setHistory([]) }} />
 <section style={{...fade,animationDelay:'0.15s'}}>
-          <Leaderboard />
+          <Suspense fallback={<div style={{padding:20,textAlign:'center',color:'#94a3b8'}}>Загрузка…</div>}><Leaderboard /></Suspense>
         </section>
 
         <footer style={{padding:'14px 0 80px',color:'#94a3b8',fontSize:13,textAlign:'center'}}>Токен КОН — Лояльность на КОН</footer>
       </div>
-      {showKyc && <KycScreen onClose={() => setShowKyc(false)} />}
+      {showKyc && (<Suspense fallback={<div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.7)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',zIndex:9999}}>Загрузка KYC…</div>}><KycScreen onClose={() => setShowKyc(false)} /></Suspense>)}
     </div>
   )
 }
