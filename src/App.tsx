@@ -11,7 +11,8 @@ const Leaderboard = lazy(() => import('./Leaderboard').then(m => ({ default: m.L
 const fade = { animation: 'fadeIn 0.6s ease-out both' }
 
 const parseLimit = (limitStr: string): number => {
-  if (limitStr.includes('Безлимит')) return Infinity;
+  if (/без\s*лимит/i.test(limitStr)) return Infinity;
+  if (/недоступ/i.test(limitStr)) return 0;
   return parseInt(limitStr.replace(/\s/g, '').replace('₽', '')) || 0;
 };
 
