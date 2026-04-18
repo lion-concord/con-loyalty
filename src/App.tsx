@@ -21,6 +21,7 @@ function App() {
   try { const W = (window as any).Telegram?.WebApp; if(W){W.ready();W.expand();tgUser=W.initDataUnsafe?.user} } catch(e){console.error("TG ERR:",e)}
 
   const [kon, setKon] = useState('100')
+  const [toastMsg, setToastMsg] = useState<string | null>(null)
   const konNum = Number(kon) || 0
   const ton = (konNum * 0.01).toFixed(2)
   const wallet = useTonWallet()
@@ -89,38 +90,90 @@ function App() {
         <section id="converter" style={{border:isOverLimit ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.12)',background:'rgba(255,255,255,0.04)',borderRadius:16,padding:16,...fade,animationDelay:'0.1s'}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
             <div style={{fontSize:18,fontWeight:800}}>Конвертер КОН → CON</div>
-            {kycProfile.level === 0 && <div style={{fontSize:11,color:'#f87171',fontWeight:700}}>Лимит: {currentKyc.limits.convert}</div>}
-          </div>
-          <div style={{display:'grid',gap:10}}>
-            <label style={{display:'grid',gap:6}}>
-              <span style={{color:'#cbd5e1',fontSize:13}}>Количество КОН</span>
-              <input type="number" value={kon} onChange={(e)=>setKon(e.target.value.replace(/^0+(?=\d)/, ''))} onFocus={(e)=>{if(e.target.value==='0')setKon('')}} style={{width:'100%',padding:'12px 14px',borderRadius:12,border:isOverLimit ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.14)',background:'rgba(15,23,42,0.8)',color:'white',fontSize:16,outline:'none',boxSizing:'border-box'}}/>
-            </label>
-            <div style={{padding:'12px 14px',borderRadius:12,background:isOverLimit ? 'rgba(239,68,68,0.1)' : 'rgba(59,130,246,0.12)',border:isOverLimit ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(59,130,246,0.18)',fontSize:15}}>
-              {isOverLimit ? (
-                <div style={{color:'#fca5a5'}}>
-                  <b>Превышен лимит!</b><br/>
-                  <span style={{fontSize:12}}>Осталось: {remainingLimit === Infinity ? 'безлимит' : Math.round(remainingLimit).toLocaleString('ru') + ' ₽'}. Вы хотите: ~{Math.round(currentValRub).toLocaleString('ru')} ₽</span>
-                </div>
-              ) : (
-                <div>Это примерно <b>{ton} CON</b></div>
-              )}
+            <div style={{fontSize:11,color:'#94a3b8',fontWeight:600}}>
+              1 КОН ≈ {prices.con ? prices.con.toFixed(2) : '—'} ₽
             </div>
-            <button 
-              disabled={isOverLimit} 
-              onClick={() => {
-                if (isOverLimit || konNum <= 0) return;
-                const updated = addConvertUsage(currentValRub);
-                setUsage(updated);
-                const newHistory = addTransaction({ type: 'convert', konAmount: konNum, conAmount: Number(ton), rubAmount: currentValRub });
-                setHistory(newHistory);
-                setKon('');
-              }}
-              style={{width:'100%',padding:'14px',borderRadius:12,fontWeight:700,border:'none',background: isOverLimit ? '#334155' : 'linear-gradient(135deg,#2563eb,#7c3aed)',color: isOverLimit ? '#94a3b8' : '#fff',cursor: isOverLimit ? 'not-allowed' : 'pointer',marginTop: 4}}
-            >
-              {isOverLimit ? 'Повысьте уровень KYC' : 'Обменять'}
-            </button>
           </div>
+
+          {kycProfile.level === 0 ? (
+            <div style={{padding:20,borderRadius:12,background:'rgba(234,179,8,0.08)',border:'1px solid rgba(234,179,8,0.25)',textAlign:'center'}}>
+              <div style={{fontSize:32,marginBottom:8}}>🔒</div>
+              <div style={{fontWeight:700,marginBottom:6}}>Обмен недоступен</div>
+              <div style={{color:'#cbd5e1',fontSize:13,lineHeight:1.5,marginBottom:14}}>
+                Пройдите базовую верификацию (ФИО + email),<br/>
+                чтобы открыть обмен до 15 000 ₽/мес.
+              </div>
+              <button onClick={() => setShowKyc(true)} style={{padding:'10px 20px',background:'linear-gradient(135deg,#eab308,#f59e0b)',color:'#0f172a',border:'none',borderRadius:10,fontWeight:700,cursor:'pointer',fontSize:14}}>Пройти верификацию</button>
+            </div>
+          ) : (
+            <>
+              {convertLimitRub !== Infinity && (
+                <div style={{marginBottom:12}}>
+                  <div style={{display:'flex',justifyContent:'space-between',fontSize:12,color:'#94a3b8',marginBottom:6}}>
+                    <span>Использовано в этом месяце</span>
+                    <span style={{fontWeight:700,color:'#e2e8f0'}}>
+                      {Math.round(usage.convertUsed).toLocaleString('ru')} / {Math.round(convertLimitRub).toLocaleString('ru')} ₽
+                    </span>
+                  </div>
+                  <div style={{height:6,background:'rgba(255,255,255,0.08)',borderRadius:3,overflow:'hidden'}}>
+                    <div style={{width:`${Math.min(100,(usage.convertUsed/convertLimitRub)*100)}%`,height:'100%',background:(usage.convertUsed/convertLimitRub)>0.9?'linear-gradient(90deg,#ef4444,#f87171)':(usage.convertUsed/convertLimitRub)>0.7?'linear-gradient(90deg,#eab308,#f59e0b)':'linear-gradient(90deg,#22c55e,#16a34a)',transition:'width 0.4s ease'}}/>
+                  </div>
+                </div>
+              )}
+
+              <div style={{display:'grid',gap:10}}>
+                <label style={{display:'grid',gap:6}}>
+                  <span style={{color:'#cbd5e1',fontSize:13}}>Количество КОН</span>
+<input type="number" value={kon} onChange={(e)=>setKon(e.target.value.replace(/^0+(?=\d)/, ''))} onFocus={(e)=>{if(e.target.value==='0')setKon('')}} style={{width:'100%',padding:'12px 14px',borderRadius:12,border:isOverLimit ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.14)',background:'rgba(15,23,42,0.8)',color:'white',fontSize:16,outline:'none',boxSizing:'border-box'}}/>
+                </label>
+
+                {convertLimitRub !== Infinity && remainingLimit > 0 && (
+                  <div style={{display:'flex',gap:6}}>
+                    {[0.25,0.5,1].map(pct => {
+                      const maxKon = remainingLimit / (prices.con || 1.3);
+                      const val = Math.floor(maxKon * pct);
+                      return (
+                        <button
+                          key={pct}
+                          type="button"
+                          onClick={() => setKon(String(val))}
+                          style={{flex:1,padding:'6px 0',background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,color:'#cbd5e1',fontSize:12,fontWeight:700,cursor:'pointer'}}
+                        >{pct === 1 ? 'MAX' : `${pct*100}%`}</button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <div style={{padding:'12px 14px',borderRadius:12,background:isOverLimit ? 'rgba(239,68,68,0.1)' : 'rgba(59,130,246,0.12)',border:isOverLimit ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(59,130,246,0.18)',fontSize:15}}>
+                  {isOverLimit ? (
+                    <div style={{color:'#fca5a5'}}>
+                      <b>Превышен лимит!</b><br/>
+                      <span style={{fontSize:12}}>Осталось: {remainingLimit === Infinity ? 'безлимит' : Math.round(remainingLimit).toLocaleString('ru') + ' ₽'}. Вы хотите: ~{Math.round(currentValRub).toLocaleString('ru')} ₽</span>
+                    </div>
+                  ) : (
+                    <div>Это примерно <b>{ton} CON</b> (~{Math.round(currentValRub).toLocaleString('ru')} ₽)</div>
+                  )}
+                </div>
+
+                <button
+                  disabled={isOverLimit || konNum <= 0}
+                  onClick={() => {
+                    if (isOverLimit || konNum <= 0) return;
+                    const updated = addConvertUsage(currentValRub);
+                    setUsage(updated);
+                    const newHistory = addTransaction({ type: 'convert', konAmount: konNum, conAmount: Number(ton), rubAmount: currentValRub });
+                    setHistory(newHistory);
+                    setKon('');
+                    setToastMsg('✓ Обмен на ~' + Math.round(currentValRub).toLocaleString('ru') + ' ₽ записан');
+                    setTimeout(() => setToastMsg(null), 2500);
+                  }}
+                  style={{width:'100%',padding:'14px',borderRadius:12,fontWeight:700,border:'none',background: (isOverLimit || konNum <= 0) ? '#334155' : 'linear-gradient(135deg,#2563eb,#7c3aed)',color: (isOverLimit || konNum <= 0) ? '#94a3b8' : '#fff',cursor: (isOverLimit || konNum <= 0) ? 'not-allowed' : 'pointer',marginTop: 4}}
+                >
+                  {isOverLimit ? 'Повысьте уровень KYC' : konNum <= 0 ? 'Введите сумму' : 'Обменять'}
+                </button>
+              </div>
+            </>
+          )}
         </section>
 
         <HistorySection history={history} onClear={() => { clearHistory(); setHistory([]) }} />
@@ -130,6 +183,9 @@ function App() {
 
         <footer style={{padding:'14px 0 80px',color:'#94a3b8',fontSize:13,textAlign:'center'}}>Токен КОН — Лояльность на КОН</footer>
       </div>
+      {toastMsg && (
+<div id="toast-notify" style={{position:'fixed',bottom:20,left:'50%',transform:'translateX(-50%)',background:'linear-gradient(135deg,#16a34a,#22c55e)',color:'#fff',padding:'12px 20px',borderRadius:12,fontSize:14,fontWeight:700,zIndex:10000,boxShadow:'0 10px 30px rgba(34,197,94,0.3)',animation:'fadeIn 0.3s ease-out'}}>{toastMsg}</div>
+      )}
       {showKyc && (<Suspense fallback={<div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.7)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',zIndex:9999}}>Загрузка KYC…</div>}><KycScreen onClose={() => setShowKyc(false)} /></Suspense>)}
     </div>
   )
