@@ -24,3 +24,10 @@ dist-ssr
 *.sw?
 .vercel
 .env*.local
+
+# Локальные бэкапы
+*.bak
+_.bak._
+*.backup
+_.backup._
+_.before-_
