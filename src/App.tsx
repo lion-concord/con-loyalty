@@ -350,7 +350,7 @@ function HistorySection({ history, onClear }: { history: Transaction[]; onClear:
             }}
           >
             <span style={{ fontSize: 18 }}>💎</span>
-            <span>Купить CON на Ston.fi</span>
+            <span>Купить CON</span>
             <span style={{ fontSize: 12, opacity: 0.85 }}>↗</span>
           </button>
 
