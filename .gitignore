@@ -35,3 +35,9 @@ src/_.before-_
 src/App.tsx.before-*
 src/*.before-*
 .env
+.env.local
+
+# Local backups & temp
+.backups/
+patch.py
+*.bak

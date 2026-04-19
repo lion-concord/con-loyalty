@@ -42,7 +42,7 @@ export function Leaderboard() {
   return (
     <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 14, boxSizing: 'border-box' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, flexWrap: 'wrap', gap: 6 }}>
-        <div style={{ fontWeight: 800, fontSize: 16 }}>🏆 Топ холдеров CON</div>
+        <div style={{ fontWeight: 800, fontSize: 16 }}>{import.meta.env.VITE_ENABLE_CRYPTO === "true" ? "🏆 Топ холдеров CON" : "🏆 Топ участников"}</div>
         {myRank > 0 && (
           <div style={{ fontSize: 11, color: '#a855f7', fontWeight: 700, background: 'rgba(168,85,247,0.15)', padding: '4px 8px', borderRadius: 8 }}>
             Вы на #{myRank}
@@ -91,7 +91,7 @@ export function Leaderboard() {
                 <div style={{ fontWeight: 800, fontSize: 13 }}>
                   {bal >= 1e4 ? (bal >= 1e9 ? (bal/1e9).toFixed(1).replace(/\.0$/,'') + ' млрд' : bal >= 1e6 ? (bal/1e6).toFixed(1).replace(/\.0$/,'') + ' млн' : Math.round(bal/1e3) + ' тыс') : bal.toLocaleString('ru')}
                 </div>
-                <div style={{ fontSize: 10, color: '#94a3b8' }}>CON</div>
+                <div style={{ fontSize: 10, color: '#94a3b8' }}>{import.meta.env.VITE_ENABLE_CRYPTO === "true" ? "CON" : "баллов"}</div>
               </div>
             </div>
           );

@@ -2,12 +2,16 @@ import { WalletPanel } from "./WalletPanel";
 import { apiFetch } from './hooks/useApi';
 import { useState, useEffect, lazy, Suspense } from 'react'
 import { TonConnectButton, useTonWallet } from '@tonconnect/ui-react'
-const KycScreen = lazy(() => import('./kyc/KycScreen').then(m => ({ default: m.KycScreen })))
+const CRYPTO_FLAG = import.meta.env.VITE_ENABLE_CRYPTO === 'true';
+const KycScreen = CRYPTO_FLAG
+  ? lazy(() => import('./kyc/KycScreen').then(m => ({ default: m.KycScreen })))
+  : lazy(() => Promise.resolve({ default: () => null }));
 import { getKycProfile, LEVEL_INFO } from './kyc/levels'
 import { getUsage, addConvertUsage } from './kyc/usage'
 import { getHistory, addTransaction, clearHistory, formatRelativeTime, type Transaction } from './kyc/history'
 import { LevelCard } from './LevelCard'
 const Leaderboard = lazy(() => import('./Leaderboard').then(m => ({ default: m.Leaderboard })))
+const ShopScreen = lazy(() => import('./ShopScreen').then(m => ({ default: m.ShopScreen })))
 
 const fade = { animation: 'fadeIn 0.6s ease-out both' }
 
@@ -48,6 +52,7 @@ function openBusinessBot() {
 }
 
 function App() {
+  const CRYPTO = import.meta.env.VITE_ENABLE_CRYPTO === "true";
   // @ts-ignore
   let tgUser: any = null
   try { const W = (window as any).Telegram?.WebApp; if(W){W.ready();W.expand();tgUser=W.initDataUnsafe?.user} } catch(e){console.error("TG ERR:",e)}
@@ -67,6 +72,7 @@ function App() {
   const wallet = useTonWallet()
   const [prices, setPrices] = useState<{ton:number|null,btc:number|null,con:number|null}>({ton:null,btc:null,con:null})
   const [showKyc, setShowKyc] = useState(false)
+  const [showShop, setShowShop] = useState(false)
   const [kycProfile, setKycProfile] = useState(getKycProfile())
   const [usage, setUsage] = useState(getUsage())
   const [history, setHistory] = useState<Transaction[]>(getHistory())
@@ -104,23 +110,26 @@ function App() {
         <header style={{display:"flex",flexDirection:"column",gap:10,padding:"8px 0",...fade}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:10}}>
             <div style={{minWidth:0,flex:"1 1 auto",overflow:"hidden"}}>
-              <div style={{fontSize:20,fontWeight:800,lineHeight:1.1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>Токен КОН</div>
+              <div style={{fontSize:20,fontWeight:800,lineHeight:1.1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{import.meta.env.VITE_ENABLE_CRYPTO === "true" ? "Токен КОН" : "КОН"}</div>
               <div style={{color:"#94a3b8",marginTop:2,fontSize:12,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>Лояльность на КОН</div>
             </div>
             <div style={{flexShrink:0}}>
-              <KycBadge profile={kycProfile} onClick={() => setShowKyc(true)} />
+              {CRYPTO && <KycBadge profile={kycProfile} onClick={() => setShowKyc(true)} />}
             </div>
           </div>
-          <div style={{width:"100%"}}><WalletPanel /></div>
-          <div style={{width:"100%",display:"flex",justifyContent:"center"}}><TonConnectButton /></div>
+          {CRYPTO && <div style={{width:"100%"}}><WalletPanel /></div>}
+          {CRYPTO && <div style={{width:"100%",display:"flex",justifyContent:"center"}}><TonConnectButton /></div>}
         </header>
 
+        {CRYPTO && (
         <section style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,...fade,animationDelay:'0.05s'}}>
           <PriceCard name="TON" price={prices.ton}/>
           <PriceCard name="BTC" price={prices.btc}/>
 <PriceCard name="CON" price={prices.con}/>
         </section>
+        )}
 
+        {import.meta.env.VITE_ENABLE_CRYPTO === "true" && (
         <button
           type="button"
           onClick={openBuyCon}
@@ -147,8 +156,30 @@ function App() {
           <span>Купить CON</span>
           <span style={{ fontSize: 12, opacity: 0.85 }}>↗</span>
         </button>
+        )}
         <section style={{...fade,animationDelay:'0.08s'}}>
           <LevelCard totalKon={totalKon} />
+        </section>
+
+        <section style={{...fade,animationDelay:'0.09s',margin:'16px 0'}}>
+          <button onClick={() => setShowShop(true)} style={{width:'100%',position:'relative',overflow:'hidden',padding:'22px 20px',background:'linear-gradient(135deg,#7c2d12 0%,#a16207 55%,#44403c 100%)',color:'#fff',border:'none',borderRadius:20,cursor:'pointer',boxShadow:'0 12px 32px rgba(124,45,18,0.4)',textAlign:'left'}}>
+            <div style={{position:'absolute',top:-20,right:-20,width:100,height:100,borderRadius:'50%',background:'rgba(255,255,255,0.08)',filter:'blur(20px)'}} />
+            <div style={{position:'relative',display:'flex',alignItems:'center',gap:16,marginBottom:14}}>
+              <div style={{fontSize:44,lineHeight:1}}>☕</div>
+              <div style={{flex:1}}>
+                <div style={{fontSize:20,fontWeight:800,marginBottom:2}}>КОН Coffee</div>
+                <div style={{fontSize:13,fontWeight:500,opacity:0.9}}>Магазин лояльности</div>
+              </div>
+            </div>
+            <div style={{position:'relative',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,paddingTop:14,borderTop:'1px solid rgba(255,255,255,0.18)'}}>
+              <div style={{display:'flex',gap:14,fontSize:12,fontWeight:600,opacity:0.95}}>
+                <span>💰 Баллы</span>
+                <span>🎁 Кешбэк</span>
+                <span>🏆 Уровни</span>
+              </div>
+              <div style={{padding:'8px 14px',background:'rgba(255,255,255,0.18)',borderRadius:12,fontSize:13,fontWeight:700}}>Открыть →</div>
+            </div>
+          </button>
         </section>
 
         <section
@@ -182,8 +213,9 @@ function App() {
         </section>
 
 
-        <KycSection profile={kycProfile} usage={usage} onOpen={() => setShowKyc(true)} />
+        {CRYPTO && <KycSection profile={kycProfile} usage={usage} onOpen={() => setShowKyc(true)} />}
 
+        {CRYPTO && (
         <section id="converter" style={{border:isOverLimit ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.12)',background:'rgba(255,255,255,0.04)',borderRadius:16,padding:16,...fade,animationDelay:'0.1s'}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
             <div style={{fontSize:18,fontWeight:800}}>Конвертер КОН → CON</div>
@@ -272,18 +304,20 @@ function App() {
             </>
           )}
         </section>
+        )}
 
         <HistorySection history={history} onClear={() => { clearHistory(); setHistory([]) }} />
 <section style={{...fade,animationDelay:'0.15s'}}>
           <Suspense fallback={<div style={{padding:20,textAlign:'center',color:'#94a3b8'}}>Загрузка…</div>}><Leaderboard /></Suspense>
         </section>
 
-        <footer style={{padding:'14px 0 80px',color:'#94a3b8',fontSize:13,textAlign:'center'}}>Токен КОН — Лояльность на КОН</footer>
+        <footer style={{padding:'14px 0 80px',color:'#94a3b8',fontSize:13,textAlign:'center'}}>{import.meta.env.VITE_ENABLE_CRYPTO === "true" ? "Токен КОН — Лояльность на КОН" : "КОН — Программа лояльности"}</footer>
       </div>
       {toastMsg && (
 <div id="toast-notify" style={{position:'fixed',bottom:20,left:'50%',transform:'translateX(-50%)',background:'linear-gradient(135deg,#16a34a,#22c55e)',color:'#fff',padding:'12px 20px',borderRadius:12,fontSize:14,fontWeight:700,zIndex:10000,boxShadow:'0 10px 30px rgba(34,197,94,0.3)',animation:'fadeIn 0.3s ease-out'}}>{toastMsg}</div>
       )}
-      {showKyc && (<Suspense fallback={<div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.7)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',zIndex:9999}}>Загрузка KYC…</div>}><KycScreen onClose={() => setShowKyc(false)} /></Suspense>)}
+      {showShop && (<Suspense fallback={<div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.9)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',zIndex:9999}}>Загрузка магазина…</div>}><ShopScreen onClose={() => setShowShop(false)} /></Suspense>)}
+      {CRYPTO && showKyc && (<Suspense fallback={<div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.7)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',zIndex:9999}}>Загрузка KYC…</div>}><KycScreen onClose={() => setShowKyc(false)} /></Suspense>)}
     </div>
   )
 }

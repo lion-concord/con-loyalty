@@ -8,7 +8,12 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "bot": "node bot.cjs"
+    "bot": "node bot.cjs",
+    "dev:rustore": "vite --mode rustore",
+    "build:rustore": "vite build --mode rustore",
+    "preview:rustore": "vite preview --mode rustore",
+    "dev:telegram": "vite --mode telegram",
+    "build:telegram": "vite build --mode telegram"
   },
   "dependencies": {
     "@tonconnect/ui-react": "^2.4.4",
