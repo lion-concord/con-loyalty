@@ -1,4 +1,5 @@
 import { WalletPanel } from "./WalletPanel";
+import { apiFetch } from './hooks/useApi';
 import { useState, useEffect, lazy, Suspense } from 'react'
 import { TonConnectButton, useTonWallet } from '@tonconnect/ui-react'
 const KycScreen = lazy(() => import('./kyc/KycScreen').then(m => ({ default: m.KycScreen })))
@@ -52,6 +53,14 @@ function App() {
   try { const W = (window as any).Telegram?.WebApp; if(W){W.ready();W.expand();tgUser=W.initDataUnsafe?.user} } catch(e){console.error("TG ERR:",e)}
 
   const [kon, setKon] = useState('100')
+  useEffect(() => {
+    apiFetch<{ userId: number; kon: number; level: string }>('/api/balance')
+      .then(d => {
+        setKon(String(d.kon));
+        console.log('[API] balance loaded:', d);
+      })
+      .catch(e => console.warn('[API] balance failed:', e.message));
+  }, []);
   const [toastMsg, setToastMsg] = useState<string | null>(null)
   const konNum = Number(kon) || 0
   const ton = (konNum * 0.01).toFixed(2)
