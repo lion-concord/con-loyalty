@@ -13,7 +13,9 @@
   "dependencies": {
     "@tonconnect/ui-react": "^2.4.4",
     "@twa-dev/sdk": "^8.0.2",
+    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "node-telegram-bot-api": "^0.67.0",
     "qrcode.react": "^4.2.0",
     "react": "^19.2.4",
