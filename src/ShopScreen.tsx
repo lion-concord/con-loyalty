@@ -3,7 +3,7 @@ import { useLoyalty } from "./shop/useLoyalty";
 import { PRODUCTS } from "./shop/products";
 import type { Product } from "./shop/types";
 import ShopBanner from "./components/shop/ShopBanner";
-import LoyaltyCardMini from "./components/shop/LoyaltyCardMini";
+import { LoyaltyCardPremium } from "./components/shop/LoyaltyCardPremium";
 import ProductGrid from "./components/shop/ProductGrid";
 
 type Props = {
@@ -96,7 +96,7 @@ export function ShopScreen({ onClose }: Props) {
       <div className="max-w-lg mx-auto px-4 py-4 space-y-4">
         <ShopBanner levelInfo={levelInfo} />
 
-        <LoyaltyCardMini
+        <LoyaltyCardPremium
 balanceKon={state.balanceKon}
           levelInfo={levelInfo}
           nextLevelInfo={nextLevelInfo}

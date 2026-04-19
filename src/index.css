@@ -1,21 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800;900&display=swap');
 
-html,
-body,
-#root {
-  margin: 0;
-  width: 100%;
-  min-height: 100%;
-  box-sizing: border-box;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+• { box-sizing: border-box; }
 
 body {
-  font-family: Arial, sans-serif;
-  background: #ffffff;
-  color: #111111;
+  margin: 0;
+  font-family: 'Manrope', -apple-system, system-ui, sans-serif;
+  background:
+    radial-gradient(ellipse at top, #2a1810 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, #1a0f08 0%, transparent 50%),
+    #0f0a08;
+  color: #fef3e2;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb {
+  background: rgba(249,115,22,0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-track { background: transparent; }
+
+button { font-family: inherit; }

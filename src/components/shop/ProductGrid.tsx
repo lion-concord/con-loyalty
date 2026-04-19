@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import type { Product, Category } from "../../shop/types";
 import { CATEGORY_LABELS } from "../../shop/products";
-import ProductCard from "./ProductCard";
+import { ProductCard } from "./ProductCard";
 
 type Props = {
   products: Product[];
