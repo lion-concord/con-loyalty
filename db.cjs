@@ -37,7 +37,7 @@ async function upsertUser(u) {
        SET username=EXCLUDED.username,
            first_name=EXCLUDED.first_name,
            last_name=EXCLUDED.last_name`,
-    [u.id, u.username || null, u.first name || null, u.last name || null]
+    [u.id, u.username || null, u.first_name || null, u.last_name || null]
   );
   await pool.query(
     `INSERT INTO loyalty (tg_id) VALUES ($1) ON CONFLICT DO NOTHING`,
@@ -47,7 +47,7 @@ async function upsertUser(u) {
 
 async function getLoyalty(tg_id) {
   const { rows } = await pool.query(
-    `SELECT points, level FROM loyalty WHERE tg_id=$1`, [tg id]
+    `SELECT points, level FROM loyalty WHERE tg_id=$1`, [tg_id]
   );
   return rows[0] || { points: 0, level: 'bronze' };
 }
