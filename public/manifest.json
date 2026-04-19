@@ -1,7 +1,7 @@
 {
   "name": "Токен КОН",
   "short_name": "КОН",
-  "description": "Лояльность в крипте",
+  "description": "Программа лояльности КОН",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
