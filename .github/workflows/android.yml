@@ -40,12 +40,12 @@ jobs:
       - name: Decode keystore
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
-          cat > android/keystore.properties << EOF
+          cat > android/keystore.properties << EOF2
           storeFile=release.keystore
           storePassword=${{ secrets.KEYSTORE_PASSWORD }}
           keyAlias=${{ secrets.KEY_ALIAS }}
           keyPassword=${{ secrets.KEY_PASSWORD }}
-          EOF
+          EOF2
 
       - name: Build debug APK
         working-directory: android
