@@ -19,10 +19,10 @@ export function ShopScreen({ onClose }: Props) {
     progressToNext,
     konToNext,
     purchase,
-    reset,
   } = useLoyalty();
 
   const [toast, setToast] = useState<string | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -37,9 +37,11 @@ export function ShopScreen({ onClose }: Props) {
       paidWith,
     });
 
+    setSelectedProduct(null);
+
     if (result.success) {
       showToast(
-        `✅ Куплено: ${product.name} – +${result.cashback.toFixed(1)} КОН кешбэк`
+        `✅ Куплено: ${product.name} — +${result.cashback.toFixed(1)} КОН кешбэк`
       );
     } else {
       showToast(`⚠️ ${result.error ?? "Ошибка покупки"}`);
@@ -47,15 +49,7 @@ export function ShopScreen({ onClose }: Props) {
   };
 
   const handleProductClick = (product: Product) => {
-    const useKon = state.balanceKon >= product.priceKon;
-    const payMethod = confirm(
-      `Купить «${product.name}»?\n\n` +
-        `Цена: ${product.priceRub} ₽ или ${product.priceKon} КОН\n` +
-        `Ваш баланс: ${state.balanceKon.toFixed(2)} КОН\n\n` +
-        `OK — оплатить баллами КОН${!useKon ? " (недостаточно баллов)" : ""}\n` +
-        `Отмена — оплатить рублями ₽`
-    );
-    handleBuy(product, payMethod ? "kon" : "rub");
+    setSelectedProduct(product);
   };
 
   if (!hydrated) {
@@ -66,9 +60,12 @@ export function ShopScreen({ onClose }: Props) {
     );
   }
 
+  const canPayKon = selectedProduct
+    ? state.balanceKon >= selectedProduct.priceKon
+    : false;
+
   return (
     <div className="min-h-screen bg-slate-950 pb-20">
-      {}
       {onClose && (
         <div className="sticky top-0 z-20 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/50 px-4 py-3">
           <button
@@ -96,13 +93,7 @@ export function ShopScreen({ onClose }: Props) {
       <div className="max-w-lg mx-auto px-4 py-4 space-y-4">
         <ShopBanner levelInfo={levelInfo} />
 
-        <LoyaltyCardPremium
-balanceKon={state.balanceKon}
-          levelInfo={levelInfo}
-          nextLevelInfo={nextLevelInfo}
-          progressToNext={progressToNext}
-          konToNext={konToNext}
-        />
+        <LoyaltyCardPremium />
 
         <div className="flex items-center justify-between pt-2">
           <h2 className="text-lg font-bold text-white">Меню</h2>
@@ -122,37 +113,148 @@ balanceKon={state.balanceKon}
             <div className="text-2xl">🧪</div>
             <div className="flex-1">
               <div className="text-sm font-semibold text-white">
-                Демо-режим
+                Тестовый режим
               </div>
-              <p className="mt-1 text-xs text-slate-400">
-                Все покупки виртуальные. Баланс и история хранятся локально.
-              </p>
-              <button
-                onClick={() => {
-                  if (confirm("Сбросить демо-баланс и историю?")) {
-                    reset();
-                    showToast("🔄 Демо-данные сброшены");
-                  }
-                }}
-                className="mt-3 rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-200 active:scale-95 transition-transform"
-              >
-                Сбросить демо-данные
-              </button>
-            </div>
+              <div className="text-xs text-slate-400 mt-1">
+                Это демо-версия магазина. Покупки не списывают настоящие деньги.
+              </div>
+</div>
           </div>
-        </div>
-
-        <div className="text-center text-xs text-slate-500 pt-4">
-          КОН Coffee · Демо-версия · v1.0
         </div>
       </div>
 
       {}
+      {selectedProduct && (
+        <div
+          onClick={() => setSelectedProduct(null)}
+          style={{
+            position: "fixed", inset: 0, zIndex: 9999,
+            background: "rgba(0,0,0,0.75)", backdropFilter: "blur(6px)",
+            display: "flex", alignItems: "flex-end", justifyContent: "center",
+            padding: 16,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: "100%", maxWidth: 480,
+              background: "linear-gradient(135deg, #1a1210, #0f0a08)",
+              borderRadius: "20px 20px 0 0",
+              padding: 20,
+              border: "1px solid rgba(249,115,22,0.2)",
+              boxShadow: "0 -20px 60px rgba(0,0,0,0.7)",
+              color: "#fef3e2",
+            }}
+          >
+            <div style={{
+              width: 40, height: 4, background: "rgba(255,255,255,0.2)",
+              borderRadius: 2, margin: "0 auto 16px",
+            }} />
+
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: "50%",
+                background: selectedProduct.gradient,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 28, flexShrink: 0,
+              }}>
+                {selectedProduct.emoji}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 800, fontSize: 16 }}>
+                  {selectedProduct.name}
+                </div>
+                <div style={{ fontSize: 11, color: "#a8927b", marginTop: 2 }}>
+                  {selectedProduct.description}
+                </div>
+              </div>
+            </div>
+
+            <div style={{
+              padding: 12, borderRadius: 10,
+              background: "rgba(251,191,36,0.08)",
+              border: "1px solid rgba(251,191,36,0.2)",
+              marginBottom: 14, fontSize: 12,
+            }}>
+              Ваш баланс: <b>{state.balanceKon.toFixed(2)} КОН</b>
+            </div>
+
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 10, opacity: 0.8 }}>
+              Выберите способ оплаты:
+            </div>
+
+            <button
+              onClick={() => handleBuy(selectedProduct, "rub")}
+              style={{
+                width: "100%", padding: 14, borderRadius: 12,
+                background: "linear-gradient(135deg, #f97316, #ea580c)",
+                border: "none", color: "#fff",
+                fontWeight: 800, fontSize: 15,
+                marginBottom: 8, cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                boxShadow: "0 4px 16px -4px rgba(249,115,22,0.6)",
+              }}
+            >
+              <span>Оплатить рублями</span>
+              <span>{selectedProduct.priceRub} ₽</span>
+            </button>
+
+            <button
+              onClick={() => canPayKon && handleBuy(selectedProduct, "kon")}
+              disabled={!canPayKon}
+              style={{
+                width: "100%", padding: 14, borderRadius: 12,
+                background: canPayKon
+                  ? "linear-gradient(135deg, #fbbf24, #d97706)"
+                  : "rgba(255,255,255,0.08)",
+                border: canPayKon
+                  ? "none"
+                  : "1px solid rgba(255,255,255,0.15)",
+                color: canPayKon ? "#1a1210" : "#555",
+                fontWeight: 800, fontSize: 15,
+                marginBottom: 8,
+                cursor: canPayKon ? "pointer" : "not-allowed",
+display: "flex", alignItems: "center", justifyContent: "space-between",
+                boxShadow: canPayKon ? "0 4px 16px -4px rgba(251,191,36,0.6)" : "none",
+              }}
+            >
+              <span>Оплатить баллами {canPayKon ? "⭐" : ""}</span>
+              <span>{selectedProduct.priceKon} КОН {!canPayKon && "(недостаточно)"}</span>
+            </button>
+
+            <button
+              onClick={() => setSelectedProduct(null)}
+              style={{
+                width: "100%", padding: 12, borderRadius: 12,
+                background: "transparent",
+                border: "1px solid rgba(255,255,255,0.2)",
+                color: "#a8927b", fontWeight: 600, fontSize: 13,
+                cursor: "pointer",
+              }}
+            >
+              Отмена
+            </button>
+          </div>
+        </div>
+      )}
+
+      {}
       {toast && (
-        <div className="fixed left-1/2 bottom-6 -translate-x-1/2 z-50 bg-slate-800 border border-slate-700 text-white text-sm px-4 py-2.5 rounded-full shadow-lg max-w-[90vw]">
+        <div style={{
+          position: "fixed", bottom: 80, left: "50%", transform: "translateX(-50%)",
+          zIndex: 10000,
+          padding: "12px 20px", borderRadius: 12,
+          background: "rgba(26,18,16,0.95)", backdropFilter: "blur(10px)",
+          border: "1px solid rgba(249,115,22,0.3)",
+          color: "#fef3e2", fontSize: 13, fontWeight: 600,
+          boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+          maxWidth: "90%", textAlign: "center",
+        }}>
           {toast}
         </div>
       )}
     </div>
   );
 }
+
+export default ShopScreen;

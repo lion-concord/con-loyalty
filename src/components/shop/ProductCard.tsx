@@ -3,10 +3,10 @@ import type { Product } from '../../shop/types';
 interface Props {
   product: Product;
   cashbackPct?: number;
-  onBuy?: (p: Product, paidWith: 'rub' | 'kon') => void;
+  onClick?: (p: Product) => void;
 }
 
-export function ProductCard({ product, cashbackPct = 2, onBuy }: Props) {
+export function ProductCard({ product, cashbackPct = 2, onClick }: Props) {
   const cashbackKon = +(product.priceKon * cashbackPct / 100).toFixed(1);
 
   return (
@@ -62,15 +62,19 @@ export function ProductCard({ product, cashbackPct = 2, onBuy }: Props) {
               border: '1px solid rgba(251,191,36,0.3)',
               fontSize: 10, fontWeight: 700, color: '#fbbf24',
             }}>
-              +{cashbackKon} ⭐
+              +{cashbackKon} {'\u2B50'}
             </div>
             <button
-              onClick={() => onBuy?.(product, 'rub')}
+              onClick={() => onClick?.(product)}
               style={{
-                padding: '8px 14px', borderRadius: 10,
+                padding: '8px 16px',
+                borderRadius: 10,
                 background: 'linear-gradient(135deg, #f97316, #ea580c)',
-                border: 'none', color: '#fff',
-                fontWeight: 800, fontSize: 12, cursor: 'pointer',
+                color: '#fff',
+fontWeight: 700,
+                fontSize: 13,
+                border: 'none',
+                cursor: 'pointer',
                 boxShadow: '0 4px 12px -2px rgba(249,115,22,0.5)',
               }}
             >
