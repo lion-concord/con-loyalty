@@ -12,6 +12,7 @@ import { getHistory, addTransaction, clearHistory, formatRelativeTime, type Tran
 import { LevelCard } from './LevelCard'
 const Leaderboard = lazy(() => import('./Leaderboard').then(m => ({ default: m.Leaderboard })))
 const ShopScreen = lazy(() => import('./ShopScreen').then(m => ({ default: m.ShopScreen })))
+import Footer from './components/Footer'
 
 const fade = { animation: 'fadeIn 0.6s ease-out both' }
 
@@ -311,7 +312,7 @@ function App() {
           <Suspense fallback={<div style={{padding:20,textAlign:'center',color:'#94a3b8'}}>Загрузка…</div>}><Leaderboard /></Suspense>
         </section>
 
-        <footer style={{padding:'14px 0 80px',color:'#94a3b8',fontSize:13,textAlign:'center'}}>{import.meta.env.VITE_ENABLE_CRYPTO === "true" ? "Токен КОН — Лояльность на КОН" : "КОН — Программа лояльности"}</footer>
+        <Footer />
       </div>
       {toastMsg && (
 <div id="toast-notify" style={{position:'fixed',bottom:20,left:'50%',transform:'translateX(-50%)',background:'linear-gradient(135deg,#16a34a,#22c55e)',color:'#fff',padding:'12px 20px',borderRadius:12,fontSize:14,fontWeight:700,zIndex:10000,boxShadow:'0 10px 30px rgba(34,197,94,0.3)',animation:'fadeIn 0.3s ease-out'}}>{toastMsg}</div>
