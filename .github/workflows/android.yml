@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      HAS_KEYSTORE: ${{ secrets.KEYSTORE_BASE64 != '' }}
 
     steps:
       - name: Checkout
@@ -38,6 +40,7 @@ jobs:
         run: npx cap sync android
 
       - name: Decode keystore
+        if: env.HAS_KEYSTORE == 'true'
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
           cat > android/keystore.properties << EOF2
@@ -52,7 +55,7 @@ jobs:
         run: ./gradlew assembleDebug
 
       - name: Build release AAB
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        if: env.HAS_KEYSTORE == 'true'
         working-directory: android
         run: ./gradlew bundleRelease
 
@@ -63,7 +66,7 @@ jobs:
           path: android/app/build/outputs/apk/debug/*.apk
 
       - name: Upload release AAB
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        if: env.HAS_KEYSTORE == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: kon-loyalty-release-aab
