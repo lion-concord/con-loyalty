@@ -14,7 +14,7 @@ const initialState: LoyaltyState = {
     {
       id: "welcome",
       type: "bonus",
-      amountKon: WELCOME BONUS,
+      amountKon: WELCOME_BONUS,
       paidWith: "kon",
       timestamp: Date.now(),
     },
@@ -203,7 +203,7 @@ export function useLoyalty() {
         {
           id: "welcome-" + Date.now(),
           type: "bonus",
-          amountKon: WELCOME BONUS,
+          amountKon: WELCOME_BONUS,
           paidWith: "kon",
           timestamp: Date.now(),
         },
