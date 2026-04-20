@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import type { LoyaltyState, Transaction, LoyaltyLevel } from "./types";
 import { LEVELS } from "./products";
 
@@ -14,7 +14,7 @@ const initialState: LoyaltyState = {
     {
       id: "welcome",
       type: "bonus",
-      amountKon: WELCOME_BONUS,
+      amountKon: WELCOME BONUS,
       paidWith: "kon",
       timestamp: Date.now(),
     },
@@ -39,33 +39,77 @@ function getNextLevelInfo(level: LoyaltyLevel) {
   return idx >= 0 && idx < LEVELS.length - 1 ? LEVELS[idx + 1] : null;
 }
 
+let currentState: LoyaltyState = initialState;
+let hydrated = false;
+const listeners = new Set<() => void>();
+
+function loadFromStorage() {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      currentState = JSON.parse(raw) as LoyaltyState;
+    }
+  } catch (e) {
+    console.error("Failed to load loyalty state", e);
+  }
+  hydrated = true;
+  emit();
+}
+
+function saveToStorage() {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(currentState));
+  } catch (e) {
+    console.error("Failed to save loyalty state", e);
+  }
+}
+
+function emit() {
+  listeners.forEach((l) => l());
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+function getSnapshot() {
+  return currentState;
+}
+
+function getHydratedSnapshot() {
+  return hydrated;
+}
+
+function setState(updater: (prev: LoyaltyState) => LoyaltyState) {
+  currentState = updater(currentState);
+  saveToStorage();
+  emit();
+}
+
+// Инициализация при загрузке модуля (один раз)
+if (typeof window !== "undefined") {
+  loadFromStorage();
+  // Синхронизация между вкладками (на всякий случай)
+  window.addEventListener("storage", (e) => {
+    if (e.key === STORAGE_KEY && e.newValue) {
+      try {
+        currentState = JSON.parse(e.newValue);
+        emit();
+      } catch {}
+    }
+  });
+}
+
 export function useLoyalty() {
-  const [state, setState] = useState<LoyaltyState>(initialState);
-  const [hydrated, setHydrated] = useState(false);
-
-  // Загрузка из localStorage
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as LoyaltyState;
-        setState(parsed);
-      }
-    } catch (e) {
-      console.error("Failed to load loyalty state", e);
-    }
-    setHydrated(true);
-  }, []);
-
-  // Сохранение в localStorage
-  useEffect(() => {
-    if (!hydrated) return;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch (e) {
-      console.error("Failed to save loyalty state", e);
-    }
-  }, [state, hydrated]);
+  const state = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+  const isHydrated = useSyncExternalStore(
+    subscribe,
+    getHydratedSnapshot,
+    getHydratedSnapshot
+  );
 
   const levelInfo = getLevelInfo(state.level);
   const nextLevelInfo = getNextLevelInfo(state.level);
@@ -74,7 +118,7 @@ export function useLoyalty() {
     ? Math.min(
         100,
         ((state.totalSpentKon - levelInfo.threshold) /
-          (nextLevelInfo.threshold - levelInfo.threshold)) *
+(nextLevelInfo.threshold - levelInfo.threshold)) *
           100
       )
     : 100;
@@ -83,7 +127,6 @@ export function useLoyalty() {
     ? Math.max(0, nextLevelInfo.threshold - state.totalSpentKon)
     : 0;
 
-  // Покупка товара
   const purchase = useCallback(
     (params: {
       productName: string;
@@ -93,8 +136,7 @@ export function useLoyalty() {
     }): { success: boolean; cashback: number; error?: string } => {
       const { productName, priceRub, priceKon, paidWith } = params;
 
-      // Проверка баланса при оплате КОН
-      if (paidWith === "kon" && state.balanceKon < priceKon) {
+      if (paidWith === "kon" && currentState.balanceKon < priceKon) {
         return {
           success: false,
           cashback: 0,
@@ -102,7 +144,11 @@ export function useLoyalty() {
         };
       }
 
-      const cashback = +(priceKon * (levelInfo.cashbackPct / 100)).toFixed(2);
+      const currentLevelInfo = getLevelInfo(currentState.level);
+      const cashback = +(
+        priceKon *
+        (currentLevelInfo.cashbackPct / 100)
+      ).toFixed(2);
       const now = Date.now();
 
       const purchaseTx: Transaction = {
@@ -131,7 +177,7 @@ export function useLoyalty() {
             : prev.balanceKon + cashback;
 
         const newTotalSpent = prev.totalSpentKon + priceKon;
-const newLevel = calcLevel(newTotalSpent);
+        const newLevel = calcLevel(newTotalSpent);
 
         return {
           ...prev,
@@ -147,28 +193,27 @@ const newLevel = calcLevel(newTotalSpent);
 
       return { success: true, cashback };
     },
-    [state.balanceKon, levelInfo.cashbackPct]
+    []
   );
 
-  // Сброс демо-данных
   const reset = useCallback(() => {
-    setState({
+    setState(() => ({
       ...initialState,
       transactions: [
         {
-          id: `welcome-${Date.now()}`,
+          id: "welcome-" + Date.now(),
           type: "bonus",
-          amountKon: WELCOME_BONUS,
+          amountKon: WELCOME BONUS,
           paidWith: "kon",
           timestamp: Date.now(),
         },
       ],
-    });
+    }));
   }, []);
 
   return {
     state,
-    hydrated,
+    hydrated: isHydrated,
     levelInfo,
     nextLevelInfo,
     progressToNext,
