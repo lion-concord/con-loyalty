@@ -41,3 +41,31 @@ src/*.before-*
 .backups/
 patch.py
 *.bak
+
+# Capacitor / Android
+android/.gradle/
+android/build/
+android/app/build/
+android/app/release/
+android/.idea/
+android/local.properties
+android/*.iml
+android/app/*.iml
+android/capacitor-cordova-android-plugins/
+*.keystore
+*.jks
+keystore.properties
+
+# Capacitor / Android
+android/.gradle/
+android/build/
+android/app/build/
+android/app/release/
+android/.idea/
+android/local.properties
+android/*.iml
+android/app/*.iml
+android/capacitor-cordova-android-plugins/
+*.keystore
+*.jks
+keystore.properties
