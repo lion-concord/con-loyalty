@@ -38,7 +38,6 @@ export function ShopScreen({ onClose }: Props) {
         priceKon: product.priceKon,
         paidWith,
       });
-      alert("[SHOP] result: " + JSON.stringify(result));
       setSelectedProduct(null);
       if (result.success) {
         showToast("✅ Kуплено: " + product.name + " +" + result.cashback.toFixed(1) + " KОН кешбэк");
