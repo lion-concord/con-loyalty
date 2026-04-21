@@ -12,7 +12,7 @@ export default function Footer() {
 
   const isCrypto = import.meta.env.VITE_ENABLE_CRYPTO === "true";
   const appName = isCrypto ? APP_NAME_CRYPTO : APP_NAME_RUSTORE;
-  const version = (pkg as { version?: string }).version ?? "0.0.0";
+  const version = (import.meta.env.VITE_APP_VERSION as string | undefined) ?? (pkg as { version?: string }).version ?? "0.0.0";
   const year = new Date().getFullYear();
 
   const linkStyle: React.CSSProperties = {
