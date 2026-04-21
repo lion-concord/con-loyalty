@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useLoyalty } from '../../shop/useLoyalty';
 
 const tierStyle: Record<string, { emoji: string; color: string; gradient: string }> = {
@@ -8,6 +8,20 @@ const tierStyle: Record<string, { emoji: string; color: string; gradient: string
   platinum: { emoji: '\u{1F48E}', color: '#a855f7', gradient: 'linear-gradient(135deg, #581c87 0%, #c084fc 50%, #581c87 100%)' },
 };
 
+const CARD_CODE_KEY = 'kon_coffee_card_code';
+
+function getOrCreateCardCode(): string {
+  try {
+    const saved = localStorage.getItem(CARD_CODE_KEY);
+    if (saved) return saved;
+    const newCode = 'KOH-' + Date.now().toString(36).toUpperCase().slice(-8);
+    localStorage.setItem(CARD_CODE_KEY, newCode);
+    return newCode;
+  } catch {
+    return 'KOH-' + Date.now().toString(36).toUpperCase().slice(-8);
+  }
+}
+
 export function LoyaltyCardPremium() {
   const { state, levelInfo, nextLevelInfo, progressToNext, konToNext } = useLoyalty();
   const [showQR, setShowQR] = useState(false);
@@ -16,7 +30,9 @@ export function LoyaltyCardPremium() {
   const levelId = levelInfo?.id ?? 'bronze';
   const style = tierStyle[levelId] ?? tierStyle.bronze;
   const nextStyle = nextLevelInfo ? tierStyle[nextLevelInfo.id] : null;
-  const cardCode = 'KOH-' + Date.now().toString(36).toUpperCase().slice(-8);
+  const cardCode = useMemo(() => getOrCreateCardCode(), []);
+
+  const balanceFormatted = Number(balance).toLocaleString('ru', { maximumFractionDigits: 2 });
 
   return (
     <>
@@ -59,22 +75,21 @@ export function LoyaltyCardPremium() {
 
         <div style={{ position: 'relative', marginBottom: 18 }}>
           <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 2 }}>Ваш баланс</div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+<div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
             <div style={{ fontSize: 36, fontWeight: 900, letterSpacing: -1 }}>
-              {Number(balance).toLocaleString('ru', { maximumFractionDigits: 2 })}
+              {balanceFormatted}
             </div>
             <div style={{ fontSize: 16, fontWeight: 700, opacity: 0.9 }}>{'\u2B50'} КОН</div>
           </div>
           <div style={{ fontSize: 10, opacity: 0.7, marginTop: 2 }}>
-Кешбэк: <b>{levelInfo?.cashbackPct ?? 2}%</b>
+            Кешбэк: <b>{levelInfo?.cashbackPct ?? 2}%</b>
           </div>
         </div>
 
         {nextLevelInfo && nextStyle && (
           <div style={{ position: 'relative' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginBottom: 6, opacity: 0.9 }}>
-              <span>До «{nextLevelInfo.name}» {nextStyle.emoji}</span>
-              <span style={{ fontWeight: 700 }}>{Math.round(progressToNext ?? 0)}%</span>
+              <span>До «{nextLevelInfo.name}» {nextStyle.emoji}</span><span style={{ fontWeight: 700 }}>{Math.round(progressToNext ?? 0)}%</span>
             </div>
             <div style={{
               height: 8, borderRadius: 8,
@@ -146,7 +161,7 @@ export function LoyaltyCardPremium() {
                 QR-код карты
               </div>
             </div>
-            <div style={{ fontSize: 12, opacity: 0.6, marginBottom: 4 }}>Номер карты</div>
+<div style={{ fontSize: 12, opacity: 0.6, marginBottom: 4 }}>Номер карты</div>
             <div style={{
               fontSize: 16, fontWeight: 800, letterSpacing: 2,
               padding: '8px 12px', background: '#f5f5f5', borderRadius: 8,
@@ -156,10 +171,10 @@ export function LoyaltyCardPremium() {
             </div>
             <div style={{
               marginTop: 16, fontSize: 11, color: '#666',
-display: 'flex', justifyContent: 'space-around',
+              display: 'flex', justifyContent: 'space-around',
             }}>
               <span>Уровень: <b>{levelInfo?.name ?? 'Бронза'}</b></span>
-              <span>Баланс: <b>{Number(balance).toFixed(0)} КОН</b></span>
+              <span>Баланс: <b>{balanceFormatted} КОН</b></span>
             </div>
             <button
               onClick={() => setShowQR(false)}
