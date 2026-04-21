@@ -30,7 +30,6 @@ export function ShopScreen({ onClose }: Props) {
   };
 
   const handleBuy = (product: Product, paidWith: "rub" | "kon") => {
-    alert("[SHOP] handleBuy: " + product.name + " / " + paidWith);
     try {
       const result = purchase({
         productName: product.name,
@@ -46,11 +45,11 @@ export function ShopScreen({ onClose }: Props) {
       }
     } catch (e) {
       const msg = (e && (e as any).message) ? (e as any).message : String(e);
-      alert("[SHOP] ERROR: " + msg);
+      console.error("[SHOP] ERROR:", msg);
     }
   };
 
-  const handleProductClick = (product: Product) => { alert("[SHOP] open modal: " + product.name);
+  const handleProductClick = (product: Product) => {
     setSelectedProduct(product);
   };
 
