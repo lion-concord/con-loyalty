@@ -70,6 +70,18 @@ jobs:
         working-directory: android
         run: ./gradlew bundleRelease
 
+      - name: Build release APK
+        if: env.HAS_KEYSTORE == 'true'
+        working-directory: android
+        run: ./gradlew assembleRelease
+
+      - name: Upload release APK
+        if: env.HAS_KEYSTORE == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: kon-loyalty-release-apk
+          path: android/app/build/outputs/apk/release/*.apk
+
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
