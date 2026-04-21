@@ -29,22 +29,25 @@ export function ShopScreen({ onClose }: Props) {
     setTimeout(() => setToast(null), 2500);
   };
 
-  const handleBuy = (product: Product, paidWith: "rub" | "kon") => { alert("[SHOP] handleBuy: " + product.name + " / " + paidWith);
-    const result = purchase({
-      productName: product.name,
-      priceRub: product.priceRub,
-      priceKon: product.priceKon,
-      paidWith,
-    });
-
-    setSelectedProduct(null);
-
-    if (result.success) {
-      showToast(
-        `✅ Куплено: ${product.name} — +${result.cashback.toFixed(1)} КОН кешбэк`
-      );
-    } else {
-      showToast(`⚠️ ${result.error ?? "Ошибка покупки"}`);
+  const handleBuy = (product: Product, paidWith: "rub" | "kon") => {
+    alert("[SHOP] handleBuy: " + product.name + " / " + paidWith);
+    try {
+      const result = purchase({
+        productName: product.name,
+        priceRub: product.priceRub,
+        priceKon: product.priceKon,
+        paidWith,
+      });
+      alert("[SHOP] result: " + JSON.stringify(result));
+      setSelectedProduct(null);
+      if (result.success) {
+        showToast("✅ Kуплено: " + product.name + " +" + result.cashback.toFixed(1) + " KОН кешбэк");
+      } else {
+        showToast("⚠️ " + (result.error || "Ошибка покупки"));
+      }
+    } catch (e) {
+      const msg = (e && (e as any).message) ? (e as any).message : String(e);
+      alert("[SHOP] ERROR: " + msg);
     }
   };
 
