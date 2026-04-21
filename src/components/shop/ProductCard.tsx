@@ -65,7 +65,7 @@ export function ProductCard({ product, cashbackPct = 2, onClick }: Props) {
               +{cashbackKon} {'\u2B50'}
             </div>
             <button
-              onClick={() => onClick?.(product)}
+              onClick={(e) => { e.stopPropagation(); console.log("[CARD] Купить:", product.name); onClick?.(product); }}
               style={{
                 padding: '8px 16px',
                 borderRadius: 10,

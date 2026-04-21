@@ -29,7 +29,7 @@ export function ShopScreen({ onClose }: Props) {
     setTimeout(() => setToast(null), 2500);
   };
 
-  const handleBuy = (product: Product, paidWith: "rub" | "kon") => {
+  const handleBuy = (product: Product, paidWith: "rub" | "kon") => { console.log("[SHOP] handleBuy:", product.name, paidWith);
     const result = purchase({
       productName: product.name,
       priceRub: product.priceRub,
@@ -48,7 +48,7 @@ export function ShopScreen({ onClose }: Props) {
     }
   };
 
-  const handleProductClick = (product: Product) => {
+  const handleProductClick = (product: Product) => { console.log("[SHOP] open modal:", product.name); console.log("[SHOP] open modal:", product.name);
     setSelectedProduct(product);
   };
 
