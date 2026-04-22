@@ -2,8 +2,7 @@ const KycScreen = CRYPTO_FLAG
   ? lazy(() => import('./kyc/KycScreen').then(m => ({ default: m.KycScreen })))
   : lazy(() => Promise.resolve({ default: () => null }));
 import { getKycProfile, LEVEL_INFO } from './kyc/levels'
-import { AnimatePresence } from 'framer-motion'
-import { SplashScreen } from './components/SplashScreen'
+import SplashScreen from './components/SplashScreen'
 import { getUsage, addConvertUsage } from './kyc/usage'
 import { getHistory, addTransaction, clearHistory, formatRelativeTime, type Transaction } from './kyc/history'
 import { LevelCard } from './LevelCard'
