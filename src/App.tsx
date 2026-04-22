@@ -1,14 +1,19 @@
+import { WalletPanel } from "./WalletPanel";
+import { apiFetch } from './hooks/useApi';
+import { useState, useEffect, lazy, Suspense } from 'react'
+import { TonConnectButton, useTonWallet } from '@tonconnect/ui-react'
+const CRYPTO_FLAG = import.meta.env.VITE_ENABLE_CRYPTO === 'true';
 const KycScreen = CRYPTO_FLAG
   ? lazy(() => import('./kyc/KycScreen').then(m => ({ default: m.KycScreen })))
   : lazy(() => Promise.resolve({ default: () => null }));
 import { getKycProfile, LEVEL_INFO } from './kyc/levels'
-import SplashScreen from './components/SplashScreen'
 import { getUsage, addConvertUsage } from './kyc/usage'
 import { getHistory, addTransaction, clearHistory, formatRelativeTime, type Transaction } from './kyc/history'
 import { LevelCard } from './LevelCard'
 const Leaderboard = lazy(() => import('./Leaderboard').then(m => ({ default: m.Leaderboard })))
 const ShopScreen = lazy(() => import('./ShopScreen').then(m => ({ default: m.ShopScreen })))
 import Footer from './components/Footer'
+import SplashScreen from './components/SplashScreen'
 
 const fade = { animation: 'fadeIn 0.6s ease-out both' }
 
@@ -54,9 +59,9 @@ function App() {
   let tgUser: any = null
   try { const W = (window as any).Telegram?.WebApp; if(W){W.ready();W.expand();tgUser=W.initDataUnsafe?.user} } catch(e){console.error("TG ERR:",e)}
 
+  const [kon, setKon] = useState('100')
   const [showSplash, setShowSplash] = useState(true)
   const [isAppReady, setIsAppReady] = useState(false)
-  const [kon, setKon] = useState('100')
   useEffect(() => {
     apiFetch<{ userId: number; kon: number; level: string }>('/api/balance')
       .then(d => {
@@ -103,7 +108,7 @@ function App() {
   const remainingLimit = Math.max(0, convertLimitRub - usage.convertUsed);
   const isOverLimit = currentValRub > remainingLimit;
 
-  if (false) {
+  if (showSplash && !isAppReady) {
     return <SplashScreen onComplete={() => setShowSplash(false)} />;
   }
 
