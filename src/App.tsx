@@ -1,12 +1,9 @@
-import { WalletPanel } from "./WalletPanel";
-import { apiFetch } from './hooks/useApi';
-import { useState, useEffect, lazy, Suspense } from 'react'
-import { TonConnectButton, useTonWallet } from '@tonconnect/ui-react'
-const CRYPTO_FLAG = import.meta.env.VITE_ENABLE_CRYPTO === 'true';
 const KycScreen = CRYPTO_FLAG
   ? lazy(() => import('./kyc/KycScreen').then(m => ({ default: m.KycScreen })))
   : lazy(() => Promise.resolve({ default: () => null }));
 import { getKycProfile, LEVEL_INFO } from './kyc/levels'
+import { AnimatePresence } from 'framer-motion'
+import { SplashScreen } from './components/SplashScreen'
 import { getUsage, addConvertUsage } from './kyc/usage'
 import { getHistory, addTransaction, clearHistory, formatRelativeTime, type Transaction } from './kyc/history'
 import { LevelCard } from './LevelCard'
@@ -58,12 +55,15 @@ function App() {
   let tgUser: any = null
   try { const W = (window as any).Telegram?.WebApp; if(W){W.ready();W.expand();tgUser=W.initDataUnsafe?.user} } catch(e){console.error("TG ERR:",e)}
 
+  const [showSplash, setShowSplash] = useState(true)
+  const [isAppReady, setIsAppReady] = useState(false)
   const [kon, setKon] = useState('100')
   useEffect(() => {
     apiFetch<{ userId: number; kon: number; level: string }>('/api/balance')
       .then(d => {
         setKon(String(d.kon));
         console.log('[API] balance loaded:', d);
+        setIsAppReady(true);
       })
       .catch(e => console.warn('[API] balance failed:', e.message));
   }, []);
@@ -103,6 +103,10 @@ function App() {
   const currentValRub = konNum * (prices.con || 1.3);
   const remainingLimit = Math.max(0, convertLimitRub - usage.convertUsed);
   const isOverLimit = currentValRub > remainingLimit;
+
+  if (showSplash && !isAppReady) {
+    return <SplashScreen onComplete={() => setShowSplash(false)} />;
+  }
 
   return (
     <div style={{minHeight:'100vh',background:'linear-gradient(to bottom,#0f172a,#111827 45%,#020617)',color:'white',fontFamily:'system-ui,sans-serif',padding:'12px 10px',boxSizing:'border-box'}}>
