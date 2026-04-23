@@ -108,8 +108,8 @@ function App() {
   const remainingLimit = Math.max(0, convertLimitRub - usage.convertUsed);
   const isOverLimit = currentValRub > remainingLimit;
 
-  if (showSplash && !isAppReady) {
-    return <SplashScreen onComplete={() => setShowSplash(false)} />;
+  if (!isAppReady) {
+    return <SplashScreen onComplete={() => {}} />;
   }
 
   return (
