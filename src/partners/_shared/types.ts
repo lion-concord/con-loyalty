@@ -3,6 +3,9 @@ import type { LazyExoticComponent, ComponentType } from "react";
 export interface PartnerModuleProps {
   onClose: () => void;
   onBack?: (canGoBack: boolean, goBack: () => void) => void;
+  konBalance?: number;
+  onAddKon?: (amount: number) => void;
+  onSpendKon?: (amount: number) => void;
 }
 
 export interface Partner {

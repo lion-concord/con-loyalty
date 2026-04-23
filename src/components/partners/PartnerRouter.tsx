@@ -4,9 +4,18 @@ import { getPartner } from "../../partners";
 interface Props {
   partnerId: string;
   onClose: () => void;
+  konBalance?: number;
+  onAddKon?: (amount: number) => void;
+  onSpendKon?: (amount: number) => void;
 }
 
-export default function PartnerRouter({ partnerId, onClose }: Props) {
+export default function PartnerRouter({
+  partnerId,
+  onClose,
+  konBalance,
+  onAddKon,
+  onSpendKon,
+}: Props) {
   const partner = getPartner(partnerId);
 
   if (!partner) {
@@ -51,7 +60,12 @@ export default function PartnerRouter({ partnerId, onClose }: Props) {
         </div>
       }
     >
-      <Component onClose={onClose} />
+      <Component
+        onClose={onClose}
+        konBalance={konBalance}
+        onAddKon={onAddKon}
+        onSpendKon={onSpendKon}
+      />
     </Suspense>
   );
 }

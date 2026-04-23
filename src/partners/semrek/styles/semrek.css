@@ -1,0 +1,276 @@
+
+.sem {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: linear-gradient(180deg, #0a2540 0%, #1e3a5f 50%, #0a2540 100%);
+  color: #fff;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sem__content {
+  padding: 72px 16px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.sem-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(10, 37, 64, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(199, 122, 58, 0.25);
+}
+
+.sem-header__back {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sem-header__title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  flex: 1;
+  text-align: center;
+  padding-right: 60px;
+}
+
+.sem-h1 {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  margin: 0 0 4px;
+}
+
+.sem-h2 {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #c77a3a;
+  text-transform: uppercase;
+  margin: 0 0 16px;
+}
+
+.sem-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.sem-tile {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(199, 122, 58, 0.25);
+  border-radius: 18px;
+  padding: 20px 16px;
+  color: #fff;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.15s, background 0.2s;
+}
+.sem-tile:active { transform: scale(0.97); }
+.sem-tile__icon { font-size: 32px; margin-bottom: 10px; }
+.sem-tile__title { font-size: 15px; font-weight: 800; margin-bottom: 2px; }
+.sem-tile__sub { font-size: 12px; opacity: 0.7; }
+
+.sem-boat {
+  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(199,122,58,0.08) 100%);
+  border: 1px solid rgba(199, 122, 58, 0.25);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.sem-boat:active { transform: scale(0.98); }
+.sem-boat__top {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 12px;
+}
+.sem-boat__emoji {
+  font-size: 48px;
+  width: 72px; height: 72px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(199,122,58,0.15);
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+.sem-boat__name { font-size: 17px; font-weight: 800; margin-bottom: 4px; }
+.sem-boat__specs { font-size: 12px; opacity: 0.7; line-height: 1.5; }
+.sem-boat__tag {
+  position: absolute;
+  top: 14px; right: 14px;
+  background: linear-gradient(135deg, #c77a3a, #e89352);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 10px;
+}
+.sem-boat__price-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.sem-boat__price { font-size: 20px; font-weight: 900; color: #f5c89a; }
+.sem-boat__btn {
+  background: linear-gradient(135deg, #c77a3a, #8a4d1f);
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sem-btn {
+  width: 100%;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #c77a3a, #8a4d1f);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  box-shadow: 0 6px 18px rgba(199, 122, 58, 0.35);
+  margin-top: 16px;
+}
+.sem-btn:disabled {
+opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.sem-btn--ghost {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: none;
+}
+
+.sem-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  margin: 0 8px 8px 0;
+  transition: all 0.15s;
+}
+.sem-chip--active {
+  background: rgba(199, 122, 58, 0.25);
+  border-color: #c77a3a;
+  color: #f5c89a;
+}
+
+.sem-steps {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+.sem-steps__dot {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  transition: background 0.3s;
+}
+.sem-steps__dot--active { background: #c77a3a; }
+.sem-steps__dot--done { background: #f5c89a; }
+.sem-steps__label {
+  font-size: 11px;
+  color: #c77a3a;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 10px;
+  margin-bottom: 6px;
+}
+
+.sem-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.sem-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0;
+  font-size: 14px;
+}
+.sem-row__label { opacity: 0.7; }
+.sem-row__value { font-weight: 700; }
+.sem-row--total {
+  border-top: 1px solid rgba(255,255,255,0.12);
+  margin-top: 8px;
+  padding-top: 12px;
+  font-size: 17px;
+}
+.sem-row--total .sem-row__value { color: #f5c89a; font-weight: 900; }
+
+.sem-input {
+  width: 100%;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+.sem-input:focus {
+  outline: none;
+  border-color: #c77a3a;
+}
+
+.sem-check {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  cursor: pointer;
+  margin-bottom: 8px;
+  user-select: none;
+}
+.sem-check--active {
+  background: rgba(199, 122, 58, 0.15);
+  border-color: #c77a3a;
+}
+.sem-check__box {
+  width: 20px; height: 20px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 6px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.sem-check--active .sem-check__box {
+  border-color: #c77a3a;
+  background: #c77a3a;
+}
+.sem-check__label { flex: 1; font-size: 14px; font-weight: 600; }
+.sem-check__price { font-size: 13px; color: #f5c89a; font-weight: 700; }

@@ -325,7 +325,7 @@ function App() {
 <div id="toast-notify" style={{position:'fixed',bottom:20,left:'50%',transform:'translateX(-50%)',background:'linear-gradient(135deg,#16a34a,#22c55e)',color:'#fff',padding:'12px 20px',borderRadius:12,fontSize:14,fontWeight:700,zIndex:10000,boxShadow:'0 10px 30px rgba(34,197,94,0.3)',animation:'fadeIn 0.3s ease-out'}}>{toastMsg}</div>
       )}
       {showShop && (<Suspense fallback={<div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.9)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',zIndex:9999}}>Загрузка магазина…</div>}><ShopScreen onClose={() => setShowShop(false)} /></Suspense>)}
-      {activePartner && (<PartnerRouter partnerId={activePartner} onClose={() => setActivePartner(null)} />)}
+      {activePartner && (<PartnerRouter partnerId={activePartner} onClose={() => setActivePartner(null)} konBalance={konNum} onAddKon={(a) => setKon(String(konNum + a))} onSpendKon={(a) => setKon(String(Math.max(0, konNum - a)))} />)}
       {CRYPTO && showKyc && (<Suspense fallback={<div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.7)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',zIndex:9999}}>Загрузка KYC…</div>}><KycScreen onClose={() => setShowKyc(false)} /></Suspense>)}
     </div>
   )
