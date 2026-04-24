@@ -1,34 +1,19 @@
-import "./index.css"
-import React from "react"
-import ReactDOM from "react-dom/client"
-import { TonConnectUIProvider } from "@tonconnect/ui-react"
-import App from "./App.tsx"
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import LkRouter from "./app/router";
+import AppProviders from "./app/providers";
 
-const CRYPTO = import.meta.env.VITE_ENABLE_CRYPTO === "true";
+const uiMode = import.meta.env.VITE_UI_MODE ?? "classic";
 
-class EB extends React.Component<{children:React.ReactNode},{err:string|null}>{
-  state={err:null as string|null}
-  static getDerivedStateFromError(e:any){return{err:String(e)}}
-  render(){
-    if(this.state.err) return <div style={{color:"white",background:"red",padding:40,minHeight:"100vh"}}><h1>ERROR</h1><pre style={{whiteSpace:"pre-wrap"}}>{this.state.err}</pre></div>;
-    return this.props.children
-  }
-}
-
-const root = ReactDOM.createRoot(document.getElementById("root")!);
-
-if (CRYPTO) {
-  root.render(
-    <EB>
-      <TonConnectUIProvider manifestUrl="https://con-loyalty.vercel.app/tonconnect-manifest.json">
-        <App />
-      </TonConnectUIProvider>
-    </EB>
-  );
-} else {
-  root.render(
-    <EB>
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    {uiMode === "lk" ? (
+      <AppProviders>
+        <LkRouter konBalance={1240} />
+      </AppProviders>
+    ) : (
       <App />
-    </EB>
-  );
-}
+    )}
+  </React.StrictMode>
+);
