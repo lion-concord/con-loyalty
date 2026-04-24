@@ -10,10 +10,10 @@
     "preview": "vite preview",
     "bot": "node bot.cjs",
     "dev:rustore": "vite --mode rustore",
-    "build:rustore": "vite build --mode rustore",
+    "build:rustore": "tsc -b && vite build --mode rustore",
     "preview:rustore": "vite preview --mode rustore",
     "dev:telegram": "vite --mode telegram",
-    "build:telegram": "vite build --mode telegram"
+    "build:telegram": "tsc -b && vite build --mode telegram"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.1",
