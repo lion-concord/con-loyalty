@@ -12,7 +12,10 @@ export default function Footer() {
 
   const isCrypto = import.meta.env.VITE_ENABLE_CRYPTO === "true";
   const appName = isCrypto ? APP_NAME_CRYPTO : APP_NAME_RUSTORE;
-  const version = (import.meta.env.VITE_APP_VERSION as string | undefined) ?? (pkg as { version?: string }).version ?? "0.0.0";
+  const version =
+    (import.meta.env.VITE_APP_VERSION as string | undefined) ??
+    (pkg as { version?: string }).version ??
+    "0.0.0";
   const year = new Date().getFullYear();
 
   const linkStyle: React.CSSProperties = {
@@ -39,7 +42,6 @@ export default function Footer() {
         <div style={{ opacity: 0.75, marginBottom: 10 }}>
           Версия {version}
         </div>
-
         <div style={{ display: "flex", justifyContent: "center", gap: 14, flexWrap: "wrap", marginBottom: 12 }}>
           <span onClick={() => setShowAbout(true)} style={linkStyle}>
             О приложении
@@ -51,7 +53,6 @@ export default function Footer() {
             Поддержка
           </a>
         </div>
-
         <div style={{ opacity: 0.7 }}>
           © {year} {DEVELOPER}
         </div>
@@ -66,8 +67,8 @@ export default function Footer() {
           <p>Версия: {version}</p>
           <p>
             {isCrypto
-              ? "Приложение программы лояльности с интеграцией TonConnect, котировками криптовалют и конвертером."
-              : "Программа лояльности кофейни «КОН Coffee»: начисление баллов КОН, уровни, кешбэк, лидерборд."}
+              ? "Приложение программы лояльности с интеграцией TonConnect, курсами криптовалют и конвертером."
+              : "Программа лояльности КОН: баллы, уровни, кешбэк, лидерборд и партнёрские предложения."}
           </p>
           <p style={{ marginTop: 12 }}>
             <b>Разработчик:</b><br />
@@ -97,8 +98,8 @@ export default function Footer() {
           <p><b>1. Собираемые данные</b></p>
           <p>
             Приложение хранит на устройстве пользователя баланс баллов лояльности,
-            историю покупок и уровень в программе. Эти данные не передаются третьим лицам.
-</p>
+историю покупок и уровень в программе. Эти данные не передаются третьим лицам.
+          </p>
           <p><b>2. Использование данных</b></p>
           <p>
             Данные используются исключительно для функционирования программы
@@ -167,14 +168,7 @@ function Modal({
           boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 12,
-          }}
-        >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <div style={{ fontSize: 16, fontWeight: 700 }}>{title}</div>
           <button
             onClick={onClose}
@@ -194,23 +188,7 @@ function Modal({
             ×
           </button>
         </div>
-        <div>{children}</div>
-        <button
-          onClick={onClose}
-          style={{
-            marginTop: 16,
-            width: "100%",
-            padding: 10,
-            borderRadius: 10,
-            border: "none",
-            background: "#334155",
-            color: "#fff",
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
-        >
-          Закрыть
-        </button>
+        {children}
       </div>
     </div>
   );

@@ -13,17 +13,7 @@ const PARTNERS: Partner[] = [
     accentColor: "#0ea5e9",
     bgColor: "#f0f9ff",
   },
-  {
-    id: "kon-coffee",
-    title: "КОН Coffee",
-    subtitle: "Кофе, десерты и бонусы",
-    category: "Кофейни",
-    badge: "Кешбэк",
-    enabled: true,
-    hasModule: false,
-    accentColor: "#b45309",
-    bgColor: "#fff7ed",
-  },
+
 ];
 
 export function usePartners() {

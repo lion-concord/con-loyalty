@@ -6,7 +6,6 @@ import PartnersListScreen from "../modules/partners/screens/PartnersListScreen";
 import QrScreen from "../modules/qr/screens/QrScreen";
 import HistoryScreen from "../modules/history/screens/HistoryScreen";
 import ProfileScreen from "../modules/profile/screens/ProfileScreen";
-import ShopScreen from "../modules/shop/screens/ShopScreen";
 import PhoneScreen from "../modules/auth/screens/PhoneScreen";
 import CodeScreen from "../modules/auth/screens/CodeScreen";
 import { useAuth } from "../modules/auth/context/AuthProvider";
@@ -35,7 +34,6 @@ export default function LkRouter({
     return (
       <div className="lk-shell">
         <TopBar title="КОН Loyalty" />
-
         {step === "phone" && <PhoneScreen onSubmit={requestCode} />}
         {step === "code" && (
           <CodeScreen
@@ -51,7 +49,6 @@ export default function LkRouter({
   return (
     <div className="lk-shell">
       <TopBar title="КОН Loyalty" />
-
       {tab === "home" && (
         <LoyaltyHomeScreen
           konBalance={konBalance}
@@ -59,16 +56,12 @@ export default function LkRouter({
           onOpenQr={() => setTab("qr")}
           onOpenPartners={() => setTab("partners")}
           onOpenHistory={() => setTab("history")}
-          onOpenShop={() => setTab("shop")}
         />
       )}
-
       {tab === "partners" && <PartnersListScreen />}
       {tab === "qr" && <QrScreen />}
       {tab === "history" && <HistoryScreen />}
       {tab === "profile" && <ProfileScreen />}
-      {tab === "shop" && <ShopScreen />}
-
       <TabBar activeTab={tab} onChange={setTab} />
     </div>
   );
