@@ -12,8 +12,10 @@ export default function PhoneScreen({ onSubmit }: Props) {
   return (
     <div className="lk-screen">
       <div className="lk-card">
-        <h2>Вход</h2>
-        <p className="lk-muted">Введите номер телефона для входа в личный кабинет.</p>
+        <h2 style={{ marginTop: 0 }}>Вход</h2>
+        <p className="lk-muted">
+          Введите номер телефона для входа в личный кабинет.
+        </p>
 
         <Input
           type="tel"

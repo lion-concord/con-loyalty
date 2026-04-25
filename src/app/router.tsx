@@ -5,6 +5,7 @@ import LoyaltyHomeScreen from "../modules/loyalty/screens/LoyaltyHomeScreen";
 import PartnersListScreen from "../modules/partners/screens/PartnersListScreen";
 import QrScreen from "../modules/qr/screens/QrScreen";
 import HistoryScreen from "../modules/history/screens/HistoryScreen";
+import NotificationsScreen from "../modules/notifications/screens/NotificationsScreen";
 import ProfileScreen from "../modules/profile/screens/ProfileScreen";
 import PhoneScreen from "../modules/auth/screens/PhoneScreen";
 import CodeScreen from "../modules/auth/screens/CodeScreen";
@@ -61,6 +62,7 @@ export default function LkRouter({
       {tab === "partners" && <PartnersListScreen />}
       {tab === "qr" && <QrScreen />}
       {tab === "history" && <HistoryScreen />}
+      {tab === "notifications" && <NotificationsScreen />}
       {tab === "profile" && <ProfileScreen />}
       <TabBar activeTab={tab} onChange={setTab} />
     </div>

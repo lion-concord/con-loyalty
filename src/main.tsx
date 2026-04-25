@@ -1,19 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import LkRouter from "./app/router";
-import AppProviders from "./app/providers";
+import LkApp from "./LkApp";
 
-const uiMode = import.meta.env.VITE_UI_MODE ?? "classic";
+const isCrypto = import.meta.env.VITE_ENABLE_CRYPTO === "true";
+const RootApp = isCrypto ? App : LkApp;
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    {uiMode === "lk" ? (
-      <AppProviders>
-        <LkRouter konBalance={1240} />
-      </AppProviders>
-    ) : (
-      <App />
-    )}
+    <RootApp />
   </React.StrictMode>
 );

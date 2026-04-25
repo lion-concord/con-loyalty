@@ -3,8 +3,8 @@ export type LkTab =
   | "partners"
   | "qr"
   | "history"
-  | "profile"
-  | "shop";
+  | "notifications"
+  | "profile";
 
 interface Props {
   activeTab: LkTab;
@@ -16,6 +16,7 @@ const tabs: Array<{ key: LkTab; label: string }> = [
   { key: "partners", label: "Партнёры" },
   { key: "qr", label: "QR" },
   { key: "history", label: "История" },
+  { key: "notifications", label: "Уведомления" },
   { key: "profile", label: "Профиль" },
 ];
 

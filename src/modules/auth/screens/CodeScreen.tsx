@@ -14,7 +14,7 @@ export default function CodeScreen({ phone, onSubmit, onBack }: Props) {
   return (
     <div className="lk-screen">
       <div className="lk-card">
-        <h2>Код подтверждения</h2>
+        <h2 style={{ marginTop: 0 }}>Код подтверждения</h2>
         <p className="lk-muted">
           Введите код, отправленный на номер {phone || "телефона"}.
         </p>
@@ -24,7 +24,7 @@ export default function CodeScreen({ phone, onSubmit, onBack }: Props) {
           inputMode="numeric"
           placeholder="1234"
           value={code}
-onChange={(e: ChangeEvent<HTMLInputElement>) => setCode(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setCode(e.target.value)}
         />
 
         <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
