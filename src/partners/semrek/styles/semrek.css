@@ -275,7 +275,7 @@ opacity: 0.45;
 .sem-check__label { flex: 1; font-size: 14px; font-weight: 600; }
 .sem-check__price { font-size: 13px; color: #f5c89a; font-weight: 700; }
 
-.sem-root {
+.sem {
   position: fixed;
   inset: 0;
   z-index: 9998;
@@ -284,7 +284,7 @@ opacity: 0.45;
   overflow-y: auto;
 }
 
-.sem-container {
+.sem__content {
   max-width: 720px;
   margin: 0 auto;
   padding: 56px 20px 24px;
