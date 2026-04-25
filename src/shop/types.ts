@@ -11,10 +11,10 @@ export type Product = {
   gradient: string;
 };
 
-export type LoyaltyLevel = "bronze" | "silver" | "gold" | "platinum";
+export type ЛояльностьLevel = "bronze" | "silver" | "gold" | "platinum";
 
 export type LevelInfo = {
-  id: LoyaltyLevel;
+  id: ЛояльностьLevel;
   name: string;
   cashbackPct: number;
   threshold: number;
@@ -32,9 +32,9 @@ export type Transaction = {
   timestamp: number;
 };
 
-export type LoyaltyState = {
+export type ЛояльностьState = {
   balanceKon: number;
   totalSpentKon: number;
   transactions: Transaction[];
-  level: LoyaltyLevel;
+  level: ЛояльностьLevel;
 };

@@ -38,7 +38,7 @@ const dailyTasks = [
   },
 ];
 
-export default function LoyaltyHomeScreen({
+export default function ЛояльностьHomeScreen({
   konBalance = 0,
   level = "Silver",
   cashbackPercent = 5,

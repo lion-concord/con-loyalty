@@ -1,7 +1,7 @@
 import { useState } from "react";
 import TabBar, { type LkTab } from "../shared/ui/TabBar";
 import TopBar from "../shared/ui/TopBar";
-import LoyaltyHomeScreen from "../modules/loyalty/screens/LoyaltyHomeScreen";
+import ЛояльностьHomeScreen from "../modules/loyalty/screens/LoyaltyHomeScreen";
 import PartnersListScreen from "../modules/partners/screens/PartnersListScreen";
 import QrScreen from "../modules/qr/screens/QrScreen";
 import HistoryScreen from "../modules/history/screens/HistoryScreen";
@@ -34,7 +34,7 @@ export default function LkRouter({
   if (!isAuthorized) {
     return (
       <div className="lk-shell">
-        <TopBar title="КОН Loyalty" />
+        <TopBar title="КОН" />
         {step === "phone" && <PhoneScreen onSubmit={requestCode} />}
         {step === "code" && (
           <CodeScreen
@@ -49,9 +49,9 @@ export default function LkRouter({
 
   return (
     <div className="lk-shell">
-      <TopBar title="КОН Loyalty" />
+      <TopBar title="КОН" />
       {tab === "home" && (
-        <LoyaltyHomeScreen
+        <ЛояльностьHomeScreen
           konBalance={konBalance}
           level={level}
           onOpenQr={() => setTab("qr")}

@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
-import type { LoyaltyState, Transaction, LoyaltyLevel } from "./types";
+import type { ЛояльностьState, Transaction, ЛояльностьLevel } from "./types";
 import { LEVELS } from "./products";
 
 const STORAGE_KEY = "kon-coffee-loyalty-v1";
 const WELCOME_BONUS = 100;
 
-const initialState: LoyaltyState = {
+const initialState: ЛояльностьState = {
   balanceKon: WELCOME_BONUS,
   totalSpentKon: 0,
   transactions: [
@@ -22,7 +22,7 @@ const initialState: LoyaltyState = {
   level: "bronze",
 };
 
-function calcLevel(totalSpent: number): LoyaltyLevel {
+function calcLevel(totalSpent: number): ЛояльностьLevel {
   const sorted = [...LEVELS].sort((a, b) => b.threshold - a.threshold);
   for (const lvl of sorted) {
     if (totalSpent >= lvl.threshold) return lvl.id;
@@ -30,16 +30,16 @@ function calcLevel(totalSpent: number): LoyaltyLevel {
   return "bronze";
 }
 
-function getLevelInfo(level: LoyaltyLevel) {
+function getLevelInfo(level: ЛояльностьLevel) {
   return LEVELS.find((l) => l.id === level) ?? LEVELS[0];
 }
 
-function getNextLevelInfo(level: LoyaltyLevel) {
+function getNextLevelInfo(level: ЛояльностьLevel) {
   const idx = LEVELS.findIndex((l) => l.id === level);
   return idx >= 0 && idx < LEVELS.length - 1 ? LEVELS[idx + 1] : null;
 }
 
-let currentState: LoyaltyState = initialState;
+let currentState: ЛояльностьState = initialState;
 let hydrated = false;
 const listeners = new Set<() => void>();
 
@@ -48,7 +48,7 @@ function loadFromStorage() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
-      currentState = JSON.parse(raw) as LoyaltyState;
+      currentState = JSON.parse(raw) as ЛояльностьState;
     }
   } catch (e) {
     console.error("Failed to load loyalty state", e);
@@ -83,7 +83,7 @@ function getHydratedSnapshot() {
   return hydrated;
 }
 
-function setState(updater: (prev: LoyaltyState) => LoyaltyState) {
+function setState(updater: (prev: ЛояльностьState) => ЛояльностьState) {
   currentState = updater(currentState);
   saveToStorage();
   emit();
@@ -103,7 +103,7 @@ if (typeof window !== "undefined") {
   });
 }
 
-export function useLoyalty() {
+export function useЛояльность() {
   const state = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
   const isHydrated = useSyncExternalStore(
     subscribe,
