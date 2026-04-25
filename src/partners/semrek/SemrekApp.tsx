@@ -107,7 +107,7 @@ export default function SemrekApp({
   };
 
   return (
-    <div className="sem-root">
+    <div className="sem">
       <div
         style={{
           position: "sticky",
@@ -134,7 +134,7 @@ export default function SemrekApp({
         )}
       </div>
 
-      <div className="sem-container">
+      <div className="sem__content">
         {screen === "home" && <HomeScreen onNavigate={(s) => setScreen(s)} />}
 
         {screen === "catalog" && <CatalogScreen onSelectBoat={handleSelectBoat} />}
