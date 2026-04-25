@@ -50,82 +50,82 @@ export default function ЛояльностьHomeScreen({
   const completedCount = dailyTasks.filter((item) => item.done).length;
 
   return (
-    <div className="lk-screen">
-      <div className="lk-card">
-        <h2 style={{ marginTop: 0, marginBottom: 8 }}>Личный кабинет</h2>
-        <p className="lk-muted" style={{ marginTop: 0 }}>
+    <div className="app-container kl-stack">
+      <div className="kl-hero">
+        <div className="kl-badge">КОН</div>
+        <h2 className="kl-hero__title" style={{ marginTop: 12 }}>Личный кабинет</h2>
+        <p className="kl-hero__text">
           Управляйте баллами КОН, отслеживайте активность и используйте предложения партнёров.
         </p>
 
-        <div style={{ marginTop: 12 }}>
+        <div className="kl-row" style={{ marginTop: 14, flexWrap: "wrap", alignItems: "center" }}>
           <LevelBadge level={level} />
-        </div>
-
-        <div style={{ marginTop: 12 }}>
           <CashbackLabel percent={cashbackPercent} />
         </div>
       </div>
 
-      <BalanceWidget balance={konBalance} />
-
-      <div className="lk-grid">
-        <Button variant="primary" onClick={onOpenQr}>
-          Показать QR-карту
-        </Button>
-        <Button variant="secondary" onClick={onOpenPartners}>
-          Партнёры
-        </Button>
-        <Button variant="ghost" onClick={onOpenHistory}>
-          История операций
-        </Button>
-        <Button variant="secondary" onClick={onOpenShop}>
-          Предложения
-        </Button>
+      <div className="kl-card kl-card--lift">
+        <BalanceWidget balance={konBalance} />
       </div>
 
-      <div className="lk-card">
-        <h3 style={{ marginTop: 0, marginBottom: 8 }}>Ежедневная активность</h3>
-        <p className="lk-muted" style={{ marginTop: 0 }}>
-          Выполнено задач: {completedCount} из {dailyTasks.length}
-        </p>
+      <div className="kl-grid kl-grid--2">
+        <div className="kl-card kl-card--soft">
+          <div className="kl-card__title">Быстрые действия</div>
+          <div className="kl-stack" style={{ marginTop: 12 }}>
+            <Button variant="primary" onClick={onOpenQr}>
+              Показать QR-карту
+            </Button>
+            <Button variant="secondary" onClick={onOpenPartners}>
+              Партнёры
+            </Button>
+            <Button variant="ghost" onClick={onOpenHistory}>
+              История операций
+            </Button>
+            <Button variant="secondary" onClick={onOpenShop}>
+              Предложения
+            </Button>
+          </div>
+        </div>
 
-        <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
-          {dailyTasks.map((task) => (
-            <div
-              key={task.id}
-              style={{
-                border: "1px solid rgba(255,255,255,0.08)",
-                borderRadius: 14,
-                padding: 12,
-                background: "rgba(255,255,255,0.03)",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-                <div>
-                  <div style={{ fontWeight: 700 }}>{task.title}</div>
-                  <div className="lk-muted" style={{ marginTop: 6 }}>
-                    {task.description}
-                  </div>
-                </div>
-                <div style={{ whiteSpace: "nowrap", fontWeight: 700 }}>
-                  +{task.reward} КОН
-                </div>
-              </div>
-
-              <div style={{ marginTop: 10, fontSize: 13 }}>
-                {task.done ? "Выполнено сегодня" : "Доступно к выполнению"}
-              </div>
-            </div>
-))}
+        <div className="kl-stat">
+          <div className="kl-stat__label">Баланс КОН</div>
+          <div className="kl-stat__value">{formatKon(konBalance)}</div>
+          <div className="kl-card__text" style={{ marginTop: 8 }}>
+            Ваш текущий баланс и активность в программе.
+          </div>
         </div>
       </div>
 
-      <div className="lk-card">
-        <h3 style={{ marginTop: 0 }}>Баланс</h3>
-        <p className="lk-muted" style={{ marginTop: 8 }}>
-          {formatKon(konBalance)}
+      <div className="kl-card kl-card--lift">
+        <h3 className="kl-card__title">Ежедневная активность</h3>
+        <p className="kl-card__text">
+          Выполнено задач: {completedCount} из {dailyTasks.length}
         </p>
-        <p className="lk-muted">
+
+        <div className="kl-list" style={{ marginTop: 12 }}>
+{dailyTasks.map((task) => (
+            <div key={task.id} className="kl-list-item">
+              <div>
+                <div style={{ fontWeight: 800 }}>{task.title}</div>
+                <div className="kl-card__text" style={{ marginTop: 6 }}>
+                  {task.description}
+                </div>
+                <div style={{ marginTop: 10, fontSize: 13, color: task.done ? "#86efac" : "#f5c89a" }}>
+                  {task.done ? "Выполнено сегодня" : "Доступно к выполнению"}
+                </div>
+              </div>
+
+              <div style={{ whiteSpace: "nowrap", fontWeight: 800 }}>
+                +{task.reward} КОН
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="kl-card kl-card--accent">
+        <h3 className="kl-card__title">О баллах КОН</h3>
+        <p className="kl-card__text">
           Баллы начисляются за активность в приложении, участие в акциях и покупки у партнёров.
         </p>
       </div>
