@@ -1,9 +1,9 @@
-import { useState, type ChangeEvent } from "react";
+import { useState } from "react";
 import Button from "../../../shared/ui/Button";
 import Input from "../../../shared/ui/Input";
 
 interface Props {
-  phone?: string;
+  phone: string;
   onSubmit?: (code: string) => void;
   onBack?: () => void;
 }
@@ -14,9 +14,9 @@ export default function CodeScreen({ phone, onSubmit, onBack }: Props) {
   return (
     <div className="lk-screen">
       <div className="lk-card">
-        <h2 style={{ marginTop: 0 }}>Код подтверждения</h2>
+        <h2 style={{ marginTop: 0 }}>Введите код</h2>
         <p className="lk-muted">
-          Введите код, отправленный на номер {phone || "телефона"}.
+          Мы отправили код на {phone || "ваш контакт"}.
         </p>
 
         <Input
@@ -24,19 +24,15 @@ export default function CodeScreen({ phone, onSubmit, onBack }: Props) {
           inputMode="numeric"
           placeholder="1234"
           value={code}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setCode(e.target.value)}
+          onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
         />
 
-        <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
-          <Button variant="ghost" onClick={onBack}>
-            Назад
+        <div style={{ marginTop: 12, display: "grid", gap: 12 }}>
+          <Button variant="primary" onClick={() => onSubmit?.(code)} disabled={code.length < 4}>
+            Подтвердить
           </Button>
-          <Button
-            variant="primary"
-            onClick={() => onSubmit?.(code)}
-            disabled={!code.trim()}
-          >
-            Войти
+          <Button variant="secondary" onClick={onBack}>
+            Назад
           </Button>
         </div>
       </div>

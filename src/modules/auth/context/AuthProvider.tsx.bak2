@@ -34,7 +34,6 @@ interface AuthContextValue {
   setCode: (code: string) => void;
   verifyCode: (code: string) => void;
   completeProfile: (profile: Omit<UserProfile, "id">) => void;
-  updateProfile: (patch: Partial<Omit<UserProfile, "id">>) => void;
   goBack: () => void;
   goBackToPhone: () => void;
   logout: () => void;
@@ -65,20 +64,19 @@ export default function AuthProvider({ children }: Props) {
   const [step, setStep] = useState<AuthContextValue["step"]>("method");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [code, setCodeState] = useState("");
+  const [code, setCode] = useState("");
   const [user, setUser] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
-
       const saved = JSON.parse(raw) as StoredState;
       setAuthMethod(saved.authMethod ?? null);
       setStep(saved.step ?? "method");
       setPhone(saved.phone ?? "");
       setEmail(saved.email ?? "");
-      setCodeState(saved.code ?? "");
+      setCode(saved.code ?? "");
       setUser(saved.user ?? null);
     } catch {
       // ignore
@@ -95,15 +93,14 @@ export default function AuthProvider({ children }: Props) {
         code,
         user,
       };
-
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     } catch {
       // ignore
     }
   }, [authMethod, step, phone, email, code, user]);
 
-  const value: AuthContextValue = useMemo(() => {
-    return {
+  const value = useMemo<AuthContextValue>(
+    () => ({
       isAuthorized: step === "authorized",
       authMethod,
       step,
@@ -111,60 +108,51 @@ export default function AuthProvider({ children }: Props) {
       email,
       code,
       user,
-
       openPhoneStep: () => {
         setAuthMethod("phone");
         setPhone("");
         setEmail("");
-        setCodeState("");
+        setCode("");
         setStep("phone");
-},
-
+      },
       openEmailStep: () => {
         setAuthMethod("email");
         setPhone("");
         setEmail("");
-        setCodeState("");
-        setStep("email");
+        setCode("");
+setStep("email");
       },
-
       requestPhoneCode: (nextPhone: string) => {
         setAuthMethod("phone");
         setPhone(nextPhone);
         setEmail("");
-        setCodeState("");
+        setCode("");
         setStep("code");
       },
-
       requestEmailCode: (nextEmail: string) => {
         setAuthMethod("email");
         setEmail(nextEmail);
         setPhone("");
-        setCodeState("");
+        setCode("");
         setStep("code");
       },
-
       requestCode: (nextPhone: string) => {
         setAuthMethod("phone");
         setPhone(nextPhone);
         setEmail("");
-        setCodeState("");
+        setCode("");
         setStep("code");
       },
-
       setCode: (nextCode: string) => {
-        setCodeState(nextCode);
+        setCode(nextCode);
       },
-
       verifyCode: (_nextCode: string) => {
         if (user) {
           setStep("authorized");
           return;
         }
-
         setStep("profile");
       },
-
       completeProfile: (profile) => {
         const nextUser: UserProfile = {
           id: user?.id ?? createId(),
@@ -172,63 +160,43 @@ export default function AuthProvider({ children }: Props) {
           phone: phone || profile.phone,
           email: email || profile.email,
         };
-
         setUser(nextUser);
         setStep("authorized");
       },
-
-      updateProfile: (patch) => {
-        setUser((prev) => {
-          if (!prev) return prev;
-
-          return {
-            ...prev,
-            ...patch,
-            phone: patch.phone ?? prev.phone,
-            email: patch.email ?? prev.email,
-          };
-        });
-      },
-
       goBack: () => {
         if (step === "phone" || step === "email") {
           setStep("method");
           return;
         }
-
         if (step === "code") {
           setStep(authMethod === "email" ? "email" : "phone");
           return;
         }
-
         if (step === "profile") {
           setStep("code");
           return;
         }
-
         setStep("method");
       },
-
       goBackToPhone: () => {
         setStep("phone");
       },
-
       logout: () => {
         setAuthMethod(null);
         setStep("method");
         setPhone("");
         setEmail("");
-        setCodeState("");
+        setCode("");
         setUser(null);
-
         try {
           localStorage.removeItem(STORAGE_KEY);
         } catch {
           // ignore
         }
       },
-    };
-  }, [authMethod, step, phone, email, code, user]);
+    }),
+    [authMethod, step, phone, email, code, user]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
@@ -238,6 +206,5 @@ export function useAuth() {
   if (!ctx) {
     throw new Error("useAuth must be used inside AuthProvider");
   }
-
   return ctx;
 }

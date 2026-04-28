@@ -10,6 +10,7 @@ export interface Boat {
   price: number;        // ₽
   emoji: string;        // визуальный плейсхолдер
   tag?: string;         // "Хит", "Новинка" и т.д.
+  image?: string;       // путь к изображению
 }
 
 export type BuilderStep = 0 | 1 | 2 | 3 | 4 | 5;

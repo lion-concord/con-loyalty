@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useRef, useState, type ChangeEvent } from "react";
 import Button from "../../../shared/ui/Button";
 import Input from "../../../shared/ui/Input";
-import { useAuth } from "../../auth/context/AuthProvider";
+import { useAuth } from "../context/AuthProvider";
 
 function loadImage(file: File) {
   return new Promise<HTMLImageElement>((resolve, reject) => {
@@ -49,33 +49,16 @@ function getInitials(firstName?: string, lastName?: string) {
   return (a + b).toUpperCase() || "К";
 }
 
-export default function ProfileScreen() {
-  const { user, completeProfile, updateProfile, logout } = useAuth();
+export default function ProfileSetupScreen() {
+  const { completeProfile, phone, email, goBack } = useAuth();
 
-  const [firstName, setFirstName] = useState(user?.firstName ?? "");
-  const [lastName, setLastName] = useState(user?.lastName ?? "");
-  const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl ?? "");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
   const [isLoadingAvatar, setIsLoadingAvatar] = useState(false);
 
   const fileRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    setFirstName(user?.firstName ?? "");
-    setLastName(user?.lastName ?? "");
-    setAvatarUrl(user?.avatarUrl ?? "");
-  }, [user]);
-
-  const initials = useMemo(
-    () => getInitials(firstName || user?.firstName, lastName || user?.lastName),
-    [firstName, lastName, user]
-  );
-
-  const fullName = [
-    (firstName || user?.firstName || "").trim(),
-    (lastName || user?.lastName || "").trim(),
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const initials = getInitials(firstName, lastName);
 
   const onPickAvatar = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -85,7 +68,6 @@ export default function ProfileScreen() {
       setIsLoadingAvatar(true);
       const base64 = await fileToCompressedBase64(file);
       setAvatarUrl(base64);
-      updateProfile({ avatarUrl: base64 });
     } catch {
       // ignore
     } finally {
@@ -96,39 +78,29 @@ export default function ProfileScreen() {
     }
   };
 
-  const onSave = () => {
-    if (!firstName.trim()) return;
-
-    completeProfile({
-      firstName: firstName.trim(),
-      lastName: lastName.trim() || undefined,
-      avatarUrl: avatarUrl || undefined,
-      phone: user?.phone || undefined,
-      email: user?.email || undefined,
-    });
-  };
-
   return (
     <div className="lk-screen">
       <div className="lk-card lk-profile-card">
-        <h2 style={{ marginTop: 0 }}>Профиль</h2>
-        <p className="lk-muted">Обновите данные профиля и фотографию.</p>
-<div className="lk-profile-header" style={{ marginTop: 16 }}>
+        <h2 style={{ marginTop: 0 }}>Расскажите о себе</h2>
+        <p className="lk-muted">
+          Заполните профиль, чтобы пользоваться личным кабинетом.
+        </p>
+
+        <div className="lk-profile-header" style={{ marginTop: 16 }}>
           <div className="lk-avatar">
             {avatarUrl ? <img src={avatarUrl} alt="Аватар" /> : <span>{initials}</span>}
           </div>
 
           <div style={{ minWidth: 0 }}>
             <div className="lk-profile-name">
-              {fullName || "Участник программы"}
+              {[firstName.trim(), lastName.trim()].filter(Boolean).join(" ") || "Новый участник"}
             </div>
             <div className="lk-muted" style={{ marginTop: 4 }}>
-              {user?.phone || user?.email || "Телефон или email не указаны"}
+              {phone || email || "Контакт не указан"}
             </div>
           </div>
         </div>
-
-        <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
+<div style={{ display: "grid", gap: 12, marginTop: 16 }}>
           <Input
             type="text"
             placeholder="Имя"
@@ -151,38 +123,28 @@ export default function ProfileScreen() {
             style={{ display: "none" }}
           />
 
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => fileRef.current?.click()}
-          >
-            {isLoadingAvatar ? "Загрузка фото..." : "Изменить фото"}
+          <Button variant="secondary" onClick={() => fileRef.current?.click()}>
+            {isLoadingAvatar ? "Загрузка фото..." : "Добавить фото"}
           </Button>
 
-          {avatarUrl ? (
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => {
-                setAvatarUrl("");
-                updateProfile({ avatarUrl: undefined });
-              }}
-            >
-              Удалить фото
-            </Button>
-          ) : null}
-
           <Button
-            type="button"
             variant="primary"
-            onClick={onSave}
+            onClick={() =>
+              completeProfile({
+                firstName: firstName.trim(),
+                lastName: lastName.trim() || undefined,
+                avatarUrl: avatarUrl || undefined,
+                phone: phone || undefined,
+                email: email || undefined,
+              })
+            }
             disabled={!firstName.trim() || isLoadingAvatar}
           >
-            Сохранить
+            Продолжить
           </Button>
 
-          <Button type="button" variant="secondary" onClick={logout}>
-            Выйти
+          <Button variant="secondary" onClick={goBack}>
+            Назад
           </Button>
         </div>
       </div>
