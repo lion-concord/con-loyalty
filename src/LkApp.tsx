@@ -1,10 +1,10 @@
-import AppProviders from "./app/providers";
-import LkRouter from "./app/router";
+import { Providers } from "./app/providers";
+import LkRouter from "./app/LkRouter";
 
 export default function LkApp() {
   return (
-    <AppProviders>
-      <LkRouter konBalance={0} />
-    </AppProviders>
+    <Providers>
+      <LkRouter />
+    </Providers>
   );
 }

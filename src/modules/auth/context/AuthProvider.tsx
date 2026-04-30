@@ -1,243 +1,69 @@
 import {
   createContext,
   useContext,
-  useEffect,
-  useMemo,
   useState,
-  type ReactNode,
+  useEffect,
 } from "react";
+import type { ReactNode } from "react";
+import { onAuthStateChanged } from "../../../services/auth";
+import type { User as FirebaseUser } from "firebase/auth";
 
-export type AuthMethod = "phone" | "email";
-
-export interface UserProfile {
-  id: string;
-  firstName: string;
+export interface User {
+  uid: string;
+  phone?: string | null;
+  email?: string | null;
+  firstName?: string;
   lastName?: string;
-  phone?: string;
-  email?: string;
   avatarUrl?: string;
 }
 
 interface AuthContextValue {
-  isAuthorized: boolean;
-  authMethod: AuthMethod | null;
-  step: "method" | "phone" | "email" | "code" | "profile" | "authorized";
-  phone: string;
-  email: string;
-  code: string;
-  user: UserProfile | null;
-  openPhoneStep: () => void;
-  openEmailStep: () => void;
-  requestPhoneCode: (phone: string) => void;
-  requestEmailCode: (email: string) => void;
-  requestCode: (phone: string) => void;
-  setCode: (code: string) => void;
-  verifyCode: (code: string) => void;
-  completeProfile: (profile: Omit<UserProfile, "id">) => void;
-  updateProfile: (patch: Partial<Omit<UserProfile, "id">>) => void;
-  goBack: () => void;
-  goBackToPhone: () => void;
-  logout: () => void;
+  user: User | null;
+  isLoading: boolean;
+  setUser: (user: User | null) => void;
 }
 
-const AuthContext = createContext<AuthContextValue | null>(null);
-const STORAGE_KEY = "lk_auth_state_v2";
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-interface StoredState {
-  authMethod: AuthMethod | null;
-  step: AuthContextValue["step"];
-  phone: string;
-  email: string;
-  code: string;
-  user: UserProfile | null;
+function mapFirebaseUser(firebaseUser: FirebaseUser): User {
+  return {
+    uid: firebaseUser.uid,
+    phone: firebaseUser.phoneNumber,
+    email: firebaseUser.email,
+    firstName: firebaseUser.displayName?.split(" ")[0],
+    lastName: firebaseUser.displayName?.split(" ")[1],
+    avatarUrl: firebaseUser.photoURL || undefined,
+  };
 }
 
-interface Props {
-  children: ReactNode;
-}
-
-function createId() {
-  return `user_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-}
-
-export default function AuthProvider({ children }: Props) {
-  const [authMethod, setAuthMethod] = useState<AuthMethod | null>(null);
-  const [step, setStep] = useState<AuthContextValue["step"]>("method");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [code, setCodeState] = useState("");
-  const [user, setUser] = useState<UserProfile | null>(null);
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
+    const unsubscribe = onAuthStateChanged((firebaseUser) => {
+      if (firebaseUser) {
+        setUser(mapFirebaseUser(firebaseUser));
+      } else {
+        setUser(null);
+      }
+      setIsLoading(false);
+    });
 
-      const saved = JSON.parse(raw) as StoredState;
-      setAuthMethod(saved.authMethod ?? null);
-      setStep(saved.step ?? "method");
-      setPhone(saved.phone ?? "");
-      setEmail(saved.email ?? "");
-      setCodeState(saved.code ?? "");
-      setUser(saved.user ?? null);
-    } catch {
-      // ignore
-    }
+    return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    try {
-      const payload: StoredState = {
-        authMethod,
-        step,
-        phone,
-        email,
-        code,
-        user,
-      };
-
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    } catch {
-      // ignore
-    }
-  }, [authMethod, step, phone, email, code, user]);
-
-  const value: AuthContextValue = useMemo(() => {
-    return {
-      isAuthorized: step === "authorized",
-      authMethod,
-      step,
-      phone,
-      email,
-      code,
-      user,
-
-      openPhoneStep: () => {
-        setAuthMethod("phone");
-        setPhone("");
-        setEmail("");
-        setCodeState("");
-        setStep("phone");
-},
-
-      openEmailStep: () => {
-        setAuthMethod("email");
-        setPhone("");
-        setEmail("");
-        setCodeState("");
-        setStep("email");
-      },
-
-      requestPhoneCode: (nextPhone: string) => {
-        setAuthMethod("phone");
-        setPhone(nextPhone);
-        setEmail("");
-        setCodeState("");
-        setStep("code");
-      },
-
-      requestEmailCode: (nextEmail: string) => {
-        setAuthMethod("email");
-        setEmail(nextEmail);
-        setPhone("");
-        setCodeState("");
-        setStep("code");
-      },
-
-      requestCode: (nextPhone: string) => {
-        setAuthMethod("phone");
-        setPhone(nextPhone);
-        setEmail("");
-        setCodeState("");
-        setStep("code");
-      },
-
-      setCode: (nextCode: string) => {
-        setCodeState(nextCode);
-      },
-
-      verifyCode: (_nextCode: string) => {
-        if (user) {
-          setStep("authorized");
-          return;
-        }
-
-        setStep("profile");
-      },
-
-      completeProfile: (profile) => {
-        const nextUser: UserProfile = {
-          id: user?.id ?? createId(),
-          ...profile,
-          phone: phone || profile.phone,
-          email: email || profile.email,
-        };
-
-        setUser(nextUser);
-        setStep("authorized");
-      },
-
-      updateProfile: (patch) => {
-        setUser((prev) => {
-          if (!prev) return prev;
-
-          return {
-            ...prev,
-            ...patch,
-            phone: patch.phone ?? prev.phone,
-            email: patch.email ?? prev.email,
-          };
-        });
-      },
-
-      goBack: () => {
-        if (step === "phone" || step === "email") {
-          setStep("method");
-          return;
-        }
-
-        if (step === "code") {
-          setStep(authMethod === "email" ? "email" : "phone");
-          return;
-        }
-
-        if (step === "profile") {
-          setStep("code");
-          return;
-        }
-
-        setStep("method");
-      },
-
-      goBackToPhone: () => {
-        setStep("phone");
-      },
-
-      logout: () => {
-        setAuthMethod(null);
-        setStep("method");
-        setPhone("");
-        setEmail("");
-        setCodeState("");
-        setUser(null);
-
-        try {
-          localStorage.removeItem(STORAGE_KEY);
-        } catch {
-          // ignore
-        }
-      },
-    };
-  }, [authMethod, step, phone, email, code, user]);
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, isLoading, setUser }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error("useAuth must be used inside AuthProvider");
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
   }
-
-  return ctx;
+  return context;
 }

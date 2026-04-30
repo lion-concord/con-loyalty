@@ -1,24 +1,35 @@
-import Button from "../../../shared/ui/Button";
-
 interface Props {
-  onPhone: () => void;
-  onEmail: () => void;
+  onSelectPhone: () => void;
+  onSelectEmail: () => void;
 }
 
-export default function AuthMethodScreen({ onPhone, onEmail }: Props) {
+export default function AuthMethodScreen({ onSelectPhone, onSelectEmail }: Props) {
   return (
-    <div className="lk-screen">
-      <div className="lk-card">
-        <h2 style={{ marginTop: 0 }}>Вход в КОН</h2>
-        <p className="lk-muted">Выберите удобный способ входа.</p>
+    <div className="auth-screen">
+      <div className="auth-card">
+        <h1 className="auth-title">Вход в КОН</h1>
+        <p className="auth-subtitle">Выберите способ авторизации</p>
 
-        <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
-          <Button variant="primary" onClick={onPhone}>
-            По номеру телефона
-          </Button>
-          <Button variant="secondary" onClick={onEmail}>
-            По электронной почте
-          </Button>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 24 }}>
+          <button
+            type="button"
+            className="auth-button"
+            onClick={onSelectPhone}
+          >
+            📱 По номеру телефона
+          </button>
+
+          <button
+            type="button"
+            className="auth-button auth-button-secondary"
+            onClick={onSelectEmail}
+          >
+            ✉️ По email
+          </button>
+        </div>
+
+        <div className="auth-note" style={{ marginTop: 24 }}>
+          Продолжая, вы соглашаетесь с условиями использования и политикой конфиденциальности
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import Button from "../../../shared/ui/Button";
-import Input from "../../../shared/ui/Input";
 import { useAuth } from "../../auth/context/AuthProvider";
+import { signOut } from "../../../services/auth";
 
 function loadImage(file: File) {
   return new Promise<HTMLImageElement>((resolve, reject) => {
@@ -50,7 +50,7 @@ function getInitials(firstName?: string, lastName?: string) {
 }
 
 export default function ProfileScreen() {
-  const { user, completeProfile, updateProfile, logout } = useAuth();
+  const { user } = useAuth();
 
   const [firstName, setFirstName] = useState(user?.firstName ?? "");
   const [lastName, setLastName] = useState(user?.lastName ?? "");
@@ -66,122 +66,122 @@ export default function ProfileScreen() {
   }, [user]);
 
   const initials = useMemo(
-    () => getInitials(firstName || user?.firstName, lastName || user?.lastName),
-    [firstName, lastName, user]
+    () => getInitials(firstName, lastName),
+    [firstName, lastName]
   );
 
-  const fullName = [
-    (firstName || user?.firstName || "").trim(),
-    (lastName || user?.lastName || "").trim(),
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  const onPickAvatar = async (e: ChangeEvent<HTMLInputElement>) => {
+  async function handleAvatarChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setIsLoadingAvatar(true);
     try {
-      setIsLoadingAvatar(true);
       const base64 = await fileToCompressedBase64(file);
       setAvatarUrl(base64);
-      updateProfile({ avatarUrl: base64 });
-    } catch {
-      // ignore
+      console.log("Avatar updated");
+    } catch (err) {
+      console.error("Avatar upload error:", err);
+      alert("Не удалось загрузить фото");
     } finally {
       setIsLoadingAvatar(false);
-      if (fileRef.current) {
-        fileRef.current.value = "";
-      }
     }
-  };
+  }
 
-  const onSave = () => {
-    if (!firstName.trim()) return;
+  function handleSave() {
+    console.log("Profile saved:", { firstName, lastName, avatarUrl });
+    alert("Профиль сохранён");
+  }
 
-    completeProfile({
-      firstName: firstName.trim(),
-      lastName: lastName.trim() || undefined,
-      avatarUrl: avatarUrl || undefined,
-      phone: user?.phone || undefined,
-      email: user?.email || undefined,
-    });
-  };
+  async function handleLogout() {
+    try {
+      await signOut();
+      window.location.reload();
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  }
 
   return (
-    <div className="lk-screen">
-      <div className="lk-card lk-profile-card">
-        <h2 style={{ marginTop: 0 }}>Профиль</h2>
-        <p className="lk-muted">Обновите данные профиля и фотографию.</p>
-<div className="lk-profile-header" style={{ marginTop: 16 }}>
-          <div className="lk-avatar">
-            {avatarUrl ? <img src={avatarUrl} alt="Аватар" /> : <span>{initials}</span>}
+    <div className="profile-screen">
+      <div className="profile-header">
+        <h1>Профиль</h1>
+      </div>
+
+      <div className="profile-content">
+        <div className="profile-avatar-section">
+          <div className="profile-avatar-wrapper">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="Avatar" className="profile-avatar" />
+            ) : (
+              <div className="profile-avatar-placeholder">{initials}</div>
+            )}
+            {isLoadingAvatar && (
+<div className="profile-avatar-loading">Загрузка...</div>
+            )}
           </div>
-
-          <div style={{ minWidth: 0 }}>
-            <div className="lk-profile-name">
-              {fullName || "Участник программы"}
-            </div>
-            <div className="lk-muted" style={{ marginTop: 4 }}>
-              {user?.phone || user?.email || "Телефон или email не указаны"}
-            </div>
-          </div>
-        </div>
-
-        <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
-          <Input
-            type="text"
-            placeholder="Имя"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-          />
-
-          <Input
-            type="text"
-            placeholder="Фамилия"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-          />
 
           <input
             ref={fileRef}
             type="file"
             accept="image/*"
-            onChange={onPickAvatar}
+            onChange={handleAvatarChange}
             style={{ display: "none" }}
           />
 
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => fileRef.current?.click()}
-          >
-            {isLoadingAvatar ? "Загрузка фото..." : "Изменить фото"}
-          </Button>
-
-          {avatarUrl ? (
+          <div className="profile-avatar-actions">
             <Button
               type="button"
               variant="secondary"
-              onClick={() => {
-                setAvatarUrl("");
-                updateProfile({ avatarUrl: undefined });
-              }}
+              onClick={() => fileRef.current?.click()}
+              disabled={isLoadingAvatar}
             >
-              Удалить фото
+              Изменить фото
             </Button>
-          ) : null}
 
-          <Button
-            type="button"
-            variant="primary"
-            onClick={onSave}
-            disabled={!firstName.trim() || isLoadingAvatar}
-          >
+            {avatarUrl && (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setAvatarUrl("")}
+              >
+                Удалить фото
+              </Button>
+            )}
+          </div>
+        </div>
+
+        <div className="profile-form">
+          <div className="profile-info">
+            <p className="profile-contact">
+              {user?.phone || user?.email}
+            </p>
+          </div>
+
+          <div className="form-field">
+            <label>Имя</label>
+            <input
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="Введите имя"
+            />
+          </div>
+
+          <div className="form-field">
+            <label>Фамилия</label>
+            <input
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Введите фамилию"
+            />
+          </div>
+
+          <Button type="button" onClick={handleSave}>
             Сохранить
           </Button>
 
-          <Button type="button" variant="secondary" onClick={logout}>
+          <Button type="button" variant="secondary" onClick={handleLogout}>
             Выйти
           </Button>
         </div>
