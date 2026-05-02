@@ -102,14 +102,3 @@ jobs:
         with:
           name: kon-loyalty-release-aab
           path: android/app/build/outputs/bundle/release/*.aab
-
-  get-sha1:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Decode keystore
-        run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore
-
-      - name: Get SHA-1
-        run: |
-          keytool -list -v -keystore release.keystore -alias upload -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keypass "${{ secrets.KEY_PASSWORD }}" | grep SHA1
