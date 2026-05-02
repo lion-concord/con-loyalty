@@ -1,0 +1,16 @@
+name: Get SHA-1
+
+on:
+  workflow_dispatch:
+
+jobs:
+  get-sha1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore
+
+      - name: Get SHA-1 fingerprint
+        run: |
+          keytool -list -v -keystore release.keystore -alias upload -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keypass "${{ secrets.KEY_PASSWORD }}" | grep SHA1
