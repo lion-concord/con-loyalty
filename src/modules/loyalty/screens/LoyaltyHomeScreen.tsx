@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useAuth } from "../../auth/context/AuthProvider";
+import { signOut } from "../../../services/auth";
 import { CLUB_STATUSES, getClubStatusMeta } from "../clubStatus";
 
 interface Props {
@@ -28,7 +29,7 @@ export default function LoyaltyHomeScreen({
   const fullName = useMemo(() => {
     return [user?.firstName?.trim(), user?.lastName?.trim()]
       .filter(Boolean)
-      .join(" ");
+      .join(" ") || "Участник программы";
   }, [user]);
 
   const initials = useMemo(
@@ -36,33 +37,42 @@ export default function LoyaltyHomeScreen({
     [user]
   );
 
-  const statusMeta = useMemo(
-    () => getClubStatusMeta(konBalance),
-    [konBalance]
-  );
+  const statusMeta = useMemo(() => getClubStatusMeta(konBalance), [konBalance]);
+  const currentStatus = statusMeta.current;
+  const nextStatus = statusMeta.next;
+
+  async function handleLogout() {
+    if (confirm("Вы уверены, что хотите выйти?")) {
+      try {
+        await signOut();
+        window.location.reload();
+      } catch (err) {
+        console.error("Logout error:", err);
+        alert("Ошибка выхода");
+      }
+    }
+  }
 
   return (
     <div className="lk-screen">
-      <div className="lk-card">
-        <div className="lk-home-profile">
-          <div className="lk-home-profile-main">
-            <div className="lk-home-avatar">
-              {user?.avatarUrl ? (
-                <img src={user.avatarUrl} alt="Аватар" />
-              ) : (
-                <span>{initials}</span>
-              )}
-            </div>
-
-            <div style={{ minWidth: 0 }}>
-              <div className="lk-home-title">
-                {fullName || "Участник программы"}
-              </div>
-              <div className="lk-muted" style={{ marginTop: 4 }}>
-                {user?.phone || user?.email || "Личный кабинет"}
-              </div>
-            </div>
+      <div className="lk-card lk-profile-card">
+        <div className="lk-profile-header">
+          <div className="lk-avatar-wrapper">
+            {user?.avatarUrl ? (
+              <img src={user.avatarUrl} alt="Avatar" className="lk-avatar" />
+            ) : (
+              <div className="lk-avatar-placeholder">{initials}</div>
+            )}
           </div>
+
+          <div className="lk-profile-info">
+            <h2 className="lk-profile-name">{fullName}</h2>
+            <p className="lk-profile-contact">{user?.phone || user?.email}</p>
+          </div>
+        </div>
+
+        <div className="lk-profile-actions">
+          <div className="lk-profile-section-title">Личный кабинет</div>
 
           <button
             type="button"
@@ -71,327 +81,114 @@ export default function LoyaltyHomeScreen({
           >
             Редактировать профиль
           </button>
+
+          <button
+            type="button"
+            className="lk-secondary-button"
+            onClick={handleLogout}
+            style={{ marginTop: "8px", background: "#ef4444" }}
+          >
+            Выйти из аккаунта
+          </button>
         </div>
       </div>
 
       <div className="lk-card lk-club-card">
-        <div className="lk-club-top">
-          <div>
-            <div className="lk-club-label">Клубный статус</div>
-            <div className="lk-club-status-row">
-              <div className="lk-club-status-icon" aria-hidden="true">
-                {statusMeta.current.icon}
+        <div className="lk-section-title">Клубный статус</div>
+
+        <div className="lk-status-current">
+          <div className="lk-status-badge">
+            <span className="lk-status-icon">{currentStatus.icon}</span>
+            <span className="lk-status-name">{currentStatus.title}</span>
+          </div>
+
+          <div className="lk-kon-balance">
+            <span className="lk-kon-amount">{konBalance.toLocaleString("ru-RU")}</span>
+            <span className="lk-kon-label">КОН</span>
+          </div>
+        </div>
+
+        <div className="lk-status-list">
+          {CLUB_STATUSES.map((status) => {
+            const isActive = konBalance >= status.minKon;
+const isCurrent = status.key === currentStatus.key;
+
+            return (
+              <div
+                key={status.key}
+                className={`lk-status-item ${isActive ? "active" : ""} ${
+                  isCurrent ? "current" : ""
+                }`}
+              >
+                <span className="lk-status-icon">{status.icon}</span>
+                <span className="lk-status-name">{status.title}</span>
+                <span className="lk-status-kon">{status.minKon} КОН</span>
               </div>
-              <div className="lk-club-status">{statusMeta.current.title}</div>
-            </div>
-          </div>
-
-          <div className="lk-club-balance">
-            <div className="lk-balance-label">Баланс КОН</div>
-            <div className="lk-balance-value">{konBalance}</div>
-          </div>
+            );
+          })}
         </div>
 
-        <div className="lk-club-progress-wrap">
-          <div className="lk-club-progress-line" />
-          <div
-            className="lk-club-progress-fill"
-            style={{ width: `${statusMeta.progress}%` }}
-          />
-
-          <div className="lk-club-steps">
-            {CLUB_STATUSES.map((item, index) => {
-              const isDone = index < statusMeta.currentIndex;
-              const isCurrent = index === statusMeta.currentIndex;
-
-              return (
-                <div
-                  key={item.key}
-                  className={[
-                    "lk-club-step",
-                    isDone ? "is-done" : "",
-                    isCurrent ? "is-current" : "",
-]
-                    .filter(Boolean)
-                    .join(" ")}
-                >
-                  <div className="lk-club-dot">{item.icon}</div>
-                  <div className="lk-club-step-title">{item.shortLabel}</div>
-                  <div className="lk-club-step-value">{item.minKon} КОН</div>
-                </div>
-              );
-            })}
+        {nextStatus && (
+          <div className="lk-status-progress">
+            <p className="lk-progress-text">
+              До статуса «{nextStatus.title}» осталось{" "}
+              <strong>{statusMeta.left.toLocaleString("ru-RU")} КОН</strong>
+            </p>
           </div>
-        </div>
+        )}
 
-        <div className="lk-club-note">
-          {statusMeta.next
-            ? `До статуса «${statusMeta.next.title}» осталось ${statusMeta.left} КОН`
-            : "Вы достигли максимального клубного статуса"}
-        </div>
-
-        <div className="lk-club-perks">
-          <div className="lk-club-perks-title">
-            Привилегии статуса «{statusMeta.current.title}»
+        <div className="lk-status-privileges">
+          <div className="lk-privileges-title">
+            Привилегии статуса «{currentStatus.title}»:
           </div>
-
-          <div className="lk-club-perks-list">
-            {statusMeta.current.perks.map((perk) => (
-              <div key={perk} className="lk-club-perk-item">
-                <span className="lk-club-perk-bullet" aria-hidden="true">
-                  ✦
-                </span>
-                <span>{perk}</span>
-              </div>
+          <ul className="lk-privileges-list">
+            {currentStatus.perks.map((perk, index) => (
+              <li key={index}>{perk}</li>
             ))}
-          </div>
+          </ul>
         </div>
       </div>
 
-      <div
-        className="lk-card"
-        style={{
-          marginTop: 16,
-          padding: 0,
-          overflow: "hidden",
-          position: "relative",
-          background: "linear-gradient(135deg, #06223d 0%, #0b4f6c 45%, #0ea5e9 100%)",
-          color: "#fff",
-          border: "1px solid rgba(255,255,255,0.12)",
-          boxShadow: "0 12px 30px rgba(3, 105, 161, 0.24)"
-        }}
-      >
-        <style>{`
-          @keyframes semrekWave {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-80px); }
-          }
-          @keyframes semrekFloat {
-            0%, 100% { transform: translateY(0) rotate(-2deg); }
-            50% { transform: translateY(-5px) rotate(2deg); }
-          }
-          @keyframes semrekGlow {
-            0%, 100% { opacity: .45; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.08); }
-          }
-        `}</style>
+      {onOpenSemrek && (
+        <div className="lk-card lk-partner-card">
+          <div className="lk-partner-badge">ПАРТНЁР</div>
+          <h3 className="lk-partner-title">Семь рек</h3>
+          <p className="lk-partner-description">
+            Лодки ПВХ: ремонт, тюнинг, комплекты под ключ.
+          </p>
 
-        <button
-          type="button"
-          onClick={() => onOpenSemrek?.()}
-          style={{
-            width: "100%",
-            border: "none",
-            background: "transparent",
-            color: "inherit",
-            textAlign: "left",
-            padding: 0,
-            cursor: "pointer",
-            display: "block"
-          }}
-        >
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: "radial-gradient(circle at top right, rgba(255,255,255,0.16), transparent 32%)",
-              pointerEvents: "none"
-            }}
-          />
-
-          <div style={{ padding: 16, position: "relative", zIndex: 1 }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                gap: 12,
-                alignItems: "flex-start"
-              }}
+          <div className="lk-partner-actions">
+            <button
+              type="button"
+              className="lk-partner-button"
+              onClick={onOpenSemrek}
             >
-              <div style={{ minWidth: 0 }}>
-                <div
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 800,
-                    letterSpacing: 1,
-                    opacity: 0.85,
-                    textTransform: "uppercase"
-                  }}
-                >
-                  Партнёр
-                </div>
-
-                <div
-                  style={{
-                    fontSize: 24,
-                    fontWeight: 900,
-                    marginTop: 6,
-                    lineHeight: 1.1
-                  }}
-                >
-                  Семь рек
-                </div>
-
-                <div
-                  style={{
-                    fontSize: 13,
-                    lineHeight: 1.5,
-                    marginTop: 8,
-                    opacity: 0.95
-                  }}
-                >
-                  Лодки ПВХ: ремонт, тюнинг, комплекты под ключ.
-                </div>
-
-                <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
-<span style={{ padding: "6px 10px", borderRadius: 999, background: "rgba(255,255,255,0.14)", fontSize: 12, fontWeight: 700 }}>
-                    Ремонт лодок
-                  </span>
-                  <span style={{ padding: "6px 10px", borderRadius: 999, background: "rgba(255,255,255,0.14)", fontSize: 12, fontWeight: 700 }}>
-                    Тюнинг ПВХ
-                  </span>
-                  <span style={{ padding: "6px 10px", borderRadius: 999, background: "rgba(255,255,255,0.14)", fontSize: 12, fontWeight: 700 }}>
-                    Готовые комплекты
-                  </span>
-                </div>
-              </div>
-
-
-            </div>
-
-            <div
-              style={{
-                position: "relative",
-                marginTop: 14,
-                height: 92,
-                borderRadius: 16,
-                overflow: "hidden",
-                background: "linear-gradient(180deg, rgba(186,230,253,0.18) 0%, rgba(125,211,252,0.10) 35%, rgba(14,116,144,0.18) 100%)"
-              }}
+              Ремонт лодок
+            </button>
+            <button
+              type="button"
+              className="lk-partner-button"
+              onClick={onOpenSemrek}
             >
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  background: "linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 45%, transparent 100%)"
-                }}
-              />
-
-              <div
-                style={{
-                  position: "absolute",
-                  left: "50%",
-                  top: 8,
-                  transform: "translateX(-50%)",
-                  fontSize: 18,
-                  opacity: 0.4,
-                  animation: "semrekGlow 2.4s ease-in-out infinite"
-                }}
-              >
-                ✦
-              </div>
-
-              <div
-                style={{
-                  position: "absolute",
-                  left: "50%",
-                  bottom: 34,
-                  transform: "translateX(-50%)",
-                  fontSize: 32,
-                  zIndex: 5,
-                  animation: "semrekFloat 3.6s ease-in-out infinite",
-                  filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.18))"
-                }}
-              >
-                ⛵
-              </div>
-
-              <div
-                style={{
-                  position: "absolute",
-                  left: "-8%",
-                  right: "-8%",
-                  bottom: 28,
-                  height: 26,
-                  borderRadius: "50% 50% 0 0 / 100% 100% 0 0",
-                  background: "linear-gradient(180deg, rgba(125,211,252,0.55) 0%, rgba(56,189,248,0.42) 100%)",
-                  transform: "translateX(0)",
-                  animation: "semrekWave 7s linear infinite"
-                }}
-              />
-
-              <div
-                style={{
-                  position: "absolute",
-                  left: "-12%",
-                  right: "-12%",
-                  bottom: 14,
-                  height: 32,
-                  borderRadius: "55% 45% 0 0 / 100% 100% 0 0",
-                  background: "linear-gradient(180deg, rgba(14,165,233,0.72) 0%, rgba(8,145,178,0.58) 100%)",
-                  transform: "translateX(0)",
-                  animation: "semrekWave 10s linear infinite reverse"
-                }}
-              />
-
-              <div
-                style={{
-                  position: "absolute",
-left: "-10%",
-                  right: "-10%",
-                  bottom: -2,
-                  height: 42,
-                  borderRadius: "60% 40% 0 0 / 100% 100% 0 0",
-                  background: "linear-gradient(180deg, rgba(8,145,178,0.95) 0%, rgba(6,78,110,0.98) 100%)",
-                  transform: "translateX(0)",
-                  animation: "semrekWave 12s linear infinite"
-                }}
-              />
-
-              <div
-                style={{
-                  position: "absolute",
-                  left: "50%",
-                  bottom: 30,
-                  width: 54,
-                  height: 8,
-                  transform: "translateX(-50%)",
-                  borderRadius: 999,
-                  background: "rgba(255,255,255,0.22)",
-                  filter: "blur(2px)",
-                  zIndex: 4
-                }}
-              />
-            </div>
-
-            <div
-              style={{
-                marginTop: 14,
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                background: "rgba(255,255,255,0.14)",
-                borderRadius: 12,
-                padding: "12px 14px"
-              }}
+              Тюнинг ПВХ
+            </button>
+            <button
+              type="button"
+              className="lk-partner-button"
+              onClick={onOpenSemrek}
             >
-<span style={{ fontSize: 14, fontWeight: 800 }}>Открыть «Семь рек»</span>
-              <span style={{ fontSize: 18, fontWeight: 900 }}>→</span>
-            </div>
+              Готовые комплекты
+            </button>
           </div>
-        </button>
-      </div>
 
-      <div className="lk-grid">
-        <button
-          type="button"
-          className="lk-card lk-action-card"
-          onClick={() => onOpenSemrek?.()}
-        >
-          <div className="lk-action-title">Партнёры</div>
-          <div className="lk-muted">Где копить и тратить баллы</div>
-        </button>
-      </div>
+          <div className="lk-partner-image">
+            <img
+              src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&auto=format&fit=crop"
+              alt="Семь рек"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
