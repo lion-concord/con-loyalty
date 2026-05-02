@@ -11,6 +11,12 @@ jobs:
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore
 
+      - name: List all aliases
+        run: |
+          echo "=== All aliases in keystore ==="
+          keytool -list -keystore release.keystore -storepass "${{ secrets.KEYSTORE_PASSWORD }}" || echo "Failed to list aliases"
+
       - name: Get SHA-1 fingerprint
         run: |
-          keytool -list -v -keystore release.keystore -alias upload -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -keypass "${{ secrets.KEY_PASSWORD }}" | grep SHA1
+          echo "=== SHA-1 for alias: ${{ secrets.KEY_ALIAS }} ==="
+          keytool -list -v -keystore release.keystore -alias "${{ secrets.KEY_ALIAS }}" -storepass "${{ secrets.KEYSTORE_PASSWORD }}" | grep SHA1 || echo "Failed to get SHA-1"
