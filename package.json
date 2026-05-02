@@ -22,6 +22,7 @@
     "@capacitor/splash-screen": "^8.0.1",
     "@tonconnect/ui-react": "^2.4.4",
     "@twa-dev/sdk": "^8.0.2",
+    "@vkid/sdk": "^2.6.5",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",

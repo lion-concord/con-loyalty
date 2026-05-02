@@ -1,0 +1,130 @@
+.login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 400px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.login-logo {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: white;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.login-logo h1 {
+  font-size: 48px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  letter-spacing: 2px;
+}
+
+.login-logo p {
+  font-size: 16px;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.login-content {
+  padding: 40px 30px;
+}
+
+.login-content h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: #1f2937;
+}
+
+.login-description {
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0 0 32px 0;
+}
+
+.login-error {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.login-button {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.vk-button {
+  background: #0077ff;
+  color: white;
+}
+
+.vk-button:hover:not(:disabled) {
+  background: #0066dd;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 119, 255, 0.4);
+}
+
+.vk-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.login-terms {
+  font-size: 12px;
+  color: #9ca3af;
+  text-align: center;
+  margin: 20px 0 0 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 480px) {
+  .login-screen {
+    padding: 0;
+  }
+
+  .login-container {
+    border-radius: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .login-logo {
+    padding: 60px 20px;
+  }
+
+  .login-content {
+    padding: 30px 20px;
+  }
+}

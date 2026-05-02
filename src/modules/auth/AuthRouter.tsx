@@ -1,61 +1,27 @@
-import { useState } from "react";
-import AuthMethodScreen from "./screens/AuthMethodScreen";
-import PhoneScreen from "./screens/PhoneScreen";
-import EmailScreen from "./screens/EmailScreen";
-import ProfileSetupScreen from "./screens/ProfileSetupScreen";
+import { useAuth } from './context/AuthProvider';
+import LoginScreen from './screens/LoginScreen';
+import LkRouter from '../../app/LkRouter';
 
-type AuthStep = "method" | "phone" | "email" | "profile";
+export default function AuthRouter() {
+  const { user, isLoading } = useAuth();
 
-interface Props {
-  onComplete: () => void;
-}
-
-export default function AuthRouter({ onComplete }: Props) {
-  const [step, setStep] = useState<AuthStep>("method");
-
-  function handleAuthSuccess() {
-    // После успешной авторизации переходим к настройке профиля
-    setStep("profile");
+  if (isLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+      }}>
+        <div style={{ color: 'white', fontSize: '18px' }}>Загрузка...</div>
+      </div>
+    );
   }
 
-  function handleProfileComplete() {
-    onComplete();
+  if (!user) {
+    return <LoginScreen />;
   }
 
-  switch (step) {
-    case "method":
-      return (
-        <AuthMethodScreen
-          onSelectPhone={() => setStep("phone")}
-          onSelectEmail={() => setStep("email")}
-        />
-      );
-
-    case "phone":
-      return (
-        <PhoneScreen
-          onSuccess={handleAuthSuccess}
-          onBack={() => setStep("method")}
-        />
-      );
-
-    case "email":
-      return (
-        <EmailScreen
-          onSuccess={handleAuthSuccess}
-          onBack={() => setStep("method")}
-        />
-      );
-
-    case "profile":
-      return (
-        <ProfileSetupScreen
-          onComplete={handleProfileComplete}
-          onSkip={handleProfileComplete}
-        />
-      );
-
-    default:
-      return null;
-  }
+  return <LkRouter />;
 }
