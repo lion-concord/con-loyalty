@@ -1,0 +1,65 @@
+{
+  "name": "capacitor-vk-id",
+  "version": "1.0.0",
+  "description": "VK ID authentication plugin for Capacitor",
+  "main": "dist/plugin.cjs.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "unpkg": "dist/plugin.js",
+  "files": [
+    "android/",
+    "dist/",
+    "ios/"
+  ],
+  "author": "CON Loyalty",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lion-concord/con-loyalty"
+  },
+  "bugs": {
+    "url": "https://github.com/lion-concord/con-loyalty/issues"
+  },
+  "keywords": [
+    "capacitor",
+    "plugin",
+    "native",
+    "vk",
+    "vkontakte",
+    "vk-id",
+    "authentication"
+  ],
+  "scripts": {
+    "verify": "npm run verify:android",
+    "verify:android": "cd android && ./gradlew clean build test && cd ..",
+    "lint": "npm run eslint",
+    "eslint": "eslint . --ext ts",
+    "build": "npm run clean && npm run docgen && tsc && rollup -c rollup.config.js",
+    "clean": "rimraf ./dist",
+    "watch": "tsc --watch",
+    "prepublishOnly": "npm run build",
+    "docgen": "docgen --api VkIdPlugin --output-readme README.md --output-json dist/docs.json"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.3.1",
+    "@capacitor/core": "^8.3.1",
+    "@capacitor/docgen": "^0.2.2",
+    "@ionic/eslint-config": "^0.4.0",
+    "@ionic/swiftlint-config": "^1.1.2",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
+    "prettier-plugin-java": "^2.6.0",
+    "rimraf": "^5.0.10",
+    "rollup": "^4.60.2",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "@capacitor/core": "^8.0.0"
+  },
+  "capacitor": {
+    "android": {
+      "src": "android"
+    }
+  }
+}
