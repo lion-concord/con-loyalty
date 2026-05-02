@@ -1,14 +1,13 @@
 import "./styles/ui-theme.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { AuthProvider } from "./modules/auth/context/AuthProvider";
 import App from "./App";
-import LkApp from "./LkApp";
-
-const isCrypto = import.meta.env.VITE_ENABLE_CRYPTO === "true";
-const RootApp = isCrypto ? App : LkApp;
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RootApp />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </React.StrictMode>
 );
