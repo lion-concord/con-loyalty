@@ -37,7 +37,7 @@ android {
             }
         }
         debug {
-            storeFile file("$projectDir/debug.keystore")
+            storeFile file("${projectDir}/debug.keystore")
             storePassword "android"
             keyAlias "androiddebugkey"
             keyPassword "android"
