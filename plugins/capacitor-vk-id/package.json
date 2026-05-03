@@ -9,13 +9,14 @@
   "files": [
     "android/",
     "dist/",
-    "ios/"
+    "ios/",
+    "CapacitorVkId.podspec"
   ],
   "author": "CON Loyalty",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lion-concord/con-loyalty"
+    "url": "git+https://github.com/lion-concord/con-loyalty.git"
   },
   "bugs": {
     "url": "https://github.com/lion-concord/con-loyalty/issues"
@@ -25,37 +26,41 @@
     "plugin",
     "native",
     "vk",
-    "vkontakte",
-    "vk-id",
+    "vkid",
     "authentication"
   ],
   "scripts": {
     "verify": "npm run verify:android",
     "verify:android": "cd android && ./gradlew clean build test && cd ..",
-    "lint": "npm run eslint",
+    "lint": "npm run eslint && npm run prettier -- --check",
+    "fmt": "npm run eslint -- --fix && npm run prettier -- --write",
     "eslint": "eslint . --ext ts",
-    "build": "npm run clean && npm run docgen && tsc && rollup -c rollup.config.js",
+    "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
+    "docgen": "docgen --api VkIdPlugin --output-readme README.md --output-json dist/docs.json || true",
+    "build": "npm run clean && tsc && rollup -c rollup.config.js",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
-    "prepublishOnly": "npm run build",
-    "docgen": "docgen --api VkIdPlugin --output-readme README.md --output-json dist/docs.json"
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
-    "@capacitor/android": "^8.3.1",
-    "@capacitor/core": "^8.3.1",
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
     "@capacitor/docgen": "^0.2.2",
     "@ionic/eslint-config": "^0.4.0",
-    "@ionic/swiftlint-config": "^1.1.2",
-    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@ionic/prettier-config": "^4.0.0",
     "eslint": "^8.57.0",
     "prettier": "^3.2.5",
     "prettier-plugin-java": "^2.6.0",
-    "rimraf": "^5.0.10",
-    "rollup": "^4.60.2",
-    "typescript": "^5.9.3"
+    "rimraf": "^5.0.5",
+    "rollup": "^4.9.6",
+    "typescript": "~5.3.3"
   },
   "peerDependencies": {
     "@capacitor/core": "^8.0.0"
+  },
+  "prettier": "@ionic/prettier-config",
+  "eslintConfig": {
+    "extends": "@ionic/eslint-config/recommended"
   },
   "capacitor": {
     "android": {
