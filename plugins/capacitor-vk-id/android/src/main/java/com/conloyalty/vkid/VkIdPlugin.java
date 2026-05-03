@@ -1,7 +1,8 @@
 package com.conloyalty.vkid;
 
-import android.app.Activity;
 import android.util.Log;
+
+import androidx.activity.ComponentActivity;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -24,7 +25,7 @@ public class VkIdPlugin extends Plugin {
 
     @PluginMethod
     public void login(PluginCall call) {
-        Activity activity = getActivity();
+        ComponentActivity activity = (ComponentActivity) getActivity();
         if (activity == null) {
             call.reject("Activity not available");
             return;
@@ -34,7 +35,7 @@ public class VkIdPlugin extends Plugin {
         scopes.add(VKScope.EMAIL);
         scopes.add(VKScope.PHONE);
 
-        VK.login(activity, scopes, result -> {
+        VK.login(activity, result -> {
             if (result instanceof VKAuthenticationResult.Success) {
                 VKAuthenticationResult.Success successResult = (VKAuthenticationResult.Success) result;
 
