@@ -4,5 +4,5 @@
     <string name="title_activity_main">КОН</string>
     <string name="package_name">ru.konconsulting.loyalty</string>
     <string name="custom_url_scheme">ru.konconsulting.loyalty</string>
-</resources>
     <integer name="com_vk_sdk_AppId">54574930</integer>
+</resources>
