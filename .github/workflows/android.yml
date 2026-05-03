@@ -55,15 +55,6 @@ jobs:
           npm run build
           cd ../..
 
-      - name: Debug Capacitor install
-        run: |
-          echo "=== node_modules/.bin (cap*) ==="
-          ls -la node_modules/.bin/ 2>/dev/null | grep -i cap || echo "cap NOT FOUND"
-          echo "=== @capacitor folder ==="
-          ls -la node_modules/@capacitor/ 2>/dev/null || echo "@capacitor NOT FOUND"
-          echo "=== npx cap --version ==="
-          npx cap --version || echo "npx cap failed"
-
       - name: Build RuStore web bundle
         run: npm run build:rustore
 
@@ -95,22 +86,22 @@ jobs:
         working-directory: android
         run: ./gradlew assembleRelease
 
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: kon-loyalty-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
       - name: Upload release APK
         if: env.HAS_KEYSTORE == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: kon-loyalty-release-apk
-          path: android/app/build/outputs/apk/release/*.apk
-
-      - name: Upload debug APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: kon-loyalty-debug-apk
-          path: android/app/build/outputs/apk/debug/*.apk
+          path: android/app/build/outputs/apk/release/app-release.apk
 
       - name: Upload release AAB
         if: env.HAS_KEYSTORE == 'true'
         uses: actions/upload-artifact@v4
         with:
-name: kon-loyalty-release-aab
-          path: android/app/build/outputs/bundle/release/*.aab
+          name: kon-loyalty-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
