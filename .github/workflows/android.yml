@@ -38,6 +38,11 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Create local.properties
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > android/local.properties
+          cat android/local.properties
+
       - name: Install dependencies
         run: |
           npm install --no-audit --no-fund
@@ -98,7 +103,7 @@ jobs:
           path: android/app/build/outputs/apk/release/*.apk
 
       - name: Upload debug APK
-        uses: actions/upload-artifact@v4
+uses: actions/upload-artifact@v4
         with:
           name: kon-loyalty-debug-apk
           path: android/app/build/outputs/apk/debug/*.apk
