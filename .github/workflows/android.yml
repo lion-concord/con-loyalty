@@ -107,15 +107,6 @@ jobs:
         working-directory: android
         run: ./gradlew assembleRelease
 
-      - name: Sign release APK with apksigner
-        if: env.HAS_KEYSTORE == 'true'
-        run: |
-          $ANDROID_HOME/build-tools/34.0.0/apksigner sign \
-            --ks android/app/release.keystore \
-            --ks-pass pass:android123 \
-            --key-pass pass:android123 \
-            --ks-key-alias kon-release \
-            android/app/build/outputs/apk/release/app-release.apk
 
       - name: Upload release APK
         if: env.HAS_KEYSTORE == 'true'
