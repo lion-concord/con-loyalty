@@ -77,6 +77,13 @@ jobs:
           ls -la android/app/debug.keystore
           file android/app/debug.keystore
 
+      - name: Configure debug signing
+        run: |
+          echo "android.injected.signing.store.file=$(pwd)/android/app/debug.keystore" >> android/gradle.properties
+          echo "android.injected.signing.store.password=android" >> android/gradle.properties
+          echo "android.injected.signing.key.alias=androiddebugkey" >> android/gradle.properties
+          echo "android.injected.signing.key.password=android" >> android/gradle.properties
+
       - name: Build debug APK
         working-directory: android
         run: ./gradlew assembleDebug
