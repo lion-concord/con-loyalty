@@ -72,6 +72,11 @@ jobs:
           keyPassword=${{ secrets.KEY_PASSWORD }}
           EOF2
 
+      - name: Verify debug.keystore exists
+        run: |
+          ls -la android/app/debug.keystore
+          file android/app/debug.keystore
+
       - name: Build debug APK
         working-directory: android
         run: ./gradlew assembleDebug

@@ -53,8 +53,6 @@ android {
             }
         }
         debug {
-            // Подписываем debug release-ключом, если он есть,
-            // чтобы APK обновлялись на устройстве без удаления
             signingConfig signingConfigs.debug
         }
     }
