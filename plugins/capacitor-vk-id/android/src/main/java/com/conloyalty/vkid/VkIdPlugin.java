@@ -3,6 +3,7 @@ package com.conloyalty.vkid;
 import android.util.Log;
 
 import androidx.activity.ComponentActivity;
+import androidx.activity.result.ActivityResultCallback;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -16,8 +17,6 @@ import com.vk.api.sdk.auth.VKScope;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import kotlin.Unit;
 
 @CapacitorPlugin(name = "VkId")
 public class VkIdPlugin extends Plugin {
@@ -35,37 +34,40 @@ public class VkIdPlugin extends Plugin {
         scopes.add(VKScope.EMAIL);
         scopes.add(VKScope.PHONE);
 
-        VK.login(activity, result -> {
-            if (result instanceof VKAuthenticationResult.Success) {
-                VKAuthenticationResult.Success successResult = (VKAuthenticationResult.Success) result;
+        ActivityResultCallback<VKAuthenticationResult> callback = new ActivityResultCallback<VKAuthenticationResult>() {
+            @Override
+            public void onActivityResult(VKAuthenticationResult result) {
+                if (result instanceof VKAuthenticationResult.Success) {
+                    VKAuthenticationResult.Success successResult = (VKAuthenticationResult.Success) result;
 
-                try {
-                    long userId = successResult.getToken().getUserId().getValue();
-                    String accessToken = successResult.getToken().getAccessToken();
+                    try {
+                        long userId = successResult.getToken().getUserId().getValue();
+                        String accessToken = successResult.getToken().getAccessToken();
 
-                    JSObject user = new JSObject();
-                    user.put("id", userId);
+                        JSObject user = new JSObject();
+                        user.put("id", userId);
 
-                    JSObject response = new JSObject();
-                    response.put("user", user);
-                    response.put("accessToken", accessToken);
+                        JSObject response = new JSObject();
+                        response.put("user", user);
+                        response.put("accessToken", accessToken);
 
-                    call.resolve(response);
-                } catch (Exception e) {
-                    Log.e(TAG, "Error processing VK login result", e);
-                    call.reject("Failed to process login result", e);
+                        call.resolve(response);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error processing VK login result", e);
+                        call.reject("Failed to process login result", e);
+                    }
+
+                } else if (result instanceof VKAuthenticationResult.Failed) {
+                    VKAuthenticationResult.Failed failedResult = (VKAuthenticationResult.Failed) result;
+                    call.reject("VK login failed: " + failedResult.getException().getMessage());
+
+                } else {
+                    call.reject("VK login cancelled");
                 }
-
-            } else if (result instanceof VKAuthenticationResult.Failed) {
-                VKAuthenticationResult.Failed failedResult = (VKAuthenticationResult.Failed) result;
-                call.reject("VK login failed: " + failedResult.getException().getMessage());
-
-            } else {
-                call.reject("VK login cancelled");
             }
+        };
 
-            return Unit.INSTANCE;
-        });
+        VK.login(activity, callback);
     }
 
     @PluginMethod
