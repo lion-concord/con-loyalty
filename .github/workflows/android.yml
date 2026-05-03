@@ -88,14 +88,14 @@ jobs:
         working-directory: android
         run: ./gradlew assembleDebug
 
-      - name: Sign debug APK manually
+      - name: Sign debug APK with apksigner
         run: |
-          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
-            -keystore android/app/debug.keystore \
-            -storepass android \
-            -keypass android \
-            android/app/build/outputs/apk/debug/app-debug.apk \
-            androiddebugkey
+          $ANDROID_HOME/build-tools/34.0.0/apksigner sign \
+            --ks android/app/debug.keystore \
+            --ks-pass pass:android \
+            --key-pass pass:android \
+            --ks-key-alias androiddebugkey \
+            android/app/build/outputs/apk/debug/app-debug.apk
 
       - name: Build release AAB
         if: env.HAS_KEYSTORE == 'true'
