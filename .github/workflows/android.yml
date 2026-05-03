@@ -121,12 +121,6 @@ jobs:
           name: kon-loyalty-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
 
-      - name: Upload release APK
-        if: env.HAS_KEYSTORE == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: kon-loyalty-release-apk
-          path: android/app/build/outputs/apk/release/app-release.apk
 
       - name: Upload release AAB
         if: env.HAS_KEYSTORE == 'true'
