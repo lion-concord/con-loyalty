@@ -5,4 +5,5 @@
     <string name="package_name">ru.konconsulting.loyalty</string>
     <string name="custom_url_scheme">ru.konconsulting.loyalty</string>
     <integer name="com_vk_sdk_AppId">54574930</integer>
+    <string name="vk_app_id">54574930</string>
 </resources>
