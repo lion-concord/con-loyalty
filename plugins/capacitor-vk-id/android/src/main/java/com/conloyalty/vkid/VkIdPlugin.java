@@ -1,7 +1,6 @@
 package com.conloyalty.vkid;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.util.Log;
 
 import com.getcapacitor.JSObject;
@@ -31,7 +30,6 @@ public class VkIdPlugin extends Plugin {
             return;
         }
 
-        // Запускаем VK авторизацию
         Collection<VKScope> scopes = new ArrayList<>();
         scopes.add(VKScope.EMAIL);
         scopes.add(VKScope.PHONE);
@@ -41,7 +39,7 @@ public class VkIdPlugin extends Plugin {
                 VKAuthenticationResult.Success successResult = (VKAuthenticationResult.Success) result;
 
                 try {
-                    int userId = successResult.getToken().getUserId();
+                    long userId = successResult.getToken().getUserId().getValue();
                     String accessToken = successResult.getToken().getAccessToken();
 
                     JSObject user = new JSObject();
@@ -83,7 +81,7 @@ public class VkIdPlugin extends Plugin {
         }
 
         try {
-            int userId = VK.getUserId();
+            long userId = VK.getUserId().getValue();
 
             JSObject user = new JSObject();
             user.put("id", userId);
