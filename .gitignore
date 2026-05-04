@@ -52,7 +52,6 @@ android/local.properties
 android/*.iml
 android/app/*.iml
 android/capacitor-cordova-android-plugins/
-*.keystore
 *.jks
 keystore.properties
 
@@ -66,9 +65,7 @@ android/local.properties
 android/*.iml
 android/app/*.iml
 android/capacitor-cordova-android-plugins/
-*.keystore
 *.jks
 keystore.properties
-release.keystore
 _.keystore
 _.bak_
