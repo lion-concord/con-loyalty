@@ -67,9 +67,9 @@ jobs:
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
           cat > android/keystore.properties << EOF2
           storeFile=release.keystore
-          storePassword=${{ secrets.KEY_PASSWORD }}
+          storePassword=android123
           keyAlias=${{ secrets.KEY_ALIAS }}
-          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyPassword=android123
           EOF2
 
       - name: Verify debug.keystore exists
