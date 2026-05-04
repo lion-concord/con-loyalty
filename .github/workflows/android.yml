@@ -102,10 +102,6 @@ jobs:
         working-directory: android
         run: ./gradlew bundleRelease
 
-      - name: Clear Gradle cache
-        run: |
-          rm -rf ~/.gradle/caches
-          rm -rf android/.gradle
 
       - name: Build release APK
         if: env.HAS_KEYSTORE == 'true'

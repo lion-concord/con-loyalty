@@ -69,6 +69,7 @@ repositories {
 }
 
 dependencies {
+    implementation "com.google.crypto.tink:tink-android:1.10.0"
     implementation "com.vk:android-sdk-core:4.1.0"
     implementation "com.vk:android-sdk-api:4.1.0"
     implementation fileTree(include: ['*.jar'], dir: 'libs')
