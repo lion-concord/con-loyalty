@@ -5,7 +5,8 @@ ext {
 
 buildscript {
     repositories {
-    maven { url "https://artifactory-external.vkpartner.ru/artifactory/vkid-sdk-andorid/" }
+    maven { url "https://artifactory-external.vkpartner.ru/artifactory/vkid-sdk-android/" }
+    maven { url "https://artifactory-external.vkpartner.ru/artifactory/maven/" }
         google()
         mavenCentral()
     }
@@ -42,7 +43,8 @@ android {
 }
 
 repositories {
-    maven { url "https://artifactory-external.vkpartner.ru/artifactory/vkid-sdk-andorid/" }
+    maven { url "https://artifactory-external.vkpartner.ru/artifactory/vkid-sdk-android/" }
+    maven { url "https://artifactory-external.vkpartner.ru/artifactory/maven/" }
     google()
     mavenCentral()
 }
@@ -54,7 +56,7 @@ dependencies {
 
     // VK SDK для Android
     // VK ID SDK для Android (новый)
-    implementation 'com.vk.id:sdk-core:2.0.0'
+    implementation 'com.vk.id:vkid:2.1.0'
     
 
     testImplementation 'junit:junit:4.13.2'

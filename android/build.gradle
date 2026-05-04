@@ -19,7 +19,8 @@ apply from: "variables.gradle"
 
 allprojects {
     repositories {
-        maven { url "https://artifactory-external.vkpartner.ru/artifactory/vkid-sdk-andorid/" }
+        maven { url "https://artifactory-external.vkpartner.ru/artifactory/vkid-sdk-android/" }
+        maven { url "https://artifactory-external.vkpartner.ru/artifactory/maven/" }
         google()
         mavenCentral()
     }
