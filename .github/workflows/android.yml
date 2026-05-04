@@ -64,7 +64,7 @@ jobs:
       - name: Decode keystore
         if: env.HAS_KEYSTORE == 'true'
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/kon-release.jks
           cat > android/keystore.properties << EOF2
           storeFile=release.keystore
           storePassword=${{ secrets.KEY_PASSWORD }}
@@ -133,11 +133,11 @@ jobs:
       - name: Verify keystore exists
         if: env.HAS_KEYSTORE == 'true'
         run: |
-          ls -lh android/app/release.keystore
-          file android/app/release.keystore
+          ls -lh android/app/kon-release.jks
+          file android/app/kon-release.jks
 
       - name: Verify keystore content
         if: env.HAS_KEYSTORE == 'true'
         run: |
           echo "Testing keystore with keytool..."
-          keytool -list -v -keystore android/app/release.keystore -storepass android123 -alias kon-release | head -20
+          keytool -list -v -keystore android/app/kon-release.jks -storepass android123 -alias kon-release | head -20
