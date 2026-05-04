@@ -51,8 +51,9 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
 
     // VK SDK для Android
-    implementation 'com.vk:android-sdk-core:4.1.0'
-    implementation 'com.vk:android-sdk-api:4.1.0'
+    // VK ID SDK для Android (новый)
+    implementation 'com.vk.id:onetap-compose:2.1.0'
+    implementation 'com.vk.id:multibranding-compose:2.1.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
