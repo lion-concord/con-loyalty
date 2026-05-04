@@ -55,6 +55,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             if (hasKeystore) {
                 signingConfig signingConfigs.release
+                println "✅ Signing config applied: ${signingConfig.name}"
             }
         }
         debug {
