@@ -104,6 +104,10 @@ jobs:
 
 
       - name: Build release APK
+      - name: Verify keystore exists
+        run: |
+          ls -lh android/app/release.keystore
+          file android/app/release.keystore
         if: env.HAS_KEYSTORE == 'true'
         working-directory: android
         run: ./gradlew assembleRelease
