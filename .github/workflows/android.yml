@@ -139,4 +139,4 @@ jobs:
         if: env.HAS_KEYSTORE == 'true'
         run: |
           echo "Testing keystore with keytool..."
-          keytool -list -v -keystore android/app/kon-release.jks -storepass android123 -alias kon-release | head -20
+          keytool -list -v -keystore android/app/kon-release.jks -storepass ${{ secrets.KEY_PASSWORD }} -alias kon-release | head -20
