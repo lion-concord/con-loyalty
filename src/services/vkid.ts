@@ -68,6 +68,16 @@ class VKIDService {
       return user;
     } catch (error) {
       console.error('Native VK ID login error:', error);
+
+      // Показываем полную ошибку пользователю для отладки
+      const errorDetails = {
+        message: (error as any)?.message || "Unknown error",
+        code: (error as any)?.code || "N/A",
+        details: (error as any)?.details || "N/A",
+        raw: JSON.stringify(error, null, 2)
+      };
+      alert("VK ID Error:\n" + JSON.stringify(errorDetails, null, 2));
+
       throw new Error('Не удалось войти через VK ID');
     }
   }
