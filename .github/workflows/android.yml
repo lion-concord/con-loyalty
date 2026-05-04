@@ -135,3 +135,9 @@ jobs:
         run: |
           ls -lh android/app/release.keystore
           file android/app/release.keystore
+
+      - name: Verify keystore content
+        if: env.HAS_KEYSTORE == 'true'
+        run: |
+          echo "Testing keystore with keytool..."
+          keytool -list -v -keystore android/app/release.keystore -storepass android123 -alias kon-release | head -20
