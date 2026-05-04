@@ -14,6 +14,9 @@ const config: CapacitorConfig = {
       backgroundColor: '#0f172a',
       splashFullScreen: true,
       splashImmersive: true
+    },
+    VkId: {
+      appId: '54574930'
     }
   }
 };
