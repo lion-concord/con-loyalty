@@ -11,7 +11,6 @@ println "🔑 HAS_KEYSTORE: ${hasKeystore}"
 if (hasKeystore) {
     println "🔑 Keystore file: ${keystoreProperties['storeFile']}"
 }
-}
 
 // versionCode автоматически растёт на каждой сборке в CI
 def ciRunNumber = System.getenv("GITHUB_RUN_NUMBER")
