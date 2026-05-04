@@ -4,12 +4,13 @@ apply plugin: 'com.android.application'
 def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
 def hasKeystore = keystorePropertiesFile.exists()
+if (hasKeystore) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
 println "🔑 HAS_KEYSTORE: ${hasKeystore}"
 if (hasKeystore) {
     println "🔑 Keystore file: ${keystoreProperties['storeFile']}"
 }
-if (hasKeystore) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
 // versionCode автоматически растёт на каждой сборке в CI
