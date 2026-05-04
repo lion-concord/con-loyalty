@@ -104,10 +104,6 @@ jobs:
 
 
       - name: Build release APK
-      - name: Verify keystore exists
-        run: |
-          ls -lh android/app/release.keystore
-          file android/app/release.keystore
         if: env.HAS_KEYSTORE == 'true'
         working-directory: android
         run: ./gradlew assembleRelease
@@ -133,3 +129,9 @@ jobs:
         with:
           name: kon-loyalty-release-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
+
+      - name: Verify keystore exists
+        if: env.HAS_KEYSTORE == 'true'
+        run: |
+          ls -lh android/app/release.keystore
+          file android/app/release.keystore
