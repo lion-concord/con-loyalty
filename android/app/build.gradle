@@ -10,6 +10,7 @@ if (hasKeystore) {
 println "🔑 HAS_KEYSTORE: ${hasKeystore}"
 if (hasKeystore) {
     println "🔑 Keystore file: ${keystoreProperties['storeFile']}"
+    println "🔑 Full path: ${file(keystoreProperties['storeFile']).absolutePath}"
 }
 
 // versionCode автоматически растёт на каждой сборке в CI
