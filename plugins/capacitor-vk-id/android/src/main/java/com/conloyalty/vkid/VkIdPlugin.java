@@ -14,6 +14,7 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 import com.vk.id.VKID;
 import com.vk.id.VKIDAuthFail;
 import com.vk.id.AccessToken;
+import com.vk.id.VKIDUser;
 import com.vk.id.auth.VKIDAuthCallback;
 import com.vk.id.auth.VKIDAuthParams;
 import com.vk.id.auth.AuthCodeData;
@@ -81,30 +82,19 @@ public class VkIdPlugin extends Plugin {
                 return;
             }
 
-            JSObject user = new JSObject();
-            user.put("accessToken", currentToken.getToken());
-
-            JSObject result = new JSObject();
-            result.put("user", user);
-            result.put("accessToken", currentToken.getToken());
-
+            JSObject result = buildUserResponse(currentToken);
             call.resolve(result);
         } catch (Exception e) {
             Log.e(TAG, "Get current user error", e);
             call.reject("Failed to get current user: " + e.getMessage());
         }
     }
-private void handleSuccess(AccessToken accessToken) {
+
+    private void handleSuccess(AccessToken accessToken) {
         if (savedCall == null) return;
 
         try {
-            JSObject user = new JSObject();
-            user.put("accessToken", accessToken.getToken());
-
-            JSObject result = new JSObject();
-            result.put("user", user);
-            result.put("accessToken", accessToken.getToken());
-
+            JSObject result = buildUserResponse(accessToken);
             savedCall.resolve(result);
             Log.d(TAG, "Login successful");
         } catch (Exception e) {
@@ -113,6 +103,28 @@ private void handleSuccess(AccessToken accessToken) {
         } finally {
             savedCall = null;
         }
+    }
+
+    private JSObject buildUserResponse(AccessToken accessToken) {
+        JSObject user = new JSObject();
+user.put("accessToken", accessToken.getToken());
+
+        // Добавляем данные пользователя из VKIDUser
+        VKIDUser userData = accessToken.getUserData();
+        if (userData != null) {
+            user.put("id", accessToken.getUserID());
+            user.put("firstName", userData.getFirstName());
+            user.put("lastName", userData.getLastName());
+            user.put("phone", userData.getPhone());
+            user.put("email", userData.getEmail());
+            user.put("avatar", userData.getPhoto200());
+        }
+
+        JSObject result = new JSObject();
+        result.put("user", user);
+        result.put("accessToken", accessToken.getToken());
+
+        return result;
     }
 
     private void handleError(VKIDAuthFail fail) {
