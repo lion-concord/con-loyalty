@@ -18,9 +18,6 @@ import com.vk.id.auth.VKIDAuthCallback;
 import com.vk.id.auth.VKIDAuthParams;
 import com.vk.id.auth.AuthCodeData;
 
-import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
-
 @CapacitorPlugin(name = "VkId")
 public class VkIdPlugin extends Plugin {
     private static final String TAG = "VkIdPlugin";
@@ -61,13 +58,8 @@ public class VkIdPlugin extends Plugin {
                 }
             };
 
-            // Создаём пустой VKIDAuthParams через builder
-            VKIDAuthParams params = new VKIDAuthParams(new Function1<VKIDAuthParams.Builder, Unit>() {
-                @Override
-                public Unit invoke(VKIDAuthParams.Builder builder) {
-                    return Unit.INSTANCE;
-                }
-            });
+            // Создаём VKIDAuthParams через Builder (правильный способ для Java)
+            VKIDAuthParams params = new VKIDAuthParams.Builder().build();
 
             // Используем официальный способ из документации
             VKID.Companion.getInstance().authorize((LifecycleOwner) activity, callback, params);
@@ -102,7 +94,7 @@ public class VkIdPlugin extends Plugin {
             call.resolve(result);
         } catch (Exception e) {
             Log.e(TAG, "Get current user error", e);
-call.reject("Failed to get current user: " + e.getMessage());
+            call.reject("Failed to get current user: " + e.getMessage());
         }
     }
 
@@ -112,10 +104,9 @@ call.reject("Failed to get current user: " + e.getMessage());
         try {
             JSObject user = new JSObject();
             user.put("accessToken", accessToken.getToken());
-
-            JSObject result = new JSObject();
+JSObject result = new JSObject();
             result.put("user", user);
-            result.put("accessToken", accessToken.getToken());
+            result.put("accessToken", currentToken.getToken());
 
             savedCall.resolve(result);
             Log.d(TAG, "Login successful");
