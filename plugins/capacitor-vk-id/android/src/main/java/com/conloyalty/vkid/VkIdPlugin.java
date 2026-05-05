@@ -18,6 +18,7 @@ import com.vk.id.auth.VKIDAuthCallback;
 import com.vk.id.auth.AuthCodeData;
 import com.vk.id.logout.VKIDLogoutCallback;
 import com.vk.id.logout.VKIDLogoutFail;
+import com.vk.id.logout.VKIDLogoutParams;
 
 @CapacitorPlugin(name = "VkId")
 public class VkIdPlugin extends Plugin {
@@ -29,7 +30,7 @@ public class VkIdPlugin extends Plugin {
     public void login(PluginCall call) {
         savedCall = call;
         Activity activity = getActivity();
-        
+
         if (activity == null) {
             call.reject("Activity not available");
             return;
@@ -42,7 +43,7 @@ public class VkIdPlugin extends Plugin {
 
         try {
             VKID vkid = VKID.Companion.getInstance();
-            
+
             VKIDAuthCallback callback = new VKIDAuthCallback() {
                 @Override
                 public void onAuth(AccessToken accessToken) {
@@ -61,9 +62,8 @@ public class VkIdPlugin extends Plugin {
                 }
             };
 
-            // Используем BottomSheet для авторизации
             vkid.authorize(activity, callback);
-            
+
         } catch (Exception e) {
             Log.e(TAG, "Login error", e);
             call.reject("Login failed: " + e.getMessage());
@@ -72,9 +72,21 @@ public class VkIdPlugin extends Plugin {
 
     @PluginMethod
     public void logout(PluginCall call) {
+        Activity activity = getActivity();
+
+        if (activity == null) {
+            call.reject("Activity not available");
+            return;
+        }
+
+        if (!(activity instanceof LifecycleOwner)) {
+            call.reject("Activity must implement LifecycleOwner");
+            return;
+        }
+
         try {
             VKID vkid = VKID.Companion.getInstance();
-            
+
             VKIDLogoutCallback callback = new VKIDLogoutCallback() {
                 @Override
                 public void onSuccess() {
@@ -90,7 +102,8 @@ public class VkIdPlugin extends Plugin {
                 }
             };
 
-            vkid.logout(callback);
+            VKIDLogoutParams params = new VKIDLogoutParams.Builder().build();
+            vkid.logout(callback, (LifecycleOwner) activity, params);
         } catch (Exception e) {
             Log.e(TAG, "Logout error", e);
             call.reject("Logout failed: " + e.getMessage());
@@ -100,21 +113,21 @@ public class VkIdPlugin extends Plugin {
     @PluginMethod
     public void getCurrentUser(PluginCall call) {
         try {
-            if (currentToken == null) {
+if (currentToken == null) {
                 call.resolve(new JSObject().put("user", JSObject.NULL));
                 return;
             }
 
             JSObject user = new JSObject();
             user.put("accessToken", currentToken.getToken());
-            
+
             JSObject result = new JSObject();
             result.put("user", user);
             result.put("accessToken", currentToken.getToken());
 
             call.resolve(result);
         } catch (Exception e) {
-Log.e(TAG, "Get current user error", e);
+            Log.e(TAG, "Get current user error", e);
             call.reject("Failed to get current user: " + e.getMessage());
         }
     }
@@ -147,7 +160,7 @@ Log.e(TAG, "Get current user error", e);
         if (fail != null) {
             errorMsg = fail.getDescription();
         }
-        
+
         Log.e(TAG, "Login failed: " + errorMsg);
         savedCall.reject(errorMsg);
         savedCall = null;
