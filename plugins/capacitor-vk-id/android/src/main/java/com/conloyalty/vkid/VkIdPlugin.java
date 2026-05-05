@@ -31,19 +31,7 @@ import org.jetbrains.annotations.NotNull;
 public class VkIdPlugin extends Plugin {
     private static final String TAG = "VkIdPlugin";
     private PluginCall savedCall;
-    private VKID vkid;
     private AccessToken currentToken;
-
-    @Override
-    public void load() {
-        super.load();
-
-        Activity activity = getActivity();
-        if (activity != null) {
-            vkid = VKID.Companion.getInstance();
-            Log.d(TAG, "VK ID SDK initialized");
-        }
-    }
 
     @PluginMethod
     public void login(PluginCall call) {
@@ -55,17 +43,14 @@ public class VkIdPlugin extends Plugin {
             return;
         }
 
-        if (vkid == null) {
-            call.reject("VK ID not initialized");
-            return;
-        }
-
         if (!(activity instanceof LifecycleOwner)) {
             call.reject("Activity must implement LifecycleOwner");
             return;
         }
 
         try {
+            VKID vkid = VKID.Companion.getInstance();
+
             VKIDAuthCallback callback = new VKIDAuthCallback() {
                 @Override
                 public void onAuth(AccessToken accessToken) {
@@ -114,16 +99,14 @@ public class VkIdPlugin extends Plugin {
             return;
         }
 
-        if (vkid == null) {
-            call.reject("VK ID not initialized");
-            return;
-        }
-if (!(activity instanceof LifecycleOwner)) {
+        if (!(activity instanceof LifecycleOwner)) {
             call.reject("Activity must implement LifecycleOwner");
             return;
         }
 
         try {
+            VKID vkid = VKID.Companion.getInstance();
+
             VKIDLogoutCallback callback = new VKIDLogoutCallback() {
                 @Override
                 public void onSuccess() {
@@ -131,8 +114,7 @@ if (!(activity instanceof LifecycleOwner)) {
                     Log.d(TAG, "Logged out successfully");
                     call.resolve();
                 }
-
-                @Override
+@Override
                 public void onFail(VKIDLogoutFail fail) {
                     Log.e(TAG, "Logout failed: " + fail.getDescription());
                     call.reject("Logout failed: " + fail.getDescription());
