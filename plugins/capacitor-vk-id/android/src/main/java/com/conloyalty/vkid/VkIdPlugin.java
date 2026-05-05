@@ -58,10 +58,7 @@ public class VkIdPlugin extends Plugin {
                 }
             };
 
-            // Создаём VKIDAuthParams через Builder (правильный способ для Java)
             VKIDAuthParams params = new VKIDAuthParams.Builder().build();
-
-            // Используем официальный способ из документации
             VKID.Companion.getInstance().authorize((LifecycleOwner) activity, callback, params);
 
         } catch (Exception e) {
@@ -87,47 +84,89 @@ public class VkIdPlugin extends Plugin {
             JSObject user = new JSObject();
             user.put("accessToken", currentToken.getToken());
 
-            JSObject result = new JSObject();
-            result.put("user", user);
-            result.put("accessToken", currentToken.getToken());
+            // Добавляем данные пользователя из токена
+            if (currentToken.getUserData() != null) {
+                user.put("id", currentToken.getUserData().getUserId());
+                user.put("firstName", currentToken.getUserData().getFirstName());
+                user.put("lastName", currentToken.getUserData().getLastName());
+                user.put("phone", currentToken.getUserData().getPhone());
+scheme: Scheme.LIGHT,
+        lang: Languages.RUS,
+      }) as AuthResponse;
 
-            call.resolve(result);
-        } catch (Exception e) {
-            Log.e(TAG, "Get current user error", e);
-            call.reject("Failed to get current user: " + e.getMessage());
-        }
+      const tokenResult = await Auth.exchangeCode(
+        authResponse.code,
+        authResponse.device_id
+      );
+
+      localStorage.setItem('vk_token', tokenResult.access_token);
+      localStorage.setItem('vk_refresh_token', tokenResult.refresh_token);
+
+      const userInfoResult = await Auth.userInfo(tokenResult.access_token);
+
+      const user: VKUser = {
+        id: tokenResult.user_id,
+        first_name: userInfoResult.user.first_name || '',
+        last_name: userInfoResult.user.last_name || '',
+        avatar: userInfoResult.user.avatar,
+        phone: userInfoResult.user.phone,
+        email: userInfoResult.user.email,
+      };
+
+      return user;
+    } catch (error) {
+      console.error('Web VK ID login error:', error);
+      throw new Error('Не удалось войти через VK ID');
+    }
+  }
+
+  private async getUserInfoFromAPI(accessToken: string): Promise<Partial<VKUser> & { id?: number }> {
+    try {
+      const params = new URLSearchParams({
+        access_token: accessToken,
+        fields: 'photo_200,contacts',
+        v: '5.131',
+      });
+
+      const response = await fetch(`https://api.vk.com/method/users.get?${params.toString()}`);
+      const data = await response.json();
+
+      if (data.error) {
+        console.error('VK API error:', data.error);
+        return {};
+      }
+
+      const vkUser = data.response[0];
+      return {
+        id: vkUser.id,
+        first_name: vkUser.first_name,
+        last_name: vkUser.last_name,
+        avatar: vkUser.photo_200,
+        phone: vkUser.mobile_phone || vkUser.home_phone,
+      };
+    } catch (error) {
+      console.error('Error fetching user info from VK API:', error);
+      return {};
+    }
+  }
+
+  async logout() {
+    const token = localStorage.getItem('vk_token');
+
+    if (this.isNative) {
+      await VkId.logout();
+    } else if (token) {
+      try {
+        await Auth.logout(token);
+      } catch (error) {
+        console.error('VK ID logout error:', error);
+      }
     }
 
-    private void handleSuccess(AccessToken accessToken) {
-        if (savedCall == null) return;
-
-        try {
-            JSObject user = new JSObject();
-            user.put("accessToken", accessToken.getToken());
-JSObject result = new JSObject();
-            result.put("user", user);
-            result.put("accessToken", currentToken.getToken());
-
-            savedCall.resolve(result);
-            Log.d(TAG, "Login successful");
-        } catch (Exception e) {
-            Log.e(TAG, "Handle success error", e);
-            savedCall.reject("Failed to process login: " + e.getMessage());
-        } finally {
-            savedCall = null;
-        }
-    }
-
-    private void handleError(VKIDAuthFail fail) {
-        if (savedCall == null) return;
-
-        String errorMsg = "VK auth failed";
-        if (fail != null) {
-            errorMsg = fail.getDescription();
-        }
-
-        Log.e(TAG, "Login failed: " + errorMsg);
-        savedCall.reject(errorMsg);
-        savedCall = null;
-    }
+    localStorage.removeItem('vk_user');
+    localStorage.removeItem('vk_token');
+    localStorage.removeItem('vk_refresh_token');
+  }
 }
+
+export const vkidService = new VKIDService();
