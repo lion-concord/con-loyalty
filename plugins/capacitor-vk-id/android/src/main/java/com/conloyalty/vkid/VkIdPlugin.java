@@ -23,127 +23,50 @@ public class VkIdPlugin extends Plugin {
     private static final String TAG = "VkIdPlugin";
     private PluginCall savedCall;
     private VKID vkid;
+    private AccessToken currentToken;
 
     @Override
     public void load() {
         super.load();
 
         Activity activity = getActivity();
-        if (activity == null) {
-            Log.e(TAG, "Activity not available during load");
-            return;
-        }
-
-        try {
-            // Инициализация VK ID SDK
-            vkid = new VKID(activity.getApplicationContext());
-            Log.d(TAG, "VK ID SDK initialized successfully");
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to initialize VK ID SDK", e);
+        if (activity != null) {
+            vkid = VKID.Companion.getInstance(activity);
+            Log.d(TAG, "VK ID SDK initialized");
         }
     }
 
     @PluginMethod
     public void login(PluginCall call) {
-        if (vkid == null) {
-            call.reject("VK ID SDK not initialized");
-            return;
-        }
-
+        savedCall = call;
         Activity activity = getActivity();
+
         if (activity == null) {
             call.reject("Activity not available");
             return;
         }
 
-        savedCall = call;
-        savedCall.setKeepAlive(true);
-
         try {
-            // Создаём параметры авторизации
-            VKIDAuthParams authParams = new VKIDAuthParams.Builder()
-                .build();
+            VKIDAuthParams params = new VKIDAuthParams.Builder().build();
 
-            // Запускаем OneTap авторизацию
-            OneTapOAuth oneTap = vkid.getOneTap(activity);
-
-            oneTap.startAuth(
-                authParams,
-                // onSuccess
+            OneTapOAuth oAuth = new OneTapOAuth(activity);
+            oAuth.setCallbacks(
                 accessToken -> {
+                    currentToken = accessToken;
                     handleSuccess(accessToken);
                     return Unit.INSTANCE;
                 },
-                // onFail
                 fail -> {
-                    handleFailure(fail);
+                    handleError(fail);
                     return Unit.INSTANCE;
                 }
             );
 
+            oAuth.show(OneTapStyle.TransparentLight.INSTANCE);
+
         } catch (Exception e) {
-            Log.e(TAG, "Error starting VK ID login", e);
-            if (savedCall != null) {
-                savedCall.reject("Failed to start login: " + e.getMessage(), e);
-                savedCall = null;
-            }
-        }
-    }
-
-    private void handleSuccess(AccessToken accessToken) {
-        if (savedCall == null) {
-            Log.e(TAG, "No saved call for success handler");
-            return;
-        }
-
-        try {
-            JSObject user = new JSObject();
-            user.put("id", accessToken.getUserId());
-
-            JSObject response = new JSObject();
-            response.put("user", user);
-            response.put("accessToken", accessToken.getToken());
-            response.put("email", accessToken.getEmail());
-            response.put("phone", accessToken.getPhone());
-
-            savedCall.resolve(response);
-        } catch (Exception e) {
-Log.e(TAG, "Error processing success result", e);
-            savedCall.reject("Failed to process login result", e);
-        } finally {
-            savedCall = null;
-        }
-    }
-
-    private void handleFailure(VKIDAuthFail fail) {
-        if (savedCall == null) {
-            Log.e(TAG, "No saved call for failure handler");
-            return;
-        }
-
-        try {
-            String errorMessage = "VK login failed";
-            String errorCode = "UNKNOWN";
-
-            if (fail != null) {
-                errorMessage = fail.getDescription();
-
-                // Детальная информация об ошибке
-                JSObject errorDetails = new JSObject();
-                errorDetails.put("message", errorMessage);
-                errorDetails.put("description", fail.getDescription());
-
-                Log.e(TAG, "VK ID Auth failed: " + errorMessage);
-
-                savedCall.reject(errorMessage, errorCode, null, errorDetails);
-            } else {
-                savedCall.reject("VK login cancelled");
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error processing failure result", e);
-            savedCall.reject("Auth failed with error", e);
-        } finally {
-            savedCall = null;
+            Log.e(TAG, "Login error", e);
+            call.reject("Login failed: " + e.getMessage());
         }
     }
 
@@ -152,38 +75,69 @@ Log.e(TAG, "Error processing success result", e);
         try {
             if (vkid != null) {
                 vkid.logout();
+                currentToken = null;
+                Log.d(TAG, "Logged out successfully");
             }
             call.resolve();
         } catch (Exception e) {
-            Log.e(TAG, "Error during logout", e);
-            call.reject("Logout failed", e);
+            Log.e(TAG, "Logout error", e);
+            call.reject("Logout failed: " + e.getMessage());
         }
     }
 
     @PluginMethod
     public void getCurrentUser(PluginCall call) {
         try {
-            if (vkid == null || !vkid.isAuthorized()) {
+            if (currentToken == null) {
                 call.resolve(new JSObject().put("user", JSObject.NULL));
                 return;
             }
 
-            AccessToken token = vkid.getAccessToken();
-            if (token != null) {
-                JSObject user = new JSObject();
-                user.put("id", token.getUserId());
+            JSObject user = new JSObject();
+            user.put("accessToken", currentToken.getToken());
 
-                JSObject result = new JSObject();
-                result.put("user", user);
-                result.put("accessToken", token.getToken());
+            JSObject result = new JSObject();
+            result.put("user", user);
+            result.put("accessToken", currentToken.getToken());
 
-                call.resolve(result);
-            } else {
-                call.resolve(new JSObject().put("user", JSObject.NULL));
-            }
+            call.resolve(result);
         } catch (Exception e) {
-            Log.e(TAG, "Error getting current user", e);
-            call.reject("Failed to get current user", e);
+            Log.e(TAG, "Get current user error", e);
+            call.reject("Failed to get current user: " + e.getMessage());
         }
+    }
+
+    private void handleSuccess(AccessToken accessToken) {
+        if (savedCall == null) return;
+
+        try {
+            JSObject user = new JSObject();
+            user.put("accessToken", accessToken.getToken());
+
+            JSObject result = new JSObject();
+            result.put("user", user);
+result.put("accessToken", accessToken.getToken());
+
+            savedCall.resolve(result);
+            Log.d(TAG, "Login successful");
+        } catch (Exception e) {
+            Log.e(TAG, "Handle success error", e);
+            savedCall.reject("Failed to process login: " + e.getMessage());
+        } finally {
+            savedCall = null;
+        }
+    }
+
+    private void handleError(VKIDAuthFail fail) {
+        if (savedCall == null) return;
+
+        String errorMsg = "VK auth failed";
+        if (fail != null) {
+            errorMsg = fail.getDescription();
+        }
+
+        Log.e(TAG, "Login failed: " + errorMsg);
+        savedCall.reject(errorMsg);
+        savedCall = null;
     }
 }
