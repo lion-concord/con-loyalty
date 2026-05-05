@@ -42,12 +42,6 @@
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
 
-        <activity
-            android:name="com.vk.api.sdk.ui.VKWebViewAuthActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:windowSoftInputMode="adjustResize"
-            tools:replace="android:theme" />
 
     </application>
 
