@@ -56,7 +56,7 @@ dependencies {
 
     // VK SDK для Android
     // VK ID SDK для Android (новый)
-    implementation 'com.vk.id:vkid:2.1.0'
+    implementation 'com.vk.id:onetap-xml:2.1.0'
     
 
     testImplementation 'junit:junit:4.13.2'
