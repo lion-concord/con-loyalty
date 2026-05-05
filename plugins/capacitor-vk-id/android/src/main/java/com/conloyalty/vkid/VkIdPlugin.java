@@ -15,6 +15,7 @@ import com.vk.id.VKID;
 import com.vk.id.VKIDAuthFail;
 import com.vk.id.AccessToken;
 import com.vk.id.auth.VKIDAuthCallback;
+import com.vk.id.auth.AuthCodeData;
 
 @CapacitorPlugin(name = "VkId")
 public class VkIdPlugin extends Plugin {
@@ -49,10 +50,15 @@ public class VkIdPlugin extends Plugin {
                 public void onFail(VKIDAuthFail fail) {
                     handleError(fail);
                 }
+
+                @Override
+                public void onAuthCode(AuthCodeData authCodeData, boolean isCompletion) {
+                    Log.d(TAG, "Auth code received, isCompletion: " + isCompletion);
+                }
             };
 
-            // Используем официальный способ из документации
-            VKID.getInstance().authorize((LifecycleOwner) activity, callback);
+            // Используем официальный способ из документации: VKID.instance
+            VKID.Companion.getInstance().authorize((LifecycleOwner) activity, callback);
 
         } catch (Exception e) {
             Log.e(TAG, "Login error", e);
@@ -96,14 +102,14 @@ public class VkIdPlugin extends Plugin {
             user.put("accessToken", accessToken.getToken());
 
             JSObject result = new JSObject();
-result.put("user", user);
+            result.put("user", user);
             result.put("accessToken", accessToken.getToken());
 
             savedCall.resolve(result);
             Log.d(TAG, "Login successful");
         } catch (Exception e) {
             Log.e(TAG, "Handle success error", e);
-            savedCall.reject("Failed to process login: " + e.getMessage());
+savedCall.reject("Failed to process login: " + e.getMessage());
         } finally {
             savedCall = null;
         }
