@@ -40,7 +40,7 @@ public class VkIdPlugin extends Plugin {
 
         Activity activity = getActivity();
         if (activity != null) {
-            vkid = VKID.Companion.getInstance(activity);
+            vkid = VKID.Companion.getInstance();
             Log.d(TAG, "VK ID SDK initialized");
         }
     }
