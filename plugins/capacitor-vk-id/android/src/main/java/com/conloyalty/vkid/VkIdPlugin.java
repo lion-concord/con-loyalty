@@ -15,11 +15,17 @@ import com.vk.id.VKID;
 import com.vk.id.VKIDAuthFail;
 import com.vk.id.AccessToken;
 import com.vk.id.auth.VKIDAuthCallback;
+import com.vk.id.auth.VKIDAuthParams;
 import com.vk.id.auth.AuthCodeData;
 import com.vk.id.logout.VKIDLogoutCallback;
 import com.vk.id.logout.VKIDLogoutFail;
+import com.vk.id.logout.VKIDLogoutParams;
 
 import kotlin.Unit;
+import kotlin.coroutines.Continuation;
+import kotlin.coroutines.CoroutineContext;
+import kotlin.coroutines.EmptyCoroutineContext;
+import org.jetbrains.annotations.NotNull;
 
 @CapacitorPlugin(name = "VkId")
 public class VkIdPlugin extends Plugin {
@@ -78,7 +84,20 @@ public class VkIdPlugin extends Plugin {
                 }
             };
 
-            vkid.authorize(callback, (LifecycleOwner) activity);
+            VKIDAuthParams params = new VKIDAuthParams.Builder().build();
+
+            vkid.authorize(callback, params, new Continuation<Unit>() {
+                @NotNull
+                @Override
+                public CoroutineContext getContext() {
+                    return EmptyCoroutineContext.INSTANCE;
+                }
+
+                @Override
+                public void resumeWith(@NotNull Object o) {
+                    // Continuation завершён
+                }
+            });
 
         } catch (Exception e) {
             Log.e(TAG, "Login error", e);
@@ -99,8 +118,7 @@ public class VkIdPlugin extends Plugin {
             call.reject("VK ID not initialized");
             return;
         }
-
-        if (!(activity instanceof LifecycleOwner)) {
+if (!(activity instanceof LifecycleOwner)) {
             call.reject("Activity must implement LifecycleOwner");
             return;
         }
@@ -121,8 +139,21 @@ public class VkIdPlugin extends Plugin {
                 }
             };
 
-            vkid.logout(callback, (LifecycleOwner) activity);
-} catch (Exception e) {
+            VKIDLogoutParams params = new VKIDLogoutParams.Builder().build();
+
+            vkid.logout(callback, params, new Continuation<Unit>() {
+                @NotNull
+                @Override
+                public CoroutineContext getContext() {
+                    return EmptyCoroutineContext.INSTANCE;
+                }
+
+                @Override
+                public void resumeWith(@NotNull Object o) {
+                    // Continuation завершён
+                }
+            });
+        } catch (Exception e) {
             Log.e(TAG, "Logout error", e);
             call.reject("Logout failed: " + e.getMessage());
         }
