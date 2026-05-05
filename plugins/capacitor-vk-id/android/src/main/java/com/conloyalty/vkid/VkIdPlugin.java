@@ -14,6 +14,7 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 import com.vk.id.VKID;
 import com.vk.id.VKIDAuthFail;
 import com.vk.id.AccessToken;
+import com.vk.id.auth.VKIDAuthCallback;
 import com.vk.id.logout.VKIDLogoutCallback;
 import com.vk.id.logout.VKIDLogoutFail;
 
@@ -58,18 +59,20 @@ public class VkIdPlugin extends Plugin {
         }
 
         try {
-            vkid.authorize(
-                (LifecycleOwner) activity,
-                accessToken -> {
+            VKIDAuthCallback callback = new VKIDAuthCallback() {
+                @Override
+                public void onSuccess(AccessToken accessToken) {
                     currentToken = accessToken;
                     handleSuccess(accessToken);
-                    return Unit.INSTANCE;
-                },
-                fail -> {
-                    handleError(fail);
-                    return Unit.INSTANCE;
                 }
-            );
+
+                @Override
+                public void onFail(VKIDAuthFail fail) {
+                    handleError(fail);
+                }
+            };
+
+            vkid.authorize(callback, (LifecycleOwner) activity);
 
         } catch (Exception e) {
             Log.e(TAG, "Login error", e);
@@ -97,29 +100,29 @@ public class VkIdPlugin extends Plugin {
         }
 
         try {
-            vkid.logout(
-                (LifecycleOwner) activity,
-                new VKIDLogoutCallback() {
-                    @Override
-                    public void onSuccess() {
-                        currentToken = null;
-                        Log.d(TAG, "Logged out successfully");
-                        call.resolve();
-                    }
-
-                    @Override
-                    public void onFail(VKIDLogoutFail fail) {
-                        Log.e(TAG, "Logout failed: " + fail.getDescription());
-                        call.reject("Logout failed: " + fail.getDescription());
-                    }
+            VKIDLogoutCallback callback = new VKIDLogoutCallback() {
+                @Override
+                public void onSuccess() {
+                    currentToken = null;
+                    Log.d(TAG, "Logged out successfully");
+                    call.resolve();
                 }
-            );
-        } catch (Exception e) {
+
+                @Override
+                public void onFail(VKIDLogoutFail fail) {
+                    Log.e(TAG, "Logout failed: " + fail.getDescription());
+                    call.reject("Logout failed: " + fail.getDescription());
+                }
+            };
+
+            vkid.logout(callback, (LifecycleOwner) activity);
+} catch (Exception e) {
             Log.e(TAG, "Logout error", e);
             call.reject("Logout failed: " + e.getMessage());
         }
     }
-@PluginMethod
+
+    @PluginMethod
     public void getCurrentUser(PluginCall call) {
         try {
             if (currentToken == null) {
