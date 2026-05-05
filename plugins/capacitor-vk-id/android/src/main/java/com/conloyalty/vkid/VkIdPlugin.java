@@ -15,17 +15,8 @@ import com.vk.id.VKID;
 import com.vk.id.VKIDAuthFail;
 import com.vk.id.AccessToken;
 import com.vk.id.auth.VKIDAuthCallback;
-import com.vk.id.auth.VKIDAuthParams;
-import com.vk.id.auth.AuthCodeData;
 import com.vk.id.logout.VKIDLogoutCallback;
 import com.vk.id.logout.VKIDLogoutFail;
-import com.vk.id.logout.VKIDLogoutParams;
-
-import kotlin.Unit;
-import kotlin.coroutines.Continuation;
-import kotlin.coroutines.CoroutineContext;
-import kotlin.coroutines.EmptyCoroutineContext;
-import org.jetbrains.annotations.NotNull;
 
 @CapacitorPlugin(name = "VkId")
 public class VkIdPlugin extends Plugin {
@@ -62,27 +53,10 @@ public class VkIdPlugin extends Plugin {
                 public void onFail(VKIDAuthFail fail) {
                     handleError(fail);
                 }
-
-                @Override
-                public void onAuthCode(AuthCodeData authCodeData, boolean isCompletion) {
-                    Log.d(TAG, "Auth code received, isCompletion: " + isCompletion);
-                }
             };
 
-            VKIDAuthParams params = new VKIDAuthParams.Builder().build();
-
-            vkid.authorize(callback, params, new Continuation<Unit>() {
-                @NotNull
-                @Override
-                public CoroutineContext getContext() {
-                    return EmptyCoroutineContext.INSTANCE;
-                }
-
-                @Override
-                public void resumeWith(@NotNull Object o) {
-                    // Continuation завершён
-                }
-            });
+            // Используем BottomSheet для авторизации
+            vkid.authorize(activity, callback);
 
         } catch (Exception e) {
             Log.e(TAG, "Login error", e);
@@ -92,18 +66,6 @@ public class VkIdPlugin extends Plugin {
 
     @PluginMethod
     public void logout(PluginCall call) {
-        Activity activity = getActivity();
-
-        if (activity == null) {
-            call.reject("Activity not available");
-            return;
-        }
-
-        if (!(activity instanceof LifecycleOwner)) {
-            call.reject("Activity must implement LifecycleOwner");
-            return;
-        }
-
         try {
             VKID vkid = VKID.Companion.getInstance();
 
@@ -114,27 +76,15 @@ public class VkIdPlugin extends Plugin {
                     Log.d(TAG, "Logged out successfully");
                     call.resolve();
                 }
-@Override
+
+                @Override
                 public void onFail(VKIDLogoutFail fail) {
                     Log.e(TAG, "Logout failed: " + fail.getDescription());
                     call.reject("Logout failed: " + fail.getDescription());
                 }
             };
 
-            VKIDLogoutParams params = new VKIDLogoutParams.Builder().build();
-
-            vkid.logout(callback, params, new Continuation<Unit>() {
-                @NotNull
-                @Override
-                public CoroutineContext getContext() {
-                    return EmptyCoroutineContext.INSTANCE;
-                }
-
-                @Override
-                public void resumeWith(@NotNull Object o) {
-                    // Continuation завершён
-                }
-            });
+            vkid.logout(callback);
         } catch (Exception e) {
             Log.e(TAG, "Logout error", e);
             call.reject("Logout failed: " + e.getMessage());
@@ -159,7 +109,7 @@ public class VkIdPlugin extends Plugin {
             call.resolve(result);
         } catch (Exception e) {
             Log.e(TAG, "Get current user error", e);
-            call.reject("Failed to get current user: " + e.getMessage());
+call.reject("Failed to get current user: " + e.getMessage());
         }
     }
 
