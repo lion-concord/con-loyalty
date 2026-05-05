@@ -31,7 +31,7 @@ android {
             VKIDRedirectScheme: "vk54574930",
             VKIDRedirectHost: "vk.com",
             VKIDClientID: "54574930",
-            VKIDClientSecret: "8FIY11T15JczowbSOVU1"
+            VKIDClientSecret: "n7ehhGncqGbhTFmrRcbf"
         ]
         aaptOptions {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
