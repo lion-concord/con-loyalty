@@ -15,7 +15,11 @@ import com.vk.id.VKID;
 import com.vk.id.VKIDAuthFail;
 import com.vk.id.AccessToken;
 import com.vk.id.auth.VKIDAuthCallback;
+import com.vk.id.auth.VKIDAuthParams;
 import com.vk.id.auth.AuthCodeData;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 @CapacitorPlugin(name = "VkId")
 public class VkIdPlugin extends Plugin {
@@ -57,8 +61,16 @@ public class VkIdPlugin extends Plugin {
                 }
             };
 
-            // Используем официальный способ из документации: VKID.instance
-            VKID.Companion.getInstance().authorize((LifecycleOwner) activity, callback);
+            // Создаём пустой VKIDAuthParams через builder
+            VKIDAuthParams params = new VKIDAuthParams(new Function1<VKIDAuthParams.Builder, Unit>() {
+                @Override
+                public Unit invoke(VKIDAuthParams.Builder builder) {
+                    return Unit.INSTANCE;
+                }
+            });
+
+            // Используем официальный способ из документации
+            VKID.Companion.getInstance().authorize((LifecycleOwner) activity, callback, params);
 
         } catch (Exception e) {
             Log.e(TAG, "Login error", e);
@@ -90,7 +102,7 @@ public class VkIdPlugin extends Plugin {
             call.resolve(result);
         } catch (Exception e) {
             Log.e(TAG, "Get current user error", e);
-            call.reject("Failed to get current user: " + e.getMessage());
+call.reject("Failed to get current user: " + e.getMessage());
         }
     }
 
@@ -109,7 +121,7 @@ public class VkIdPlugin extends Plugin {
             Log.d(TAG, "Login successful");
         } catch (Exception e) {
             Log.e(TAG, "Handle success error", e);
-savedCall.reject("Failed to process login: " + e.getMessage());
+            savedCall.reject("Failed to process login: " + e.getMessage());
         } finally {
             savedCall = null;
         }
