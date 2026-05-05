@@ -15,6 +15,7 @@ import com.vk.id.VKID;
 import com.vk.id.VKIDAuthFail;
 import com.vk.id.AccessToken;
 import com.vk.id.auth.VKIDAuthCallback;
+import com.vk.id.auth.AuthCodeData;
 import com.vk.id.logout.VKIDLogoutCallback;
 import com.vk.id.logout.VKIDLogoutFail;
 
@@ -28,7 +29,7 @@ public class VkIdPlugin extends Plugin {
     public void login(PluginCall call) {
         savedCall = call;
         Activity activity = getActivity();
-
+        
         if (activity == null) {
             call.reject("Activity not available");
             return;
@@ -41,7 +42,7 @@ public class VkIdPlugin extends Plugin {
 
         try {
             VKID vkid = VKID.Companion.getInstance();
-
+            
             VKIDAuthCallback callback = new VKIDAuthCallback() {
                 @Override
                 public void onAuth(AccessToken accessToken) {
@@ -53,11 +54,16 @@ public class VkIdPlugin extends Plugin {
                 public void onFail(VKIDAuthFail fail) {
                     handleError(fail);
                 }
+
+                @Override
+                public void onAuthCode(AuthCodeData authCodeData, boolean isCompletion) {
+                    Log.d(TAG, "Auth code received, isCompletion: " + isCompletion);
+                }
             };
 
             // Используем BottomSheet для авторизации
             vkid.authorize(activity, callback);
-
+            
         } catch (Exception e) {
             Log.e(TAG, "Login error", e);
             call.reject("Login failed: " + e.getMessage());
@@ -68,7 +74,7 @@ public class VkIdPlugin extends Plugin {
     public void logout(PluginCall call) {
         try {
             VKID vkid = VKID.Companion.getInstance();
-
+            
             VKIDLogoutCallback callback = new VKIDLogoutCallback() {
                 @Override
                 public void onSuccess() {
@@ -101,15 +107,15 @@ public class VkIdPlugin extends Plugin {
 
             JSObject user = new JSObject();
             user.put("accessToken", currentToken.getToken());
-
+            
             JSObject result = new JSObject();
             result.put("user", user);
             result.put("accessToken", currentToken.getToken());
 
             call.resolve(result);
         } catch (Exception e) {
-            Log.e(TAG, "Get current user error", e);
-call.reject("Failed to get current user: " + e.getMessage());
+Log.e(TAG, "Get current user error", e);
+            call.reject("Failed to get current user: " + e.getMessage());
         }
     }
 
@@ -141,7 +147,7 @@ call.reject("Failed to get current user: " + e.getMessage());
         if (fail != null) {
             errorMsg = fail.getDescription();
         }
-
+        
         Log.e(TAG, "Login failed: " + errorMsg);
         savedCall.reject(errorMsg);
         savedCall = null;
