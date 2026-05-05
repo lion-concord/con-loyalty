@@ -7,6 +7,7 @@ public class MainApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        VKID.init(this);
+        // Инициализация VK ID SDK
+        VKID.Companion.init(getApplicationContext());
     }
 }
