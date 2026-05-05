@@ -27,6 +27,10 @@ android {
         versionCode computedVersionCode
         versionName "1.0." + (ciRunNumber ?: "0")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders = [
+            VKIDRedirectScheme: "vk54574930",
+            VKIDRedirectHost: "vk.com"
+        ]
         aaptOptions {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
