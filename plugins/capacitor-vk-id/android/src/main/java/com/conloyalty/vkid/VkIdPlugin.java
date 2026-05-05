@@ -12,9 +12,6 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 import com.vk.id.VKID;
 import com.vk.id.VKIDAuthFail;
 import com.vk.id.AccessToken;
-import com.vk.id.auth.VKIDAuthParams;
-import com.vk.id.onetap.common.OneTapOAuth;
-import com.vk.id.onetap.common.OneTapStyle;
 
 import kotlin.Unit;
 
@@ -46,11 +43,14 @@ public class VkIdPlugin extends Plugin {
             return;
         }
 
-        try {
-            VKIDAuthParams params = new VKIDAuthParams.Builder().build();
+        if (vkid == null) {
+            call.reject("VK ID not initialized");
+            return;
+        }
 
-            OneTapOAuth oAuth = new OneTapOAuth(activity);
-            oAuth.setCallbacks(
+        try {
+            vkid.authorize(
+                activity,
                 accessToken -> {
                     currentToken = accessToken;
                     handleSuccess(accessToken);
@@ -61,8 +61,6 @@ public class VkIdPlugin extends Plugin {
                     return Unit.INSTANCE;
                 }
             );
-
-            oAuth.show(OneTapStyle.TransparentLight.INSTANCE);
 
         } catch (Exception e) {
             Log.e(TAG, "Login error", e);
@@ -116,7 +114,7 @@ public class VkIdPlugin extends Plugin {
 
             JSObject result = new JSObject();
             result.put("user", user);
-result.put("accessToken", accessToken.getToken());
+            result.put("accessToken", accessToken.getToken());
 
             savedCall.resolve(result);
             Log.d(TAG, "Login successful");
@@ -124,7 +122,7 @@ result.put("accessToken", accessToken.getToken());
             Log.e(TAG, "Handle success error", e);
             savedCall.reject("Failed to process login: " + e.getMessage());
         } finally {
-            savedCall = null;
+savedCall = null;
         }
     }
 
