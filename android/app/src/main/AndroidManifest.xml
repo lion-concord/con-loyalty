@@ -19,6 +19,9 @@
             android:launchMode="singleTask"
             android:exported="true">
 
+            <meta-data android:name="VKIDClientID" android:value="54574930"/>
+            <meta-data android:name="VKIDRedirectScheme" android:value="vk54574930"/>
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
