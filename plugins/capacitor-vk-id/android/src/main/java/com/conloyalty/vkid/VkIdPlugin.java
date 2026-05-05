@@ -18,7 +18,6 @@ import com.vk.id.auth.VKIDAuthCallback;
 import com.vk.id.auth.AuthCodeData;
 import com.vk.id.logout.VKIDLogoutCallback;
 import com.vk.id.logout.VKIDLogoutFail;
-import com.vk.id.logout.VKIDLogoutParams;
 
 import kotlin.Unit;
 
@@ -63,7 +62,7 @@ public class VkIdPlugin extends Plugin {
         try {
             VKIDAuthCallback callback = new VKIDAuthCallback() {
                 @Override
-                public void onSuccess(AccessToken accessToken) {
+                public void onAuth(AccessToken accessToken) {
                     currentToken = accessToken;
                     handleSuccess(accessToken);
                 }
@@ -118,13 +117,12 @@ public class VkIdPlugin extends Plugin {
                 @Override
                 public void onFail(VKIDLogoutFail fail) {
                     Log.e(TAG, "Logout failed: " + fail.getDescription());
-call.reject("Logout failed: " + fail.getDescription());
+                    call.reject("Logout failed: " + fail.getDescription());
                 }
             };
 
-            VKIDLogoutParams params = new VKIDLogoutParams();
-            vkid.logout(callback, (LifecycleOwner) activity, params);
-        } catch (Exception e) {
+            vkid.logout(callback, (LifecycleOwner) activity);
+} catch (Exception e) {
             Log.e(TAG, "Logout error", e);
             call.reject("Logout failed: " + e.getMessage());
         }
