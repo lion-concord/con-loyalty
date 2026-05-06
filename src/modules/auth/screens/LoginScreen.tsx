@@ -59,6 +59,10 @@ export default function LoginScreen() {
           <p className="login-terms">
             Нажимая кнопку, вы соглашаетесь с условиями использования
           </p>
+
+          <p className="login-copyright">
+            © 2026, разработчик Капутский Лев Петрович
+          </p>
         </div>
       </div>
     </div>
