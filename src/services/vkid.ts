@@ -118,6 +118,7 @@ private async getUserInfoFromAPI(accessToken: string): Promise<Partial<VKUser>> 
         access_token: accessToken,
         fields: 'photo_200,contacts',
         v: '5.131',
+        lang: 'ru',
       });
 
       const response = await fetch(`https://api.vk.com/method/users.get?${params.toString()}`);
