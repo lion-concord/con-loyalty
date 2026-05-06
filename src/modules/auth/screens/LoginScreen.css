@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 50%, #dc2626 100%);
+  background: linear-gradient(135deg, #1e3a8a 0%, #5b21b6 50%, #7c3aed 100%);
   background-size: 200% 200%;
   animation: gradientShift 8s ease infinite;
   padding: 20px;
@@ -75,7 +75,7 @@
 }
 
 .login-logo {
-  background: linear-gradient(135deg, rgba(249, 115, 22, 0.95) 0%, rgba(234, 88, 12, 0.95) 100%);
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.95) 0%, rgba(91, 33, 182, 0.95) 100%);
   color: white;
   padding: 50px 20px;
   text-align: center;
@@ -123,9 +123,10 @@
 .login-content h2 {
   font-size: 28px;
   font-weight: 700;
-  margin: 0 0 12px 0;
+  margin: 0 0 16px 0;
   color: #1f2937;
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  text-align: center;
+  background: linear-gradient(135deg, #1e3a8a 0%, #5b21b6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -136,6 +137,7 @@
   color: #6b7280;
   line-height: 1.7;
   margin: 0 0 36px 0;
+  text-align: center;
 }
 
 .login-error {
@@ -174,8 +176,8 @@
   top: 50%;
   left: 50%;
   width: 0;
-height: 0;
-  border-radius: 50%;
+  height: 0;
+border-radius: 50%;
   background: rgba(255, 255, 255, 0.3);
   transform: translate(-50%, -50%);
   transition: width 0.6s, height 0.6s;
