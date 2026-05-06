@@ -58,6 +58,7 @@ class VKIDService {
 
       const user: VKUser = {
         id: result.user.id,
+        // Приоритет: русские данные из API, затем английские из плагина
         first_name: userInfo.first_name || result.user.firstName || '',
         last_name: userInfo.last_name || result.user.lastName || '',
         avatar: userInfo.avatar || result.user.avatar,
@@ -111,11 +112,7 @@ class VKIDService {
       return user;
     } catch (error) {
       console.error('Web VK ID login error:', error);
-      throw new Error('Не удалось войти через VK ID');
-    }
-  }
-
-  private async getUserInfoFromAPI(accessToken: string): Promise<Partial<VKUser>> {
+private async getUserInfoFromAPI(accessToken: string): Promise<Partial<VKUser>> {
     try {
       const params = new URLSearchParams({
         access_token: accessToken,
@@ -135,7 +132,7 @@ class VKIDService {
       return {
         first_name: vkUser.first_name,
         last_name: vkUser.last_name,
-avatar: vkUser.photo_200,
+        avatar: vkUser.photo_200,
         phone: vkUser.mobile_phone || vkUser.home_phone,
       };
     } catch (error) {
