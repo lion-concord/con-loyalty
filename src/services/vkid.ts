@@ -112,6 +112,10 @@ class VKIDService {
       return user;
     } catch (error) {
       console.error('Web VK ID login error:', error);
+      throw new Error('Не удалось войти через VK ID');
+    }
+  }
+
 private async getUserInfoFromAPI(accessToken: string): Promise<Partial<VKUser>> {
     try {
       const params = new URLSearchParams({
