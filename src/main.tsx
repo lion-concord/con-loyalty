@@ -1,4 +1,5 @@
 import "./styles/ui-theme.css";
+import "./app/styles/lk.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { AuthProvider } from "./modules/auth/context/AuthProvider";
