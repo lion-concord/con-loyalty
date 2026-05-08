@@ -54,8 +54,11 @@ export default function LoyaltyHomeScreen({
   }
 
   return (
-    <div className="lk-screen">
-      <div className="lk-card lk-profile-card">
+    <div className="lk-screen lk-screen--premium">
+      <div className="lk-premium-glow lk-premium-glow--top" />
+      <div className="lk-premium-glow lk-premium-glow--bottom" />
+
+      <div className="lk-card lk-profile-card lk-card--glass">
         <div className="lk-profile-header">
           <div className="lk-avatar-wrapper">
             {user?.avatarUrl ? (
@@ -84,26 +87,27 @@ export default function LoyaltyHomeScreen({
 
           <button
             type="button"
-            className="lk-secondary-button"
+            className="lk-secondary-button lk-secondary-button--danger"
             onClick={handleLogout}
-            style={{ marginTop: "8px", background: "#ef4444" }}
           >
             Выйти из аккаунта
           </button>
         </div>
       </div>
 
-      <div className="lk-card lk-club-card">
+      <div className="lk-card lk-club-card lk-card--glass">
         <div className="lk-section-title">Клубный статус</div>
 
         <div className="lk-status-current">
           <div className="lk-status-badge">
             <span className="lk-status-icon">{currentStatus.icon}</span>
-            <span className="lk-status-name">{currentStatus.title}</span>
+<span className="lk-status-name">{currentStatus.title}</span>
           </div>
 
           <div className="lk-kon-balance">
-            <span className="lk-kon-amount">{konBalance.toLocaleString("ru-RU")}</span>
+            <span className="lk-kon-amount">
+              {konBalance.toLocaleString("ru-RU")}
+            </span>
             <span className="lk-kon-label">КОН</span>
           </div>
         </div>
@@ -111,7 +115,7 @@ export default function LoyaltyHomeScreen({
         <div className="lk-status-list">
           {CLUB_STATUSES.map((status) => {
             const isActive = konBalance >= status.minKon;
-const isCurrent = status.key === currentStatus.key;
+            const isCurrent = status.key === currentStatus.key;
 
             return (
               <div
@@ -150,7 +154,7 @@ const isCurrent = status.key === currentStatus.key;
       </div>
 
       {onOpenSemrek && (
-        <div className="lk-card lk-partner-card">
+        <div className="lk-card lk-partner-card lk-card--glass">
           <div className="lk-partner-badge">ПАРТНЁР</div>
           <h3 className="lk-partner-title">Семь рек</h3>
           <p className="lk-partner-description">
@@ -189,6 +193,10 @@ const isCurrent = status.key === currentStatus.key;
           </div>
         </div>
       )}
+
+      <footer className="lk-footer">
+        © 2026 КОН – Программа лояльности
+      </footer>
     </div>
   );
 }
