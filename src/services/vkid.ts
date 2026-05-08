@@ -1,4 +1,4 @@
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, CapacitorHttp } from '@capacitor/core';
 import { VkId } from 'capacitor-vk-id';
 import { Config, Auth, Scheme, Languages } from '@vkid/sdk';
 import type { AuthResponse } from '@vkid/sdk';
@@ -19,7 +19,6 @@ class VKIDService {
   private init() {
     if (this.isInitialized) return;
 
-    // Инициализация только для веб-версии
     if (!this.isNative) {
       const appId = import.meta.env.VITE_VK_APP_ID || '54574930';
 
@@ -36,49 +35,26 @@ class VKIDService {
 
   async login(): Promise<VKUser> {
     this.init();
-
-    if (this.isNative) {
-      // Нативная авторизация через плагин
-      return this.loginNative();
-    } else {
-      // Веб-авторизация через @vkid/sdk
-      return this.loginWeb();
-    }
+    return this.isNative ? this.loginNative() : this.loginWeb();
   }
 
   private async loginNative(): Promise<VKUser> {
     try {
       const result = await VkId.login();
-
-      // Сохраняем токен
       localStorage.setItem('vk_token', result.accessToken);
 
-      // Получаем дополнительную информацию о пользователе через API
       const userInfo = await this.getUserInfoFromAPI(result.accessToken);
 
-      const user: VKUser = {
+      return {
         id: result.user.id,
-        // Приоритет: русские данные из API, затем английские из плагина
         first_name: userInfo.first_name || result.user.firstName || '',
         last_name: userInfo.last_name || result.user.lastName || '',
         avatar: userInfo.avatar || result.user.avatar,
         phone: userInfo.phone || result.user.phone,
         email: userInfo.email || result.user.email,
       };
-
-      return user;
     } catch (error) {
       console.error('Native VK ID login error:', error);
-
-      // Показываем полную ошибку пользователю для отладки
-      const errorDetails = {
-        message: (error as any)?.message || "Unknown error",
-        code: (error as any)?.code || "N/A",
-        details: (error as any)?.details || "N/A",
-        raw: JSON.stringify(error, null, 2)
-      };
-      alert("VK ID Error:\n" + JSON.stringify(errorDetails, null, 2));
-
       throw new Error('Не удалось войти через VK ID');
     }
   }
@@ -100,7 +76,7 @@ class VKIDService {
 
       const userInfoResult = await Auth.userInfo(tokenResult.access_token);
 
-      const user: VKUser = {
+      return {
         id: tokenResult.user_id,
         first_name: userInfoResult.user.first_name || '',
         last_name: userInfoResult.user.last_name || '',
@@ -108,31 +84,44 @@ class VKIDService {
         phone: userInfoResult.user.phone,
         email: userInfoResult.user.email,
       };
-
-      return user;
     } catch (error) {
       console.error('Web VK ID login error:', error);
       throw new Error('Не удалось войти через VK ID');
     }
   }
 
-private async getUserInfoFromAPI(accessToken: string): Promise<Partial<VKUser>> {
+  private async getUserInfoFromAPI(accessToken: string): Promise<Partial<VKUser>> {
     try {
-      const params = new URLSearchParams({
+      const params = {
         access_token: accessToken,
         fields: 'photo_200,contacts',
         v: '5.131',
         lang: 'ru',
-      });
+      };
 
-      const response = await fetch(`https://api.vk.com/method/users.get?${params.toString()}`);
-      const data = await response.json();
+      let data: any;
 
-      if (data.error) {
+      if (this.isNative) {
+        const response = await CapacitorHttp.get({
+          url: 'https://api.vk.com/method/users.get',
+          params,
+          headers: { Accept: 'application/json' },
+        });
+        data = response.data;
+      } else {
+        const search = new URLSearchParams(params);
+        const response = await fetch(`https://api.vk.com/method/users.get?${search.toString()}`);
+        data = await response.json();
+      }
+
+      if (data?.error) {
+        console.error('VK API error:', data.error);
         return {};
       }
 
-      const vkUser = data.response[0];
+      const vkUser = data?.response?.[0];
+if (!vkUser) return {};
+
       return {
         first_name: vkUser.first_name,
         last_name: vkUser.last_name,
@@ -140,7 +129,7 @@ private async getUserInfoFromAPI(accessToken: string): Promise<Partial<VKUser>> 
         phone: vkUser.mobile_phone || vkUser.home_phone,
       };
     } catch (error) {
-      console.error("Error fetching user info from VK API:", error);
+      console.error('Error fetching user info from VK API:', error);
       return {};
     }
   }
