@@ -55,8 +55,6 @@ class VKIDService {
 
       // Получаем дополнительную информацию о пользователе через API
       const userInfo = await this.getUserInfoFromAPI(result.accessToken);
-      alert("VK API userInfo:\n" + JSON.stringify(userInfo, null, 2));
-      alert("Native plugin user:\n" + JSON.stringify(result.user, null, 2));
 
       const user: VKUser = {
         id: result.user.id,
@@ -131,6 +129,7 @@ private async getUserInfoFromAPI(accessToken: string): Promise<Partial<VKUser>> 
       const data = await response.json();
 
       if (data.error) {
+        alert("VK API error:\n" + JSON.stringify(data.error, null, 2));
         console.error('VK API error:', data.error);
         return {};
       }
@@ -143,7 +142,8 @@ private async getUserInfoFromAPI(accessToken: string): Promise<Partial<VKUser>> 
         phone: vkUser.mobile_phone || vkUser.home_phone,
       };
     } catch (error) {
-      console.error('Error fetching user info from VK API:', error);
+      alert("VK API fetch error:\n" + JSON.stringify({ message: (error as any)?.message, code: (error as any)?.code, details: (error as any)?.details }, null, 2));
+      console.error("Error fetching user info from VK API:", error);
       return {};
     }
   }
