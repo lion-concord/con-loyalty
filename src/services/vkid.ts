@@ -55,6 +55,8 @@ class VKIDService {
 
       // Получаем дополнительную информацию о пользователе через API
       const userInfo = await this.getUserInfoFromAPI(result.accessToken);
+      alert("VK API userInfo:\n" + JSON.stringify(userInfo, null, 2));
+      alert("Native plugin user:\n" + JSON.stringify(result.user, null, 2));
 
       const user: VKUser = {
         id: result.user.id,
