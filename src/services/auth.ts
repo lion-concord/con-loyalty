@@ -31,7 +31,6 @@ function notifyListeners() {
 // VK ID авторизация
 export async function signInWithVK(): Promise<User> {
   const vkUser = await vkidService.login();
-    alert("VK login result:\n" + JSON.stringify(vkUser, null, 2));
   currentUser = mapVKUser(vkUser);
 
   // Сохраняем в localStorage
