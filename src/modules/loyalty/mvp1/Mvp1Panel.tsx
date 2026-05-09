@@ -1,28 +1,42 @@
 import type { ReactNode } from "react";
 
 type Props = {
+  onAddKon?: (amount: number) => void;
   onOpenPartner?: () => void;
+  onOpenQr?: () => void;
+  onOpenHistory?: () => void;
+  onOpenProfile?: () => void;
 };
 
 function Card({ children }: { children: ReactNode }) {
   return <section className="lk-card lk-card--glass">{children}</section>;
 }
 
-export function Mvp1Panel({ onOpenPartner }: Props) {
+export function Mvp1Panel({
+  onAddKon,
+  onOpenPartner,
+  onOpenQr,
+  onOpenHistory,
+  onOpenProfile,
+}: Props) {
   return (
     <div className="lk-mvp1">
       <Card>
         <div className="lk-section-title">Ежедневный бонус</div>
         <div className="lk-section-subtitle">Заходите каждый день и забирайте баллы КОН.</div>
         <div className="lk-mvp1__reward">+5 баллов КОН</div>
-        <button type="button" className="lk-button lk-button--primary">
+        <button
+          type="button"
+          className="lk-button lk-button--primary"
+          onClick={() => onAddKon?.(5)}
+        >
           Забрать бонус
         </button>
       </Card>
 
       <Card>
         <div className="lk-section-title">Задания недели</div>
-        <div className="lk-section-subtitle">Выполняйте простые действия и получайте награды.</div>
+        <div className="lk-section-subtitle">Выполняйте простые действия и получайте баллы.</div>
 
         <div className="lk-mvp1__list">
           <div className="lk-mvp1__task">
@@ -30,7 +44,16 @@ export function Mvp1Panel({ onOpenPartner }: Props) {
               <div className="lk-mvp1__task-title">Откройте профиль</div>
               <div className="lk-mvp1__task-reward">+5 баллов</div>
             </div>
-            <button type="button" className="lk-button lk-button--secondary">Выполнить</button>
+            <button
+              type="button"
+              className="lk-button lk-button--secondary"
+              onClick={() => {
+                onAddKon?.(5);
+                onOpenProfile?.();
+              }}
+            >
+              Выполнить
+            </button>
           </div>
 
           <div className="lk-mvp1__task">
@@ -38,7 +61,16 @@ export function Mvp1Panel({ onOpenPartner }: Props) {
               <div className="lk-mvp1__task-title">Покажите QR-карту</div>
               <div className="lk-mvp1__task-reward">+10 баллов</div>
             </div>
-            <button type="button" className="lk-button lk-button--secondary">Выполнить</button>
+            <button
+              type="button"
+              className="lk-button lk-button--secondary"
+              onClick={() => {
+                onAddKon?.(10);
+                onOpenQr?.();
+              }}
+            >
+              Выполнить
+            </button>
           </div>
 
           <div className="lk-mvp1__task">
@@ -46,32 +78,35 @@ export function Mvp1Panel({ onOpenPartner }: Props) {
               <div className="lk-mvp1__task-title">Перейдите в «Семь рек»</div>
               <div className="lk-mvp1__task-reward">+10 баллов</div>
             </div>
-            <button type="button" className="lk-button lk-button--secondary" onClick={onOpenPartner}>
+            <button
+              type="button"
+              className="lk-button lk-button--secondary"
+              onClick={() => {
+                onAddKon?.(10);
+                onOpenPartner?.();
+              }}
+            >
               Открыть
             </button>
           </div>
-        </div>
-      </Card>
 
-      <Card>
-        <div className="lk-section-title">Прогресс уровня</div>
-        <div className="lk-section-subtitle">До следующего уровня осталось совсем немного.</div>
-        <div className="lk-progress">
-          <div className="lk-progress__bar">
-            <div className="lk-progress__fill" style={{ width: "64%" }} />
+          <div className="lk-mvp1__task">
+            <div>
+              <div className="lk-mvp1__task-title">Откройте историю</div>
+              <div className="lk-mvp1__task-reward">+3 балла</div>
+            </div>
+            <button
+              type="button"
+              className="lk-button lk-button--secondary"
+              onClick={() => {
+                onAddKon?.(3);
+                onOpenHistory?.();
+              }}
+            >
+              Выполнить
+            </button>
           </div>
-          <div className="lk-progress__label">Чем выше уровень, тем больше выгода и бонусы.</div>
         </div>
-      </Card>
-
-      <Card>
-        <div className="lk-section-title">Партнёр недели — «Семь рек»</div>
-        <div className="lk-section-subtitle">
-          Каталог лодок, моторов и аксессуаров. За действия начисляются баллы КОН.
-        </div>
-        <button type="button" className="lk-button lk-button--primary" onClick={onOpenPartner}>
-          Открыть «Семь рек»
-        </button>
       </Card>
     </div>
   );
