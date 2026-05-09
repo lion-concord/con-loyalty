@@ -9,6 +9,7 @@ interface Props {
   konBalance?: number;
   onOpenQr?: () => void;
   onOpenHistory?: () => void;
+  onAddKon?: (amount: number) => void;
 }
 
 function MoreScreen() {
@@ -118,7 +119,7 @@ function BottomNav({
   );
 }
 
-export default function LkRouter({ konBalance = 0, onOpenQr, onOpenHistory }: Props) {
+export default function LkRouter({ konBalance = 0, onOpenQr, onOpenHistory, onAddKon }: Props) {
   const [screen, setScreen] = useState<Screen>("loyalty");
   const [kon, setKon] = useState<number>(konBalance);
   const [semrekCardBalance, setSemrekCardBalance] = useState<number>(0);
@@ -151,6 +152,7 @@ export default function LkRouter({ konBalance = 0, onOpenQr, onOpenHistory }: Pr
     return (
       <LoyaltyHomeScreen
         konBalance={kon}
+        onAddKon={onAddKon ?? ((amount) => setKon((v) => v + amount))}
         onOpenQr={onOpenQr}
         onOpenHistory={onOpenHistory}
         onOpenProfile={() => setScreen("profile")}

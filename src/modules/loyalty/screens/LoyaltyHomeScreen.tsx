@@ -8,6 +8,7 @@ import { Mvp1Panel } from "../mvp1/Mvp1Panel";
 interface Props {
   konBalance: number;
   level?: string;
+  onAddKon?: (amount: number) => void;
   onOpenQr?: () => void;
   onOpenPartners?: () => void;
   onOpenSemrek?: () => void;
