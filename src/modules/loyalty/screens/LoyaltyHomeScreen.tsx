@@ -31,6 +31,8 @@ function SectionCard({ className = "", children }: SectionCardProps) {
 
 interface WelcomeSectionProps {
   user?: {
+    firstName?: string | null;
+    lastName?: string | null;
     avatarUrl?: string;
     phone?: string | null;
     email?: string | null;
@@ -116,7 +118,7 @@ function StatusProgressSection({
 }: StatusProgressSectionProps) {
   return (
     <SectionCard className="lk-club-card">
-      <div className="lk-section-title">Статус и прогресс</div>
+<div className="lk-section-title">Статус и прогресс</div>
 
       <div className="lk-status-current">
         <div className="lk-status-badge">
@@ -125,7 +127,7 @@ function StatusProgressSection({
         </div>
 
         <div className="lk-kon-balance">
-<span className="lk-kon-amount">
+          <span className="lk-kon-amount">
             {konBalance.toLocaleString("ru-RU")}
           </span>
           <span className="lk-kon-label">КОН</span>
@@ -140,9 +142,7 @@ function StatusProgressSection({
           return (
             <div
               key={status.key}
-              className={`lk-status-item ${isActive ? "active" : ""} ${
-                isCurrent ? "current" : ""
-              }`}
+              className={`lk-status-item ${isActive ? "active" : ""} ${isCurrent ? "current" : ""}`}
             >
               <span className="lk-status-icon">{status.icon}</span>
               <span className="lk-status-name">{status.title}</span>
@@ -246,30 +246,15 @@ function PartnersSection({ onOpenSemrek }: PartnersSectionProps) {
       <div className="lk-partner-badge">ПАРТНЁР</div>
       <h3 className="lk-partner-title">Семь рек</h3>
       <p className="lk-partner-description">
-        Лодки ПВХ: ремонт, тюнинг, комплекты под ключ.
+        Лодки ПВХ: товары, услуги, тюнинг, готовые комплекты и оформление заказа.
       </p>
-
-      <div className="lk-partner-actions">
+<div className="lk-partner-actions">
         <button
           type="button"
           className="lk-partner-button"
           onClick={onOpenSemrek}
         >
-          Ремонт лодок
-        </button>
-        <button
-          type="button"
-          className="lk-partner-button"
-          onClick={onOpenSemrek}
-        >
-          Тюнинг ПВХ
-        </button>
-<button
-          type="button"
-          className="lk-partner-button"
-          onClick={onOpenSemrek}
-        >
-          Готовые комплекты
+          Открыть «Семь рек»
         </button>
       </div>
 
