@@ -6,7 +6,9 @@ interface Props {
   onClose: () => void;
   konBalance?: number;
   onAddKon?: (amount: number) => void;
-  onSpendKon?: (amount: number) => void;
+  partnerCardBalance?: number;
+  onAddPartnerCashback?: (amount: number) => void;
+  onSpendPartnerCashback?: (amount: number) => void;
 }
 
 export default function PartnerRouter({
@@ -14,7 +16,9 @@ export default function PartnerRouter({
   onClose,
   konBalance,
   onAddKon,
-  onSpendKon,
+  partnerCardBalance,
+  onAddPartnerCashback,
+  onSpendPartnerCashback,
 }: Props) {
   const partner = getPartner(partnerId);
 
@@ -64,7 +68,9 @@ export default function PartnerRouter({
         onClose={onClose}
         konBalance={konBalance}
         onAddKon={onAddKon}
-        onSpendKon={onSpendKon}
+        partnerCardBalance={partnerCardBalance}
+        onAddPartnerCashback={onAddPartnerCashback}
+        onSpendPartnerCashback={onSpendPartnerCashback}
       />
     </Suspense>
   );

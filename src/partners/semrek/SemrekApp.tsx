@@ -18,7 +18,9 @@ import "./styles/semrek.css";
 interface Props {
   konBalance?: number;
   onAddKon?: (amount: number) => void;
-  onSpendKon?: (amount: number) => void;
+  partnerCardBalance?: number;
+  onAddPartnerCashback?: (amount: number) => void;
+  onSpendPartnerCashback?: (amount: number) => void;
   onClose?: () => void;
 }
 
@@ -28,13 +30,13 @@ const PAYMENT_LABELS: Record<PaymentMethod, string> = {
   installment: "📅 Рассрочка 0-0-12",
   invoice: "🧾 Счёт для юр. лиц",
 };
-
 type Screen = SemrekScreen | "payment" | "success";
 
 export default function SemrekApp({
-  konBalance = 0,
   onAddKon,
-  onSpendKon,
+  partnerCardBalance = 0,
+  onAddPartnerCashback,
+  onSpendPartnerCashback,
   onClose,
 }: Props) {
   const [screen, setScreen] = useState<Screen>("home");
@@ -45,7 +47,6 @@ export default function SemrekApp({
   const [order, setOrder] = useState<OrderResult | null>(null);
 
   const totalPrice = boatPrice + (delivery?.cost || 0);
-  const konDiscount = Math.floor(totalPrice * 0.1);
 
   const handleSelectBoat = (boat: Boat) => {
     setBoatName(boat.name);
@@ -70,12 +71,26 @@ export default function SemrekApp({
     setScreen("payment");
   };
 
-  const handlePay = (method: PaymentMethod, useKon: number) => {
+  const handlePay = (method: PaymentMethod, partnerCashbackUsed: number) => {
     if (!delivery) return;
-    const finalPrice = totalPrice - useKon;
-    const cashback = Math.round(finalPrice * 0.03);
-    if (useKon > 0 && onSpendKon) onSpendKon(useKon);
-    if (cashback > 0 && onAddKon) onAddKon(cashback);
+
+    const safeUsed = Math.max(0, Math.min(partnerCashbackUsed, partnerCardBalance, totalPrice));
+    const finalPrice = Math.max(0, totalPrice - safeUsed);
+    const konEarned = 5;
+    const partnerCashbackEarned = Math.round(finalPrice * 0.01);
+
+    if (safeUsed > 0 && onSpendPartnerCashback) {
+      onSpendPartnerCashback(safeUsed);
+    }
+
+    if (konEarned > 0 && onAddKon) {
+      onAddKon(konEarned);
+    }
+
+    if (partnerCashbackEarned > 0 && onAddPartnerCashback) {
+      onAddPartnerCashback(partnerCashbackEarned);
+    }
+
     setOrder({
       id: "SMR-" + Date.now().toString().slice(-6),
       boatName,
@@ -83,10 +98,12 @@ export default function SemrekApp({
       paymentMethod: method,
       paymentLabel: PAYMENT_LABELS[method],
       totalPrice,
-      konUsed: useKon,
+      partnerCashbackUsed: safeUsed,
       finalPrice,
-      cashback,
+      konEarned,
+      partnerCashbackEarned,
     });
+
     setScreen("success");
   };
 
@@ -127,7 +144,8 @@ export default function SemrekApp({
         ) : (
           <span />
         )}
-{onClose && (
+
+        {onClose && (
           <button className="sem-btn sem-btn--ghost" onClick={onClose}>
             ✕ Закрыть
           </button>
@@ -142,13 +160,12 @@ export default function SemrekApp({
         {screen === "builder" && <BuilderScreen onComplete={handleBuilderComplete} />}
 
         {screen === "delivery" && <DeliveryScreen onContinue={handleDeliveryContinue} />}
-
-        {screen === "payment" && delivery && (
+{screen === "payment" && delivery && (
           <PaymentScreen
             totalPrice={totalPrice}
-            konBalance={konBalance}
-            konDiscount={konDiscount}
+            partnerCardBalance={partnerCardBalance}
             onPay={handlePay}
+            onBack={() => setScreen("delivery")}
           />
         )}
 

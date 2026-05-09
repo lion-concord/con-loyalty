@@ -3,11 +3,12 @@ import type { Partner } from "../_shared/types";
 
 export const semrekConfig: Partner = {
   id: "semrek",
+  name: "Семь рек",
   title: "Семь рек",
-  subtitle: "Лодки ПВХ · Конструктор · Доставка",
+  subtitle: "Лодки, моторы и аксессуары",
   accentColor: "#c77a3a",
   bgColor: "#0a2540",
-  footnote: "Партнёр программы КОН · начисляем баллы",
+  footnote: "Начисление баллов КОН и кешбэка партнёра",
   enabled: true,
   component: lazy(() => import("./index")),
 };

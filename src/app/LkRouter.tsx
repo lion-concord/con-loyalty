@@ -1,77 +1,175 @@
-import { useState } from "react";
-import { useAuth } from "../modules/auth/context/AuthProvider";
+import { useMemo, useState } from "react";
 import LoyaltyHomeScreen from "../modules/loyalty/screens/LoyaltyHomeScreen";
 import ProfileScreen from "../modules/profile/screens/ProfileScreen";
-import PartnerRouter from "../partners/PartnerRouter";
+import PartnerRouter from "../components/partners/PartnerRouter";
 
-type Screen = "loyalty" | "profile" | "partner";
+type Screen = "loyalty" | "partner" | "profile" | "more";
 
-export default function LkRouter() {
-  const { user } = useAuth();
+interface Props {
+  konBalance?: number;
+  onOpenQr?: () => void;
+  onOpenHistory?: () => void;
+}
+
+function MoreScreen() {
+  return (
+    <div className="lk-screen lk-screen--premium">
+      <div className="lk-premium-glow lk-premium-glow--top" />
+      <div className="lk-premium-glow lk-premium-glow--bottom" />
+
+      <div className="lk-card lk-card--glass">
+        <div className="lk-section-title">Ещё</div>
+
+        <div className="lk-more-list">
+          <a className="lk-more-link" href="#privacy" onClick={(e) => e.preventDefault()}>
+            Политика конфиденциальности
+          </a>
+          <a className="lk-more-link" href="#terms" onClick={(e) => e.preventDefault()}>
+            Пользовательское соглашение
+          </a>
+          <a className="lk-more-link" href="#personal-data" onClick={(e) => e.preventDefault()}>
+            Согласие на обработку персональных данных
+          </a>
+          <a className="lk-more-link" href="#rules" onClick={(e) => e.preventDefault()}>
+            Правила программы лояльности
+          </a>
+          <a className="lk-more-link" href="#support" onClick={(e) => e.preventDefault()}>
+            Поддержка
+          </a>
+          <a className="lk-more-link" href="#about" onClick={(e) => e.preventDefault()}>
+            О приложении
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AppFooter() {
+  return (
+    <footer className="app-footer">
+      <div className="app-footer__copy">© 2026 КОН — Программа лояльности</div>
+      <div className="app-footer__links">
+        <a href="#privacy" onClick={(e) => e.preventDefault()}>
+          Политика
+        </a>
+        <a href="#terms" onClick={(e) => e.preventDefault()}>
+          Условия
+        </a>
+        <a href="#support" onClick={(e) => e.preventDefault()}>
+          Поддержка
+        </a>
+      </div>
+    </footer>
+  );
+}
+
+function BottomNav({
+  screen,
+  onGoHome,
+  onGoPartner,
+  onGoProfile,
+  onGoMore,
+}: {
+  screen: Screen;
+  onGoHome: () => void;
+  onGoPartner: () => void;
+  onGoProfile: () => void;
+  onGoMore: () => void;
+}) {
+  return (
+    <nav className="bottom-nav" aria-label="Нижняя навигация">
+      <button
+        type="button"
+        className={"bottom-nav__item " + (screen === "loyalty" ? "active" : "")}
+        onClick={onGoHome}
+      >
+        <span className="bottom-nav__icon">🏠</span>
+        <span className="bottom-nav__label">Главная</span>
+      </button>
+
+      <button
+        type="button"
+        className={"bottom-nav__item " + (screen === "partner" ? "active" : "")}
+        onClick={onGoPartner}
+      >
+        <span className="bottom-nav__icon">🤝</span>
+        <span className="bottom-nav__label">Партнёры</span>
+      </button>
+
+      <button
+        type="button"
+        className={"bottom-nav__item " + (screen === "profile" ? "active" : "")}
+        onClick={onGoProfile}
+      >
+        <span className="bottom-nav__icon">👤</span>
+        <span className="bottom-nav__label">Профиль</span>
+      </button>
+
+      <button
+        type="button"
+        className={"bottom-nav__item " + (screen === "more" ? "active" : "")}
+        onClick={onGoMore}
+      >
+<span className="bottom-nav__icon">☰</span>
+        <span className="bottom-nav__label">Ещё</span>
+      </button>
+    </nav>
+  );
+}
+
+export default function LkRouter({ konBalance = 0, onOpenQr, onOpenHistory }: Props) {
   const [screen, setScreen] = useState<Screen>("loyalty");
-  const [konBalance, setKonBalance] = useState(0);
-  const [partnerModule, setPartnerModule] = useState<string | null>(null);
+  const [kon, setKon] = useState<number>(konBalance);
+  const [semrekCardBalance, setSemrekCardBalance] = useState<number>(0);
 
-  function handleOpenSemrek() {
-    setPartnerModule("semrek");
-    setScreen("partner");
-  }
+  const content = useMemo(() => {
+    if (screen === "profile") {
+      return <ProfileScreen />;
+    }
 
-  function handleClosePartner() {
-    setPartnerModule(null);
-    setScreen("loyalty");
-  }
+    if (screen === "partner") {
+      return (
+        <PartnerRouter
+          partnerId="semrek"
+          onClose={() => setScreen("loyalty")}
+          konBalance={kon}
+          onAddKon={(amount) => setKon((v) => v + amount)}
+          partnerCardBalance={semrekCardBalance}
+          onAddPartnerCashback={(amount) => setSemrekCardBalance((v) => v + amount)}
+          onSpendPartnerCashback={(amount) =>
+            setSemrekCardBalance((v) => Math.max(0, v - amount))
+          }
+        />
+      );
+    }
 
-  function handleAddKon(amount: number) {
-    setKonBalance((prev) => prev + amount);
-  }
+    if (screen === "more") {
+      return <MoreScreen />;
+    }
 
-  function handleSpendKon(amount: number) {
-    setKonBalance((prev) => Math.max(0, prev - amount));
-  }
+    return (
+      <LoyaltyHomeScreen
+        konBalance={kon}
+        onOpenQr={onOpenQr}
+        onOpenHistory={onOpenHistory}
+        onOpenProfile={() => setScreen("profile")}
+        onOpenSemrek={() => setScreen("partner")}
+      />
+    );
+  }, [screen, kon, semrekCardBalance, onOpenQr, onOpenHistory]);
 
   return (
-    <div className="app">
-      <div className="app-content">
-        {screen === "loyalty" && (
-          <LoyaltyHomeScreen
-            konBalance={konBalance}
-            onOpenSemrek={handleOpenSemrek}
-            onOpenProfile={() => setScreen("profile")}
-          />
-        )}
-        {screen === "profile" && <ProfileScreen />}
-        {screen === "partner" && partnerModule && (
-          <PartnerRouter
-            module={partnerModule}
-            konBalance={konBalance}
-            onAddKon={handleAddKon}
-            onSpendKon={handleSpendKon}
-            onClose={handleClosePartner}
-          />
-        )}
-      </div>
-
-      {screen !== "partner" && (
-        <nav className="bottom-nav">
-          <button
-            type="button"
-            className={screen === "loyalty" ? "active" : ""}
-            onClick={() => setScreen("loyalty")}
-          >
-            <span className="nav-icon">🏠</span>
-            <span className="nav-label">Главная</span>
-          </button>
-          <button
-            type="button"
-            className={screen === "profile" ? "active" : ""}
-            onClick={() => setScreen("profile")}
-          >
-            <span className="nav-icon">👤</span>
-            <span className="nav-label">Профиль</span>
-          </button>
-        </nav>
-      )}
+    <div className="app-shell">
+      <div className="app-shell__content">{content}</div>
+      <AppFooter />
+      <BottomNav
+        screen={screen}
+        onGoHome={() => setScreen("loyalty")}
+        onGoPartner={() => setScreen("partner")}
+        onGoProfile={() => setScreen("profile")}
+        onGoMore={() => setScreen("more")}
+      />
     </div>
   );
 }

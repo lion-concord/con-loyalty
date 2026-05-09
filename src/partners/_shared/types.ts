@@ -1,21 +1,25 @@
-import type { LazyExoticComponent, ComponentType } from "react";
+import type { ComponentType, LazyExoticComponent } from "react";
 
 export interface PartnerModuleProps {
   onClose: () => void;
-  onBack?: (canGoBack: boolean, goBack: () => void) => void;
   konBalance?: number;
   onAddKon?: (amount: number) => void;
-  onSpendKon?: (amount: number) => void;
+  partnerCardBalance?: number;
+  onAddPartnerCashback?: (amount: number) => void;
+  onSpendPartnerCashback?: (amount: number) => void;
 }
 
 export interface Partner {
   id: string;
+  name: string;
   title: string;
   subtitle: string;
-  accentColor: string;
-  bgColor: string;
   badge?: string;
   footnote?: string;
+  accentColor?: string;
+  bgColor?: string;
   enabled: boolean;
-  component: LazyExoticComponent<ComponentType<PartnerModuleProps>>;
+  component:
+    | ComponentType<PartnerModuleProps>
+    | LazyExoticComponent<ComponentType<PartnerModuleProps>>;
 }

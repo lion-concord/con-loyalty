@@ -10,7 +10,9 @@ export default function PartnerRouter({
   onClose,
   konBalance,
   onAddKon,
-  onSpendKon,
+  partnerCardBalance,
+  onAddPartnerCashback,
+  onSpendPartnerCashback,
 }: PartnerRouterProps) {
   if (module === "semrek") {
     return (
@@ -18,7 +20,9 @@ export default function PartnerRouter({
         onClose={onClose}
         konBalance={konBalance}
         onAddKon={onAddKon}
-        onSpendKon={onSpendKon}
+        partnerCardBalance={partnerCardBalance}
+        onAddPartnerCashback={onAddPartnerCashback}
+        onSpendPartnerCashback={onSpendPartnerCashback}
       />
     );
   }
