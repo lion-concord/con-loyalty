@@ -1037,3 +1037,41 @@ display: flex;
     border-radius: 18px;
   }
 }
+
+.lk-mvp1 {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.lk-mvp1__reward {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 12px 0;
+}
+
+.lk-mvp1__list {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.lk-mvp1__task {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.lk-mvp1__task-title {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.lk-mvp1__task-reward {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.72);
+}

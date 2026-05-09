@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { useAuth } from "../../auth/context/AuthProvider";
 import { signOut } from "../../../services/auth";
 import { CLUB_STATUSES, getClubStatusMeta } from "../clubStatus";
+import { Mvp1Panel } from "../mvp1/Mvp1Panel";
 
 interface Props {
   konBalance: number;
@@ -349,6 +350,10 @@ export default function LoyaltyHomeScreen({
         nextStatus={nextStatus}
         left={statusMeta.left}
       />
+
+      {import.meta.env.VITE_ENABLE_CRYPTO === "false" && (
+        <Mvp1Panel onOpenPartner={onOpenSemrek} />
+      )}
 
       <QuickActionsSection
         onOpenProfile={onOpenProfile}
