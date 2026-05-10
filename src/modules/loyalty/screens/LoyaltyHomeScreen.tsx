@@ -147,20 +147,24 @@ export default function LoyaltyHomeScreen({
         />
       )}
 
-      <Card className="lk-partner-card">
-        <div className="lk-section-title">Партнёр недели — «Семь рек»</div>
-        <div className="lk-section-subtitle">
-          Каталог лодок, моторов и аксессуаров. За действия начисляются баллы КОН.
+      <div className="lk-banner-semrek" onClick={onOpenSemrek}>
+        <div className="lk-banner-semrek__bg" aria-hidden="true" />
+        <div className="lk-banner-semrek__content">
+          <div className="lk-banner-semrek__logo">🚤</div>
+          <div className="lk-banner-semrek__title">Семь рек</div>
+          <div className="lk-banner-semrek__text">
+            Лодки, моторы и аксессуары<br />
+            <span>Баллы КОН за покупки</span>
+          </div>
+          <button
+            type="button"
+            className="lk-button lk-button--primary lg-button lk-banner-semrek__btn"
+            onClick={(e) => { e.stopPropagation(); onOpenSemrek?.(); }}
+          >
+            Открыть
+          </button>
         </div>
-
-        <button
-          type="button"
-          className="lk-button lk-button--primary lg-button"
-          onClick={onOpenSemrek}
-        >
-          Открыть «Семь рек»
-        </button>
-      </Card>
+      </div>
 
       <Card className="lk-footer-card">
         <div className="lk-footer">

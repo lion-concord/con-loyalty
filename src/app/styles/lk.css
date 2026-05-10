@@ -1209,3 +1209,93 @@ display: flex;
   55% { transform: translateX(120%); }
   100% { transform: translateX(120%); }
 }
+
+.lk-banner-semrek {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 24px 22px;
+  margin: 16px 0;
+  cursor: pointer;
+  background:
+    radial-gradient(circle at 120% -20%, rgba(91, 140, 255, 0.35), transparent 55%),
+    radial-gradient(circle at -10% 120%, rgba(0, 212, 200, 0.18), transparent 45%),
+    linear-gradient(160deg, rgba(20, 35, 70, 0.95), rgba(12, 22, 45, 0.98));
+  border: 1px solid rgba(120, 170, 255, 0.18);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lk-banner-semrek:active {
+  transform: scale(0.985);
+}
+
+.lk-banner-semrek__bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 80% 80%, rgba(91, 140, 255, 0.12), transparent 50%);
+  opacity: 0.8;
+}
+
+.lk-banner-semrek__content {
+  position: relative;
+  z-index: 1;
+}
+
+.lk-banner-semrek__logo {
+  font-size: 44px;
+  line-height: 1;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+  opacity: 0.95;
+}
+
+.lk-banner-semrek__title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.lk-banner-semrek__text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.78);
+  margin-bottom: 16px;
+}
+
+.lk-banner-semrek__text span {
+  color: rgba(140, 200, 255, 0.95);
+  font-weight: 600;
+}
+
+.lk-banner-semrek__btn {
+  min-height: 40px;
+  padding: 0 20px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06));
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.lk-banner-semrek__btn:hover {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.1));
+}
+
+.lk-banner-semrek__btn:active {
+  transform: scale(0.96);
+}
