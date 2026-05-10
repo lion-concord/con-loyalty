@@ -148,9 +148,18 @@ export default function LoyaltyHomeScreen({
       )}
 
       <div className="lk-banner-semrek" onClick={onOpenSemrek}>
-        <div className="lk-banner-semrek__bg" aria-hidden="true" />
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          className="lk-banner-semrek__video"
+        >
+          <source src="/videos/semrek-banner.mp4" type="video/mp4" />
+        </video>
+        <div className="lk-banner-semrek__overlay" aria-hidden="true" />
         <div className="lk-banner-semrek__content">
-          <div className="lk-banner-semrek__logo">🚤</div>
           <div className="lk-banner-semrek__title">Семь рек</div>
           <div className="lk-banner-semrek__text">
             Лодки, моторы и аксессуары<br />
@@ -166,18 +175,9 @@ export default function LoyaltyHomeScreen({
         </div>
       </div>
 
-      <Card className="lk-footer-card">
-        <div className="lk-footer">
-          © 2026 КОН — Программа лояльности
-        </div>
-        <div className="lk-footer-links">
-          <button type="button" className="lk-footer-link">Политика</button>
-          <button type="button" className="lk-footer-link">Условия</button>
-          <button type="button" className="lk-footer-link" onClick={handleLogout}>
-            Выйти
-          </button>
-        </div>
-      </Card>
+      <div className="lk-footer">
+        © 2026 КОН — Программа лояльности
+      </div>
     </div>
   );
 }
