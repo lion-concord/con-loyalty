@@ -8,7 +8,7 @@ type Props = {
 };
 
 function Card({ children }: { children: ReactNode }) {
-  return <section className="lk-card lk-card--glass">{children}</section>;
+  return <section className="lk-card lk-card--glass lg-surface lg-card lg-card--soft">{children}</section>;
 }
 
 function getTodayKey() {
@@ -53,7 +53,7 @@ export function Mvp1Panel({
         <div className="lk-mvp1__reward">+5 баллов КОН</div>
         <button
           type="button"
-          className="lk-button lk-button--primary"
+          className="lk-button lk-button--primary lg-button"
           onClick={() => {
             claimDailyReward("daily-bonus", 5, onAddKon);
           }}
@@ -76,7 +76,7 @@ export function Mvp1Panel({
             </div>
             <button
               type="button"
-              className="lk-button lk-button--secondary"
+              className="lk-button lk-button--secondary lg-button"
               onClick={() => {
                 const ok = claimDailyReward("open-profile", 5, onAddKon);
                 if (ok) onOpenProfile?.();
@@ -93,7 +93,7 @@ export function Mvp1Panel({
             </div>
             <button
               type="button"
-              className="lk-button lk-button--secondary"
+              className="lk-button lk-button--secondary lg-button"
               onClick={() => {
                 const ok = claimDailyReward("open-qr", 10, onAddKon);
                 if (ok) onOpenQr?.();
@@ -110,7 +110,7 @@ export function Mvp1Panel({
             </div>
             <button
               type="button"
-              className="lk-button lk-button--secondary"
+              className="lk-button lk-button--secondary lg-button"
               onClick={() => {
                 const ok = claimDailyReward("open-semrek", 10, onAddKon);
                 if (ok) onOpenPartner?.();

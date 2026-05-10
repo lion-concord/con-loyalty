@@ -1,0 +1,127 @@
+:root {
+  --lg-bg: rgba(255, 255, 255, 0.08);
+  --lg-bg-strong: rgba(255, 255, 255, 0.12);
+  --lg-border: rgba(255, 255, 255, 0.18);
+  --lg-border-soft: rgba(255, 255, 255, 0.1);
+  --lg-highlight: rgba(255, 255, 255, 0.22);
+  --lg-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.18),
+    0 2px 10px rgba(0, 0, 0, 0.12);
+  --lg-blur: 14px;
+  --lg-radius: 24px;
+}
+
+.lg-surface {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06)),
+    rgba(20, 24, 34, 0.42);
+  border: 1px solid var(--lg-border-soft);
+  box-shadow: var(--lg-shadow);
+  backdrop-filter: blur(var(--lg-blur)) saturate(135%);
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(135%);
+  border-radius: var(--lg-radius);
+  overflow: hidden;
+}
+
+.lg-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.16) 0%,
+      rgba(255, 255, 255, 0.06) 22%,
+      rgba(255, 255, 255, 0.02) 45%,
+      rgba(255, 255, 255, 0.08) 100%
+    );
+  opacity: 0.9;
+}
+
+.lg-surface::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--lg-highlight),
+    transparent
+  );
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.lg-card {
+  border-radius: 24px;
+}
+
+.lg-card--soft {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05)),
+    rgba(18, 22, 32, 0.34);
+}
+
+.lg-button {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.08)),
+    rgba(72, 120, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 8px 18px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(12px) saturate(130%);
+  -webkit-backdrop-filter: blur(12px) saturate(130%);
+}
+
+.lg-button:hover {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1)),
+    rgba(72, 120, 255, 0.28);
+}
+
+.lg-button:active {
+  transform: translateY(1px);
+}
+
+.lg-progress {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.06);
+}
+
+.lg-progress-fill {
+  background:
+    linear-gradient(90deg, rgba(79, 136, 255, 0.95), rgba(118, 170, 255, 0.92)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+  box-shadow:
+    0 0 18px rgba(88, 145, 255, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.lg-nav {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06)),
+    rgba(16, 20, 30, 0.52);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(18px) saturate(135%);
+  -webkit-backdrop-filter: blur(18px) saturate(135%);
+  box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.16);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .lg-surface,
+  .lg-button,
+  .lg-nav {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}

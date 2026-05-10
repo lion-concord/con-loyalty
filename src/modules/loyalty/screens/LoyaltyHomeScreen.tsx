@@ -22,7 +22,7 @@ function Card({
   className?: string;
 }) {
   return (
-    <section className={`lk-card lk-card--glass ${className}`.trim()}>
+    <section className={`lk-card lk-card--glass lg-surface lg-card ${className}`.trim()}>
       {children}
     </section>
   );
@@ -123,9 +123,9 @@ export default function LoyaltyHomeScreen({
         </div>
 
         <div className="lk-club-progress">
-          <div className="lk-club-progress__track">
+          <div className="lk-club-progress__track lg-progress">
             <div
-              className="lk-club-progress__fill"
+              className="lk-club-progress__fill lg-progress-fill"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -155,7 +155,7 @@ export default function LoyaltyHomeScreen({
 
         <button
           type="button"
-          className="lk-button lk-button--primary"
+          className="lk-button lk-button--primary lg-button"
           onClick={onOpenSemrek}
         >
           Открыть «Семь рек»
