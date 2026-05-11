@@ -1,4 +1,4 @@
-import SemrekApp from "./SemrekApp";
+import SemrekApp from "../../modules/partners/semrek/SemrekApp";
 
 export interface PartnerModuleProps {
   onClose: () => void;
@@ -9,22 +9,6 @@ export interface PartnerModuleProps {
   onSpendPartnerCashback?: (amount: number) => void;
 }
 
-export default function PartnerModule({
-  onClose,
-  konBalance,
-  onAddKon,
-  partnerCardBalance,
-  onAddPartnerCashback,
-  onSpendPartnerCashback,
-}: PartnerModuleProps) {
-  return (
-    <SemrekApp
-      onClose={onClose}
-      konBalance={konBalance}
-      onAddKon={onAddKon}
-      partnerCardBalance={partnerCardBalance}
-      onAddPartnerCashback={onAddPartnerCashback}
-      onSpendPartnerCashback={onSpendPartnerCashback}
-    />
-  );
+export default function PartnerModule(props: PartnerModuleProps) {
+  return <SemrekApp {...props} />;
 }
