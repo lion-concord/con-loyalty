@@ -21,8 +21,8 @@ export default function ProductScreen({ productId, onBack, onAddToCart }: Props)
       <div className="sr-container">
         <div style={{
           width: "100%",
-          aspectRatio: "16/10",
-          maxHeight: 280,
+          aspectRatio: "2/1",
+          maxHeight: 180,
           borderRadius: 20,
           overflow: "hidden",
           background: "linear-gradient(135deg, #1a3a66, #0f2a4d)",
