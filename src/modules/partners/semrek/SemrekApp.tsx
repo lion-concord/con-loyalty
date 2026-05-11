@@ -1,114 +1,42 @@
-import { useState, useCallback } from "react";
-import type { SemrekScreen, CartItem } from "./types";
+import { useState } from "react";
+import type { PartnerModuleProps } from "./types";
+import type { CartItem } from "./types";
+import type { OrderData } from "./screens/CheckoutScreen";
 import HomeScreen from "./screens/HomeScreen";
 import CatalogScreen from "./screens/CatalogScreen";
 import ProductScreen from "./screens/ProductScreen";
-import ServicesScreen from "./screens/ServicesScreen";
-import AboutScreen from "./screens/AboutScreen";
 import CartScreen from "./screens/CartScreen";
-import "./styles/semrek.css";
+import CheckoutScreen from "./screens/CheckoutScreen";
+import SuccessScreen from "./screens/SuccessScreen";
+import AboutScreen from "./screens/AboutScreen";
+import ServicesScreen from "./screens/ServicesScreen";
+import { products } from "./data/store";
 
-export interface Props {
-  onClose: () => void;
-  konBalance?: number;
-  onAddKon?: (amount: number) => void;
-  partnerCardBalance?: number;
-  onAddPartnerCashback?: (amount: number) => void;
-  onSpendPartnerCashback?: (amount: number) => void;
-}
+export default function SemrekApp({ onBack, konBalance = 0, onAddKon }: PartnerModuleProps) {
+  const [screen, setScreen] = useState<"home"|"catalog"|"product"|"cart"|"checkout"|"success"|"about"|"services">("home");
+  const [selId, setSelId] = useState<string|null>(null);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [lastOrder, setLastOrder] = useState<{data:OrderData;total:number}|null>(null);
 
-export default function SemrekApp({
-  onClose,
-  konBalance = 0,
-}: Props) {
-  const [screen, setScreen] = useState<SemrekScreen>("home");
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-
-  const navigate = (s: SemrekScreen) => setScreen(s);
-
-  const goBack = () => {
-    if (screen === "product") setScreen("catalog");
-    else if (screen === "catalog") setScreen("home");
-    else if (screen === "cart") setScreen("home");
-    else if (screen === "services" || screen === "about") setScreen("home");
-    else onClose();
+  const addToCart = (id:string,name:string,price:number,image:string) => {
+    setCart(p => { const ex=p.find(i=>i.id===id); if(ex) return p.map(i=>i.id===id?{...i,qty:i.qty+1}:i); return [...p,{id,name,price,qty:1,image}]; });
   };
-
-  const openProduct = (id: string) => {
-    setSelectedProductId(id);
-    setScreen("product");
-  };
-
-  const openCatalog = (category?: string) => {
-    if (category) setSelectedCategory(category);
-    setScreen("catalog");
-  };
-
-  const addToCart = useCallback((id: string, name: string, price: number) => {
-    setCartItems((prev) => {
-      const existing = prev.find((i) => i.id === id);
-      if (existing) {
-        return prev.map((i) => (i.id === id ? { ...i, qty: i.qty + 1 } : i));
-      }
-      return [...prev, { id, name, price, qty: 1 }];
-    });
-    alert(`«${name}» добавлен в корзину`);
-  }, []);
-
-  const updateQty = useCallback((id: string, qty: number) => {
-    if (qty <= 0) {
-      setCartItems((prev) => prev.filter((i) => i.id !== id));
-    } else {
-      setCartItems((prev) => prev.map((i) => (i.id === id ? { ...i, qty } : i)));
-    }
-  }, []);
-
-  const removeFromCart = useCallback((id: string) => {
-    setCartItems((prev) => prev.filter((i) => i.id !== id));
-  }, []);
-
-  const cartCount = cartItems.reduce((sum, i) => sum + i.qty, 0);
+  const updateQty = (id:string,qty:number) => { setCart(p => p.map(i=>i.id===id?{...i,qty}:i).filter(i=>i.qty>0)); };
+  const removeItem = (id:string) => { setCart(p => p.filter(i=>i.id!==id)); };
+  const cartTotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const konEarn = Math.floor(cartTotal*0.03);
+  const selProduct = products.find(p=>p.id===selId)||null;
 
   return (
     <div className="sr-app">
-      {screen === "home" && (
-        <HomeScreen
-          konBalance={konBalance}
-          cartCount={cartCount}
-          onOpenCatalog={openCatalog}
-          onOpenServices={() => navigate("services")}
-          onOpenAbout={() => navigate("about")}
-          onOpenCart={() => navigate("cart")}
-          onClose={onClose}
-        />
-      )}
-      {screen === "catalog" && (
-        <CatalogScreen
-          initialCategory={selectedCategory}
-          onBack={goBack}
-          onOpenProduct={openProduct}
-        />
-      )}
-      {screen === "product" && selectedProductId && (
-        <ProductScreen
-          productId={selectedProductId}
-          onBack={goBack}
-          onAddToCart={addToCart}
-        />
-      )}
-      {screen === "services" && <ServicesScreen onBack={goBack} />}
-      {screen === "about" && <AboutScreen onBack={goBack} />}
-      {screen === "cart" && (
-        <CartScreen
-          items={cartItems}
-onBack={goBack}
-          onUpdateQty={updateQty}
-          onRemove={removeFromCart}
-          onCheckout={() => alert("Заказ оформлен! Менеджер свяжется с вами.")}
-        />
-      )}
+      {screen==="home"&&<HomeScreen konBalance={konBalance} cartCount={cart.reduce((s,i)=>s+i.qty,0)} onOpenCatalog={()=>setScreen("catalog")} onOpenServices={()=>setScreen("services")} onOpenAbout={()=>setScreen("about")} onOpenCart={()=>setScreen("cart")} onClose={onBack}/>}
+      {screen==="catalog"&&<CatalogScreen initialCategory="all" onBack={()=>setScreen("home")} onOpenProduct={(id)=>{setSelId(id);setScreen("product");}}/>}
+      {screen==="product"&&selProduct&&<ProductScreen productId={selProduct.id} onBack={()=>setScreen("catalog")} onAddToCart={()=>addToCart(selProduct.id,selProduct.name,selProduct.price,selProduct.image)}/>}
+      {screen==="cart"&&<CartScreen items={cart} onBack={()=>setScreen("home")} onUpdateQty={updateQty} onRemove={removeItem} onCheckout={()=>setScreen("checkout")}/>}
+      {screen==="checkout"&&<CheckoutScreen items={cart} onBack={()=>setScreen("cart")} onSubmit={(data)=>{setLastOrder({data,total:cartTotal});setCart([]);setScreen("success");}}/>}
+      {screen==="success"&&lastOrder&&<SuccessScreen order={lastOrder.data} total={lastOrder.total} konEarn={konEarn} onHome={()=>setScreen("home")} onAddKon={onAddKon}/>}
+      {screen==="about"&&<AboutScreen onBack={()=>setScreen("home")}/>}
+      {screen==="services"&&<ServicesScreen onBack={()=>setScreen("home")}/>}
     </div>
   );
 }
