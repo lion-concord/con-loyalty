@@ -59,6 +59,7 @@
   overflow: hidden;
   margin-bottom: 24px;
   aspect-ratio: 16/10;
+  max-height: 240px;
   background: linear-gradient(135deg, #0f2a4d, #164066);
 }
 
