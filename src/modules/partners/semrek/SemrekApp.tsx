@@ -1,3 +1,4 @@
+import "./styles/semrek.css";
 import { useState } from "react";
 import type { PartnerModuleProps } from "./types";
 import type { CartItem } from "./types";
