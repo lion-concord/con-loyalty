@@ -14,6 +14,12 @@ const categories = [
   { id: "accessory", name: "Аксессуары" },
 ];
 
+const categoryEmoji: Record<string, string> = {
+  boat: "🚤",
+  motor: "⚙️",
+  accessory: "🎒",
+};
+
 export default function CatalogScreen({ initialCategory, onBack, onOpenProduct }: Props) {
   const [activeCat, setActiveCat] = useState(initialCategory);
 
@@ -31,7 +37,6 @@ export default function CatalogScreen({ initialCategory, onBack, onOpenProduct }
       </header>
 
       <div className="sr-container">
-        {}
         <div className="sr-scroll" style={{ marginBottom: 16 }}>
           {categories.map((c) => (
             <button
@@ -57,12 +62,26 @@ export default function CatalogScreen({ initialCategory, onBack, onOpenProduct }
           ))}
         </div>
 
-        {}
         {filtered.map((p) => (
           <div key={p.id} className="sr-product" onClick={() => onOpenProduct(p.id)}>
-            <div className="sr-product__img">
-              {p.category === "boat" ? "🚤" : p.category === "motor" ? "⚙️" : "🎒"}
-            </div>
+            <img
+              src={p.image}
+              alt={p.name}
+              className="sr-product__img"
+              style={{ objectFit: "cover" }}
+              onError={(e) => {
+                const el = e.target as HTMLImageElement;
+                el.style.display = "none";
+                const parent = el.parentElement;
+                if (parent) {
+                  parent.innerHTML = categoryEmoji[p.category] || "📦";
+                  parent.style.fontSize = "36px";
+                  parent.style.display = "flex";
+                  parent.style.alignItems = "center";
+                  parent.style.justifyContent = "center";
+                }
+              }}
+            />
             <div className="sr-product__info">
               <div className="sr-product__name">{p.name}</div>
               <div className="sr-product__desc">{p.description}</div>

@@ -19,8 +19,10 @@ export interface Service {
 }
 
 export interface CartItem {
-  product: Product;
-  quantity: number;
+  id: string;
+  name: string;
+  price: number;
+  qty: number;
 }
 
 export interface OrderInfo {
