@@ -1,20 +1,189 @@
-import{useEffect,useState}from"react";import type{OrderData}from"./CheckoutScreen";import{companyInfo}from"../data/store";
-interface Props{order:OrderData;total:number;konEarn:number;onHome:()=>void;onAddKon?:(n:number)=>void}
-export default function SuccessScreen({order,total,konEarn,onHome,onAddKon}:Props){
-const[show,setShow]=useState(false);const[count,setCount]=useState(0);
-useEffect(()=>{setTimeout(()=>setShow(true),100);if(onAddKon){const t=setInterval(()=>{setCount(c=>{if(c>=konEarn){clearInterval(t);return konEarn;}onAddKon(1);return c+1;});},80);return()=>clearInterval(t);}},[konEarn,onAddKon]);
-return(<div className="sr-container"style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"80vh",textAlign:"center"}}>
-<div style={{width:80,height:80,borderRadius:"50%",background:"linear-gradient(135deg,#2a6fd6,#3dbde0)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:40,marginBottom:24,transform:show?"scale(1)":"scale(0)",transition:"transform .5s cubic-bezier(.175,.885,.32,1.275)"}}>✓</div>
-<h2 style={{color:"#fff",fontSize:24,marginBottom:8,opacity:show?1:0,transform:show?"translateY(0)":"translateY(20px)",transition:"all .4s .2s"}}>Заказ оформлен!</h2>
-<p style={{color:"rgba(200,225,255,0.7)",fontSize:14,marginBottom:24,opacity:show?1:0,transition:"opacity .4s .3s"}}>Менеджер свяжется с вами в ближайшее время</p>
-<div style={{background:"rgba(42,111,214,0.15)",borderRadius:16,padding:20,width:"100%",maxWidth:360,marginBottom:24,border:"1px solid rgba(120,170,255,0.15)",opacity:show?1:0,transform:show?"translateY(0)":"translateY(20px)",transition:"all .4s .4s"}}>
-<div style={{fontSize:13,color:"rgba(200,225,255,0.6)",marginBottom:12}}>Детали заказа</div>
-<div style={{display:"flex",justifyContent:"space-between",fontSize:14,color:"#fff",marginBottom:6}}><span>Способ оплаты</span><span>{order.payment==="card"?"Карта":order.payment==="sbp"?"СБП":"Наличные"}</span></div>
-<div style={{display:"flex",justifyContent:"space-between",fontSize:14,color:"#fff",marginBottom:6}}><span>Сумма</span><span>{total.toLocaleString("ru-RU")} ₽</span></div>
-<div style={{display:"flex",justifyContent:"space-between",fontSize:14,color:"#7cc1ff",fontWeight:700,marginTop:10,paddingTop:10,borderTop:"1px solid rgba(120,170,255,0.2)"}}><span>Начислено КОН</span><span>+{count}</span></div>
-</div>
-<div style={{fontSize:13,color:"rgba(140,170,210,0.5)",marginBottom:24,opacity:show?1:0,transition:"opacity .4s .5s"}}>
-{companyInfo.phone}<br/>{companyInfo.address}
-</div>
-<button onClick={onHome}className="sr-btn sr-btn--primary"style={{opacity:show?1:0,transform:show?"translateY(0)":"translateY(20px)",transition:"all .4s .6s",padding:"14px 32px"}}>Вернуться в магазин</button>
-</div>);}
+import { useEffect } from "react";
+import { usePartnerCard } from "../hooks/usePartnerCard";
+
+interface Props {
+  orderData: {
+    orderId: string;
+    total: number;
+    items: Array<{ name: string; qty: number; price: number }>;
+  };
+  onClose: () => void;
+  onAddKon?: (amount: number) => void;
+}
+
+export default function SuccessScreen({ orderData, onClose, onAddKon }: Props) {
+  const { card, earnCashback } = usePartnerCard("semrek");
+
+  useEffect(() => {
+    // Начисляем КОН (3% от суммы)
+    const konAmount = Math.round(orderData.total * 0.03);
+    if (onAddKon) onAddKon(konAmount);
+
+    // Начисляем кешбэк партнёра (3% в рублях)
+    earnCashback(orderData.total, orderData.orderId);
+  }, []);
+
+  const cashbackEarned = card ? Math.round(orderData.total * (card.cashbackPercent / 100)) : 0;
+
+  return (
+    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #0a1929, #1a2f45)", padding: "20px 16px" }}>
+      <div style={{ maxWidth: 480, margin: "0 auto", paddingTop: 60 }}>
+        {}
+        <div style={{
+          width: 120,
+          height: 120,
+          margin: "0 auto 32px",
+          borderRadius: "50%",
+          background: "linear-gradient(135deg, #10b981, #34d399)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 64,
+          boxShadow: "0 8px 32px rgba(16, 185, 129, 0.4)",
+        }}>
+          ✓
+        </div>
+
+        {}
+        <div style={{ textAlign: "center", marginBottom: 40 }}>
+          <div style={{ fontSize: 28, fontWeight: 800, color: "#fff", marginBottom: 12 }}>
+            Заказ оформлен!
+          </div>
+          <div style={{ fontSize: 15, color: "rgba(200,225,255,0.7)", lineHeight: 1.6 }}>
+            Номер заказа: <span style={{ color: "#7cc1ff", fontWeight: 600 }}>#{orderData.orderId}</span>
+          </div>
+        </div>
+
+        {}
+        <div style={{
+          background: "rgba(255,255,255,0.05)",
+          borderRadius: 20,
+          border: "1px solid rgba(120,170,255,0.15)",
+          padding: 24,
+          marginBottom: 24,
+        }}>
+          <div style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 20 }}>
+            🎉 Вам начислено:
+          </div>
+
+          {}
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "16px 0",
+            borderBottom: "1px solid rgba(120,170,255,0.1)",
+          }}>
+            <div>
+              <div style={{ fontSize: 14, color: "rgba(200,225,255,0.7)" }}>Баллы КОН</div>
+              <div style={{ fontSize: 12, color: "rgba(180,210,245,0.5)", marginTop: 4 }}>
+                3% от суммы заказа
+              </div>
+            </div>
+            <div style={{
+              fontSize: 20,
+              fontWeight: 800,
+              background: "linear-gradient(135deg, #fbbf24, #f59e0b)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}>
+              +{Math.round(orderData.total * 0.03).toLocaleString("ru-RU")} КОН
+            </div>
+          </div>
+
+          {}
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingTop: 16,
+          }}>
+            <div>
+              <div style={{ fontSize: 14, color: "rgba(200,225,255,0.7)" }}>Кешбэк «Семь рек»</div>
+<div style={{ fontSize: 12, color: "rgba(180,210,245,0.5)", marginTop: 4 }}>
+                Можно потратить при следующей покупке
+              </div>
+            </div>
+            <div style={{
+              fontSize: 20,
+              fontWeight: 800,
+              background: "linear-gradient(135deg, #10b981, #34d399)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}>
+              +{cashbackEarned.toLocaleString("ru-RU")} ₽
+            </div>
+          </div>
+        </div>
+
+        {}
+        <div style={{
+          background: "rgba(255,255,255,0.03)",
+          borderRadius: 16,
+          border: "1px solid rgba(120,170,255,0.1)",
+          padding: 20,
+          marginBottom: 24,
+        }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#fff", marginBottom: 16 }}>
+            Состав заказа:
+          </div>
+          {orderData.items.map((item, idx) => (
+            <div key={idx} style={{
+              display: "flex",
+              justifyContent: "space-between",
+              padding: "8px 0",
+              borderBottom: idx < orderData.items.length - 1 ? "1px solid rgba(120,170,255,0.08)" : "none",
+            }}>
+              <div style={{ fontSize: 13, color: "rgba(200,225,255,0.8)" }}>
+                {item.name} × {item.qty}
+              </div>
+              <div style={{ fontSize: 13, color: "#fff", fontWeight: 600 }}>
+                {(item.price * item.qty).toLocaleString("ru-RU")} ₽
+              </div>
+            </div>
+          ))}
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            paddingTop: 16,
+            marginTop: 16,
+            borderTop: "2px solid rgba(120,170,255,0.2)",
+          }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#fff" }}>Итого:</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: "#7cc1ff" }}>
+              {orderData.total.toLocaleString("ru-RU")} ₽
+            </div>
+          </div>
+        </div>
+
+        {}
+        <div style={{
+          textAlign: "center",
+          fontSize: 13,
+          color: "rgba(180,210,245,0.6)",
+          lineHeight: 1.6,
+          marginBottom: 24,
+        }}>
+          Менеджер свяжется с вами в течение 30 минут для подтверждения заказа.
+          <br />
+          Работаем ежедневно с 9:00 до 20:00.
+        </div>
+
+        {}
+        <button
+          onClick={onClose}
+          className="sr-btn sr-btn--primary"
+          style={{
+            width: "100%",
+            padding: 16,
+            fontSize: 16,
+            fontWeight: 700,
+            boxShadow: "0 4px 20px rgba(42,111,214,0.3)",
+          }}
+        >
+          Вернуться в каталог
+        </button>
+      </div>
+    </div>
+  );
+}
