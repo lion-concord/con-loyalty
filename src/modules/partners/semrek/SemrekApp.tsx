@@ -9,13 +9,13 @@ import ProductScreen from "./screens/ProductScreen";
 import CartScreen from "./screens/CartScreen";
 import CheckoutScreen from "./screens/CheckoutScreen";
 import SuccessScreen from "./screens/SuccessScreen";
-import PartnerCardScreen from "./screens/PartnerCardScreen";
 import AboutScreen from "./screens/AboutScreen";
 import ServicesScreen from "./screens/ServicesScreen";
+import PartnerCardScreen from "./screens/PartnerCardScreen";
 import { products } from "./data/store";
 
 export default function SemrekApp({ onBack, konBalance = 0, onAddKon }: PartnerModuleProps) {
-  const [screen, setScreen] = useState<"home"|"catalog"|"product"|"cart"|"checkout"|"success"|"about"|"services">("home");
+  const [screen, setScreen] = useState<"home"|"catalog"|"product"|"cart"|"checkout"|"success"|"about"|"services"|"card">("home");
   const [selId, setSelId] = useState<string|null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [lastOrder, setLastOrder] = useState<{orderId:string;data:OrderData;items:CartItem[];total:number}|null>(null);
@@ -42,12 +42,7 @@ export default function SemrekApp({ onBack, konBalance = 0, onAddKon }: PartnerM
   const handleCheckoutSubmit = (data: OrderData) => {
     const orderId = `SR${Date.now()}`;
     const total = cartTotal - data.cashbackUsed;
-    setLastOrder({
-      orderId,
-      data,
-      items: [...cart],
-      total,
-    });
+    setLastOrder({ orderId, data, items: [...cart], total });
     setCart([]);
     setScreen("success");
   };
@@ -61,74 +56,31 @@ export default function SemrekApp({ onBack, konBalance = 0, onAddKon }: PartnerM
           onOpenCatalog={() => setScreen("catalog")}
           onOpenServices={() => setScreen("services")}
           onOpenAbout={() => setScreen("about")}
-          onOpenCart={() => setScreen("cart")} onOpenCard={() => setScreen("card")}
+          onOpenCart={() => setScreen("cart")}
+          onOpenCard={() => setScreen("card")}
           onClose={onBack}
         />
       )}
-
-      {screen === "catalog" && (
-        <CatalogScreen
-          initialCategory="all"
-          onBack={() => setScreen("home")}
-          onOpenProduct={(id) => {
-            setSelId(id);
-            setScreen("product");
-          }}
-        />
-      )}
-
-      {screen === "product" && selProduct && (
-        <ProductScreen
-          productId={selProduct.id}
-          onBack={() => setScreen("catalog")}
-          onAddToCart={() => addToCart(selProduct.id, selProduct.name, selProduct.price, selProduct.image)}
-        />
-      )}
-
-      {screen === "cart" && (
-        <CartScreen
-          items={cart}
-          onBack={() => setScreen("home")}
-          onUpdateQty={updateQty}
-          onRemove={removeItem}
-          onCheckout={() => setScreen("checkout")}
-        />
-      )}
-
-      {screen === "checkout" && (
-<CheckoutScreen
-          items={cart}
-          onBack={() => setScreen("cart")}
-          onSubmit={handleCheckoutSubmit}
-        />
-      )}
-
+      {screen === "catalog" && <CatalogScreen initialCategory="all" onBack={() => setScreen("home")} onOpenProduct={(id) => { setSelId(id); setScreen("product"); }} />}
+      {screen === "product" && selProduct && <ProductScreen productId={selProduct.id} onBack={() => setScreen("catalog")} onAddToCart={() => addToCart(selProduct.id, selProduct.name, selProduct.price, selProduct.image)} />}
+      {screen === "cart" && <CartScreen items={cart} onBack={() => setScreen("home")} onUpdateQty={updateQty} onRemove={removeItem} onCheckout={() => setScreen("checkout")} />}
+      {screen === "checkout" && <CheckoutScreen items={cart} onBack={() => setScreen("cart")} onSubmit={handleCheckoutSubmit} />}
       {screen === "success" && lastOrder && (
-      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
         <SuccessScreen
-      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
           orderData={{
-      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
             orderId: lastOrder.orderId,
-      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
-            total: lastOrder.total,
-      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
+total: lastOrder.total,
             items: lastOrder.items.map(i => ({
-      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
               name: i.name,
-      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
               qty: i.qty,
-      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
               price: i.price,
-      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
             })),
-      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
           }}
           onClose={() => setScreen("home")}
           onAddKon={onAddKon}
         />
       )}
-
+      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
       {screen === "about" && <AboutScreen onBack={() => setScreen("home")} />}
       {screen === "services" && <ServicesScreen onBack={() => setScreen("home")} />}
     </div>
