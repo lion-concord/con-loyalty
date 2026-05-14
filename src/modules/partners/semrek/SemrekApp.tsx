@@ -9,6 +9,7 @@ import ProductScreen from "./screens/ProductScreen";
 import CartScreen from "./screens/CartScreen";
 import CheckoutScreen from "./screens/CheckoutScreen";
 import SuccessScreen from "./screens/SuccessScreen";
+import PartnerCardScreen from "./screens/PartnerCardScreen";
 import AboutScreen from "./screens/AboutScreen";
 import ServicesScreen from "./screens/ServicesScreen";
 import { products } from "./data/store";
@@ -60,7 +61,7 @@ export default function SemrekApp({ onBack, konBalance = 0, onAddKon }: PartnerM
           onOpenCatalog={() => setScreen("catalog")}
           onOpenServices={() => setScreen("services")}
           onOpenAbout={() => setScreen("about")}
-          onOpenCart={() => setScreen("cart")}
+          onOpenCart={() => setScreen("cart")} onOpenCard={() => setScreen("card")}
           onClose={onBack}
         />
       )}
@@ -103,15 +104,25 @@ export default function SemrekApp({ onBack, konBalance = 0, onAddKon }: PartnerM
       )}
 
       {screen === "success" && lastOrder && (
+      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
         <SuccessScreen
+      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
           orderData={{
+      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
             orderId: lastOrder.orderId,
+      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
             total: lastOrder.total,
+      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
             items: lastOrder.items.map(i => ({
+      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
               name: i.name,
+      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
               qty: i.qty,
+      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
               price: i.price,
+      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
             })),
+      {screen === "card" && <PartnerCardScreen onBack={() => setScreen("home")} />}
           }}
           onClose={() => setScreen("home")}
           onAddKon={onAddKon}
