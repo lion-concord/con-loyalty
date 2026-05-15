@@ -135,7 +135,7 @@ export default function PartnerCardScreen({ onBack }: Props) {
             justifyContent: "space-between",
             alignItems: "center",
           }}>
-            <div style={{ fontSize: 11, opacity: 0.5, fontFamily: "monospace" }}>ID: {card.qrCode.slice(-12)}</div>
+            <div style={{ fontSize: 11, opacity: 0.5, fontFamily: "monospace" }}>№ {card.qrCode}</div>
             <div style={{
               fontSize: 11,
               fontWeight: 700,
