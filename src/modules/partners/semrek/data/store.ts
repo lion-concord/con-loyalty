@@ -96,7 +96,7 @@ export const products: Product[] = [
     name: "Тент ходовой Sibriver",
     description: "Прочный тент из оксфорда 600D с прозрачными вставками. Защита от дождя и ветра.",
     price: 12400,
-    image: "https://sibriver.ru/thumb/2/9RDAxZk9kpIWxHBguvR9Og/540r540/d/izobrazhenie_whatsapp_2024-10-01_v_103531_86367002.jpg",
+    image: "/partners/semrek/accessories/tent.jpg",
     specs: { Материал: "Оксфорд 600D", "Тип крепления": "На трубы", Вес: "4,5 кг", Цвет: "Серый/хаки", Гарантия: "1 год" },
     inStock: true,
   },
