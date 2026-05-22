@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
+import WalletApp from "../modules/wallet/WalletApp";
 import LoyaltyHomeScreen from "../modules/loyalty/screens/LoyaltyHomeScreen";
 import ProfileScreen from "../modules/profile/screens/ProfileScreen";
 import PartnerRouter from "../components/partners/PartnerRouter";
 
-type Screen = "loyalty" | "partner" | "profile" | "more";
+type Screen = "loyalty" | "partner" | "profile" | "more" | "wallet";
 
 interface Props {
   konBalance?: number;
@@ -71,12 +72,14 @@ function BottomNav({
   onGoPartner,
   onGoProfile,
   onGoMore,
+  onGoWallet,
 }: {
   screen: Screen;
   onGoHome: () => void;
   onGoPartner: () => void;
   onGoProfile: () => void;
   onGoMore: () => void;
+  onGoWallet: () => void;
 }) {
   return (
     <nav className="bottom-nav" aria-label="Нижняя навигация">
@@ -109,10 +112,19 @@ function BottomNav({
 
       <button
         type="button"
+        className={"bottom-nav__item " + (screen === "wallet" ? "active" : "")}
+        onClick={onGoWallet}
+      >
+        <span className="bottom-nav__icon">💰</span>
+        <span className="bottom-nav__label">Кошелёк</span>
+      </button>
+
+      <button
+        type="button"
         className={"bottom-nav__item " + (screen === "more" ? "active" : "")}
         onClick={onGoMore}
       >
-<span className="bottom-nav__icon">☰</span>
+        <span className="bottom-nav__icon">☰</span>
         <span className="bottom-nav__label">Ещё</span>
       </button>
     </nav>
@@ -145,6 +157,10 @@ export default function LkRouter({ konBalance = 0, onOpenQr, onOpenHistory, onAd
       );
     }
 
+    if (screen === "wallet") {
+      return <WalletApp />;
+    }
+
     if (screen === "more") {
       return <MoreScreen />;
     }
@@ -171,6 +187,7 @@ export default function LkRouter({ konBalance = 0, onOpenQr, onOpenHistory, onAd
         onGoPartner={() => setScreen("partner")}
         onGoProfile={() => setScreen("profile")}
         onGoMore={() => setScreen("more")}
+        onGoWallet={() => setScreen("wallet")}
       />
     </div>
   );
