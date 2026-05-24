@@ -35,7 +35,7 @@ export default function WalletApp() {
 
   switch (screen) {
     case "transactions":
-      return <TransactionsScreen transactions={transactions} onDelete={handleDelete} onBack={() => setScreen("home")} />;
+      return <TransactionsScreen transactions={transactions} onDelete={handleDelete} onBack={() => setScreen("home")} customCategories={customCategories} />;
     case "add":
       return (
         <AddTransactionScreen
@@ -58,6 +58,7 @@ export default function WalletApp() {
       return (
         <HomeScreen
           onAdd={() => setScreen("add")}
+          customCategories={customCategories}
           onTransactions={() => setScreen("transactions")}
           onBudgets={() => setScreen("budgets")}
           onGoals={() => setScreen("goals")}

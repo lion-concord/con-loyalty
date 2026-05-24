@@ -1,13 +1,14 @@
-import type { Transaction } from "../types";
+import type { Transaction, CustomCategory } from "../types";
 import { getCategoryById } from "../types";
 
 interface Props {
   transaction: Transaction;
   onDelete?: (id: string) => void;
+  customCategories?: CustomCategory[];
 }
 
-export default function TransactionCard({ transaction, onDelete }: Props) {
-  const category = getCategoryById(transaction.category);
+export default function TransactionCard({ transaction, onDelete, customCategories = [] }: Props) {
+  const category = getCategoryById(transaction.category, customCategories);
   const date = new Date(transaction.date).toLocaleDateString("ru-RU", {
     day: "numeric",
     month: "short",

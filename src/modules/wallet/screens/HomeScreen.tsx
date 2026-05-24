@@ -1,4 +1,5 @@
 import { useWallet } from "../hooks/useWallet";
+import type { CustomCategory } from "../types";
 import TransactionCard from "../components/TransactionCard";
 import FAB from "../components/FAB";
 
@@ -8,9 +9,10 @@ interface Props {
   onBudgets: () => void;
   onGoals: () => void;
   onStats: () => void;
+  customCategories?: CustomCategory[];
 }
 
-export default function HomeScreen({ onAdd, onTransactions, onBudgets, onGoals, onStats }: Props) {
+export default function HomeScreen({ onAdd, onTransactions, onBudgets, onGoals, onStats, customCategories = [] }: Props) {
   const { balance, totalIncome, totalExpense, recent } = useWallet();
   const quickActions = [
     { label: "📋 История", onClick: onTransactions },
@@ -58,7 +60,7 @@ export default function HomeScreen({ onAdd, onTransactions, onBudgets, onGoals, 
             <div style={{ fontSize: 13, color: "rgba(180,210,245,0.3)", marginTop: 6 }}>Добавьте первый доход или расход</div>
           </div>
         ) : (
-          recent.map((tx) => <TransactionCard key={tx.id} transaction={tx} />)
+          recent.map((tx) => <TransactionCard key={tx.id} transaction={tx} customCategories={customCategories} />)
         )}
       </div>
       <FAB onClick={onAdd} />

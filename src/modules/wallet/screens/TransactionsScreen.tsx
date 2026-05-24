@@ -1,14 +1,15 @@
 import { useState } from "react";
 import TransactionCard from "../components/TransactionCard";
-import type { Transaction, TransactionType } from "../types";
+import type { Transaction, TransactionType, CustomCategory } from "../types";
 
 interface Props {
   transactions: Transaction[];
   onDelete: (id: string) => void;
   onBack: () => void;
+  customCategories?: CustomCategory[];
 }
 
-export default function TransactionsScreen({ transactions, onDelete, onBack }: Props) {
+export default function TransactionsScreen({ transactions, onDelete, onBack, customCategories = [] }: Props) {
   const [filter, setFilter] = useState<TransactionType | "all">("all");
   const filtered = filter === "all" ? transactions : transactions.filter((t) => t.type === filter);
 
@@ -31,7 +32,7 @@ export default function TransactionsScreen({ transactions, onDelete, onBack }: P
         {filtered.length === 0 ? (
           <div style={{ textAlign: "center", padding: "40px", color: "rgba(200,225,255,0.4)" }}>Нет операций</div>
         ) : (
-          filtered.map((tx) => <TransactionCard key={tx.id} transaction={tx} onDelete={onDelete} />)
+          filtered.map((tx) => <TransactionCard key={tx.id} transaction={tx} onDelete={onDelete} customCategories={customCategories} />)
         )}
       </div>
     </div>
