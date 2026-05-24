@@ -1,18 +1,27 @@
 import { useState } from "react";
-import { INCOME_CATEGORIES, EXPENSE_CATEGORIES } from "../types";
+import { INCOME_CATEGORIES, EXPENSE_CATEGORIES, getCategoriesByType } from "../types";
+import type { CustomCategory } from "../types";
 import type { TransactionType } from "../types";
 
 interface Props {
   onBack: () => void;
   onSave: (type: TransactionType, amount: number, category: string, description: string) => void;
+  customCategories?: CustomCategory[];
+  onAddCategory?: (name: string, icon: string, type: TransactionType) => void;
+  onRemoveCategory?: (id: string) => void;
+  availableColors?: string[];
+  availableIcons?: string[];
 }
 
-export default function AddTransactionScreen({ onBack, onSave }: Props) {
+export default function AddTransactionScreen({ onBack, onSave, customCategories = [], onAddCategory, availableIcons = [] }: Props) {
   const [type, setType] = useState<TransactionType>("expense");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
-  const categories = type === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+  const [showAddCat, setShowAddCat] = useState(false);
+  const [newCatName, setNewCatName] = useState("");
+  const [newCatIcon, setNewCatIcon] = useState("⭐");
+  const categories = getCategoriesByType(type, customCategories);
 
   const handleSubmit = () => {
     const num = parseFloat(amount);
@@ -57,6 +66,33 @@ export default function AddTransactionScreen({ onBack, onSave }: Props) {
               </button>
             ))}
           </div>
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <button onClick={() => setShowAddCat(!showAddCat)} style={{ width: "100%", padding: "10px", borderRadius: 12, border: "1px dashed rgba(120,170,255,0.3)", background: "rgba(255,255,255,0.02)", color: "#7cc1ff", fontSize: 13, cursor: "pointer" }}>
+            {showAddCat ? "✕ Скрыть" : "➕ Добавить свою категорию"}
+          </button>
+          {showAddCat && (
+            <div style={{ marginTop: 12, padding: 16, borderRadius: 14, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(120,170,255,0.1)" }}>
+              <input type="text" value={newCatName} onChange={(e) => setNewCatName(e.target.value)} placeholder="Название категории"
+                style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1px solid rgba(120,170,255,0.15)", background: "rgba(255,255,255,0.04)", color: "#fff", fontSize: 14, marginBottom: 10, outline: "none", boxSizing: "border-box" }} />
+              <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+                {availableIcons.slice(0, 20).map((icon) => (
+                  <button key={icon} onClick={() => setNewCatIcon(icon)}
+                    style={{ width: 36, height: 36, borderRadius: 10, border: "none", fontSize: 18, cursor: "pointer",
+                      background: newCatIcon === icon ? "rgba(124,193,255,0.2)" : "rgba(255,255,255,0.05)",
+                      outline: newCatIcon === icon ? "2px solid #7cc1ff" : "none" }}>
+                    {icon}
+                  </button>
+                ))}
+              </div>
+              <button onClick={() => { if (newCatName && onAddCategory) { onAddCategory(newCatName, newCatIcon, type); setNewCatName(""); setNewCatIcon("⭐"); setShowAddCat(false); } }}
+                disabled={!newCatName}
+                style={{ width: "100%", padding: "12px", borderRadius: 12, border: "none", fontSize: 14, fontWeight: 600, cursor: "pointer",
+                  background: newCatName ? "linear-gradient(135deg,#3b82f6,#6366f1)" : "rgba(255,255,255,0.1)", color: newCatName ? "#fff" : "rgba(255,255,255,0.3)" }}>
+                Добавить категорию
+              </button>
+            </div>
+          )}
         </div>
         <div style={{ marginBottom: 32 }}>
           <label style={{ fontSize: 13, color: "rgba(200,225,255,0.5)", marginBottom: 8, display: "block" }}>Описание</label>

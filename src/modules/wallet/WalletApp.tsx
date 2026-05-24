@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useWallet } from "./hooks/useWallet";
+import { useBudgets } from "./hooks/useBudgets";
+import { useCustomCategories } from "./hooks/useCustomCategories";
 import HomeScreen from "./screens/HomeScreen";
 import TransactionsScreen from "./screens/TransactionsScreen";
 import AddTransactionScreen from "./screens/AddTransactionScreen";
@@ -12,14 +14,34 @@ type WalletScreen = "home" | "transactions" | "add" | "budgets" | "goals" | "sta
 export default function WalletApp() {
   const [screen, setScreen] = useState<WalletScreen>("home");
   const { addTransaction } = useWallet();
+  const { budgets, setBudget, updateSpent } = useBudgets();
+  const { customCategories, addCategory, removeCategory, COLORS, ICONS } = useCustomCategories();
+
+  const handleSave = (type: "expense" | "income", amount: number, category: string, description: string) => {
+    addTransaction(type, amount, category, description);
+    if (type === "expense") {
+      updateSpent(category, amount);
+    }
+    setScreen("home");
+  };
 
   switch (screen) {
     case "transactions":
       return <TransactionsScreen onBack={() => setScreen("home")} />;
     case "add":
-      return <AddTransactionScreen onBack={() => setScreen("home")} onSave={addTransaction} />;
+      return (
+        <AddTransactionScreen
+          onBack={() => setScreen("home")}
+          onSave={handleSave}
+          customCategories={customCategories}
+          onAddCategory={addCategory}
+          onRemoveCategory={removeCategory}
+          availableColors={COLORS}
+          availableIcons={ICONS}
+        />
+      );
     case "budgets":
-      return <BudgetsScreen onBack={() => setScreen("home")} />;
+      return <BudgetsScreen budgets={budgets} setBudget={setBudget} customCategories={customCategories} onBack={() => setScreen("home")} />;
     case "goals":
       return <GoalsScreen onBack={() => setScreen("home")} />;
     case "stats":

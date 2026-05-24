@@ -35,6 +35,14 @@ export interface CategoryConfig {
   type: TransactionType;
 }
 
+export interface CustomCategory {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  type: TransactionType;
+}
+
 export const INCOME_CATEGORIES: CategoryConfig[] = [
   { id: "salary", name: "Зарплата", icon: "💼", color: "#10b981", type: "income" },
   { id: "freelance", name: "Подработка", icon: "💸", color: "#34d399", type: "income" },
@@ -53,8 +61,17 @@ export const EXPENSE_CATEGORIES: CategoryConfig[] = [
   { id: "education", name: "Образование", icon: "🎓", color: "#14b8a6", type: "expense" },
 ];
 
-export const ALL_CATEGORIES = [...INCOME_CATEGORIES, ...EXPENSE_CATEGORIES];
+export const DEFAULT_INCOME = INCOME_CATEGORIES;
+export const DEFAULT_EXPENSE = EXPENSE_CATEGORIES;
 
-export function getCategoryById(id: string): CategoryConfig | undefined {
-  return ALL_CATEGORIES.find((c) => c.id === id);
+export function getAllCategories(custom: CustomCategory[] = []): CategoryConfig[] {
+  return [...INCOME_CATEGORIES, ...EXPENSE_CATEGORIES, ...custom];
+}
+
+export function getCategoryById(id: string, custom: CustomCategory[] = []): CategoryConfig | undefined {
+  return getAllCategories(custom).find((c) => c.id === id);
+}
+
+export function getCategoriesByType(type: TransactionType, custom: CustomCategory[] = []): CategoryConfig[] {
+  return getAllCategories(custom).filter((c) => c.type === type);
 }

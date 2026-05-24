@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { EXPENSE_CATEGORIES } from "../types";
-import { useBudgets } from "../hooks/useBudgets";
+import type { Budget, CustomCategory } from "../types";
 
 interface Props {
+  budgets: Budget[];
+  setBudget: (category: string, limit: number) => void;
+  customCategories?: CustomCategory[];
   onBack: () => void;
 }
 
-export default function BudgetsScreen({ onBack }: Props) {
-  const { budgets, setBudget } = useBudgets();
+export default function BudgetsScreen({ budgets, setBudget, customCategories = [], onBack }: Props) {
   const [editCat, setEditCat] = useState("");
   const [editVal, setEditVal] = useState("");
 
@@ -27,7 +29,7 @@ export default function BudgetsScreen({ onBack }: Props) {
         <div style={{ fontSize: 17, fontWeight: 700, color: "#fff" }}>📊 Бюджеты</div>
       </header>
       <div style={{ maxWidth: 480, margin: "0 auto", padding: "20px" }}>
-        {EXPENSE_CATEGORIES.map((cat) => {
+        {[...EXPENSE_CATEGORIES, ...customCategories].map((cat) => {
           const budget = budgets.find((b) => b.category === cat.id);
           const spent = budget?.spent || 0;
           const limit = budget?.limit || 0;

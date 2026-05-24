@@ -24,7 +24,6 @@ export function useBudgets() {
   const setBudget = useCallback((category: string, limit: number) => {
     const month = getCurrentMonth();
     const existing = budgets.find((b) => b.category === category && b.month === month);
-
     if (existing) {
       save(budgets.map((b) => (b.category === category && b.month === month ? { ...b, limit } : b)));
     } else {
