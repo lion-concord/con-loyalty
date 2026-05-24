@@ -19,15 +19,13 @@ export default function WalletApp() {
 
   const handleSave = (type: "expense" | "income", amount: number, category: string, description: string) => {
     addTransaction(type, amount, category, description);
-    if (type === "expense") {
-      updateSpent(category, amount);
-    }
+    updateSpent(category, amount);
     setScreen("home");
   };
 
   const handleDelete = (id: string) => {
     const tx = transactions.find((t) => t.id === id);
-    if (tx && tx.type === "expense") {
+    if (tx) {
       updateSpent(tx.category, -tx.amount);
     }
     deleteTransaction(id);
