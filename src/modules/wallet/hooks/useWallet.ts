@@ -49,7 +49,7 @@ export function useWallet() {
     transactions,
     recent,
     addTransaction,
-deleteTransaction,
+    deleteTransaction,
     totalIncome,
     totalExpense,
     balance,
