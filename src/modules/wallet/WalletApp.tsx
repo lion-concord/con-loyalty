@@ -13,7 +13,7 @@ type WalletScreen = "home" | "transactions" | "add" | "budgets" | "goals" | "sta
 
 export default function WalletApp() {
   const [screen, setScreen] = useState<WalletScreen>("home");
-  const { addTransaction } = useWallet();
+  const { transactions, addTransaction, deleteTransaction } = useWallet();
   const { budgets, setBudget, updateSpent } = useBudgets();
   const { customCategories, addCategory, removeCategory, COLORS, ICONS } = useCustomCategories();
 
@@ -25,9 +25,17 @@ export default function WalletApp() {
     setScreen("home");
   };
 
+  const handleDelete = (id: string) => {
+    const tx = transactions.find((t) => t.id === id);
+    if (tx && tx.type === "expense") {
+      updateSpent(tx.category, -tx.amount);
+    }
+    deleteTransaction(id);
+  };
+
   switch (screen) {
     case "transactions":
-      return <TransactionsScreen onBack={() => setScreen("home")} />;
+      return <TransactionsScreen transactions={transactions} onDelete={handleDelete} onBack={() => setScreen("home")} />;
     case "add":
       return (
         <AddTransactionScreen

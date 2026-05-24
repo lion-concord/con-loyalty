@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { useWallet } from "../hooks/useWallet";
 import TransactionCard from "../components/TransactionCard";
-import type { TransactionType } from "../types";
+import type { Transaction, TransactionType } from "../types";
 
 interface Props {
+  transactions: Transaction[];
+  onDelete: (id: string) => void;
   onBack: () => void;
 }
 
-export default function TransactionsScreen({ onBack }: Props) {
-  const { transactions, deleteTransaction } = useWallet();
+export default function TransactionsScreen({ transactions, onDelete, onBack }: Props) {
   const [filter, setFilter] = useState<TransactionType | "all">("all");
   const filtered = filter === "all" ? transactions : transactions.filter((t) => t.type === filter);
 
@@ -31,7 +31,7 @@ export default function TransactionsScreen({ onBack }: Props) {
         {filtered.length === 0 ? (
           <div style={{ textAlign: "center", padding: "40px", color: "rgba(200,225,255,0.4)" }}>Нет операций</div>
         ) : (
-          filtered.map((tx) => <TransactionCard key={tx.id} transaction={tx} onDelete={deleteTransaction} />)
+          filtered.map((tx) => <TransactionCard key={tx.id} transaction={tx} onDelete={onDelete} />)
         )}
       </div>
     </div>
