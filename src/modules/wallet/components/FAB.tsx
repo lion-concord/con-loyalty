@@ -8,7 +8,7 @@ export default function FAB({ onClick }: Props) {
       onClick={onClick}
       style={{
         position: "fixed",
-        bottom: 120,
+        bottom: 160,
         right: 20,
         width: 56,
         height: 56,
@@ -22,7 +22,7 @@ export default function FAB({ onClick }: Props) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        zIndex: 1000,
+        zIndex: 10000,
         pointerEvents: "auto",
       }}
     >
