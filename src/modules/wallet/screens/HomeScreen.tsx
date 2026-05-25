@@ -9,16 +9,18 @@ interface Props {
   onBudgets: () => void;
   onGoals: () => void;
   onStats: () => void;
+  onScanReceipt: () => void;
   customCategories?: CustomCategory[];
 }
 
-export default function HomeScreen({ onAdd, onTransactions, onBudgets, onGoals, onStats, customCategories = [] }: Props) {
+export default function HomeScreen({ onAdd, onTransactions, onBudgets, onGoals, onStats, onScanReceipt, customCategories = [] }: Props) {
   const { balance, totalIncome, totalExpense, recent } = useWallet();
   const quickActions = [
     { label: "📋 История", onClick: onTransactions },
     { label: "📊 Бюджеты", onClick: onBudgets },
     { label: "🎯 Цели", onClick: onGoals },
     { label: "📈 Статистика", onClick: onStats },
+    { label: "📷 Сканировать чек", onClick: onScanReceipt },
   ];
   return (
     <div style={{ minHeight: "100vh", background: "linear-gradient(180deg, #0a1929 0%, #0d1f33 100%)", padding: "0 0 100px" }}>

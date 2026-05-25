@@ -8,8 +8,9 @@ import AddTransactionScreen from "./screens/AddTransactionScreen";
 import BudgetsScreen from "./screens/BudgetsScreen";
 import GoalsScreen from "./screens/GoalsScreen";
 import StatsScreen from "./screens/StatsScreen";
+import ScanReceiptScreen from "./screens/ScanReceiptScreen";
 
-type WalletScreen = "home" | "transactions" | "add" | "budgets" | "goals" | "stats";
+type WalletScreen = "home" | "transactions" | "add" | "budgets" | "goals" | "stats" | "scan";
 
 export default function WalletApp() {
   const [screen, setScreen] = useState<WalletScreen>("home");
@@ -52,6 +53,8 @@ export default function WalletApp() {
       return <GoalsScreen onBack={() => setScreen("home")} />;
     case "stats":
       return <StatsScreen onBack={() => setScreen("home")} />;
+    case "scan":
+      return <ScanReceiptScreen customCategories={customCategories} onAddTransaction={handleSave} onBack={() => setScreen("home")} />;
     default:
       return (
         <HomeScreen
@@ -61,6 +64,7 @@ export default function WalletApp() {
           onBudgets={() => setScreen("budgets")}
           onGoals={() => setScreen("goals")}
           onStats={() => setScreen("stats")}
+          onScanReceipt={() => setScreen("scan")}
         />
       );
   }
