@@ -63,23 +63,47 @@ export default function QRScanner({ onScan, onCancel }: QRScannerProps) {
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setError("");
+    setError("Обработка...");
     const reader = new FileReader();
     reader.onload = () => {
       const img = new Image();
       img.onload = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
-        ctx.drawImage(img, 0, 0);
-        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const code = jsQR(imgData.data, canvas.width, canvas.height);
+        // Пробуем оригинал и уменьшенную версию
+        const tryDecode = (w: number, h: number) => {
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d", { willReadFrequently: true });
+          if (!ctx) return null;
+          ctx.drawImage(img, 0, 0, w, h);
+          const imgData = ctx.getImageData(0, 0, w, h);
+          // Grayscale + контраст
+          const data = imgData.data;
+          for (let i = 0; i < data.length; i += 4) {
+            const gray = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
+            data[i] = data[i+1] = data[i+2] = gray;
+          }
+          ctx.putImageData(imgData, 0, 0);
+          return jsQR(data, w, h, { inversionAttempts: "attemptBoth" });
+        };
+
+        // Пробуем оригинал
+        let code = tryDecode(img.width, img.height);
+        // Пробуем уменьшенный (часто QR лучше читается при downscale)
+        if (!code) code = tryDecode(Math.floor(img.width * 0.5), Math.floor(img.height * 0.5));
+        // Пробуем увеличенный
+        if (!code) code = tryDecode(Math.floor(img.width * 1.5), Math.floor(img.height * 1.5));
+        // Пробуем 800px по ширине
+        if (!code) {
+          const ratio = 800 / img.width;
+          code = tryDecode(800, Math.floor(img.height * ratio));
+        }
+
         if (code && code.data) {
+          setError("");
           onScan(code.data);
         } else {
-          setError("QR-код не найден. Попробуйте другое фото.");
+          setError("QR-код не найден на фото. Попробуйте режим «Вручную» и вставьте текст QR.");
         }
       };
       img.src = reader.result as string;
