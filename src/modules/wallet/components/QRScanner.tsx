@@ -7,7 +7,7 @@ interface QRScannerProps {
 }
 
 export default function QRScanner({ onScan, onCancel }: QRScannerProps) {
-  const [mode, setMode] = useState<"camera" | "file" | "manual">("camera");
+  const [mode, setMode] = useState<"camera" | "file" | "manual">("file");
   const [manualText, setManualText] = useState("");
   const [error, setError] = useState("");
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -56,7 +56,7 @@ export default function QRScanner({ onScan, onCancel }: QRScannerProps) {
         };
         rafRef.current = requestAnimationFrame(tick);
       })
-      .catch(() => setError("Нет доступа к камере. Разрешите в настройках или используйте загрузку фото."));
+      .catch(() => setMode("file"));
     return () => stopCamera();
   }, [mode, onScan, stopCamera]);
 
@@ -149,7 +149,7 @@ export default function QRScanner({ onScan, onCancel }: QRScannerProps) {
 
       {mode === "manual" && (
         <div>
-          <textarea value={manualText} onChange={(e) => setManualText(e.target.value)} placeholder="Вставьте текст QR-кода или данные чека..."
+          <textarea value={manualText} onChange={(e) => setManualText(e.target.value)} placeholder="Описание траты, например: такси, автобус, продукты"
             style={{ width: "100%", minHeight: 100, padding: 14, borderRadius: 12, border: "1px solid rgba(120,170,255,0.2)", background: "rgba(255,255,255,0.06)", color: "#fff", fontSize: 14, outline: "none", resize: "vertical" }} />
           <button onClick={handleManual} style={{ marginTop: 12, width: "100%", padding: "14px", borderRadius: 12, border: "none", background: "#3b82f6", color: "#fff", fontWeight: 600, cursor: "pointer" }}>Добавить</button>
         </div>
