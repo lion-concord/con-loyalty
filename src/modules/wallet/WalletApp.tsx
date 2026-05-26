@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useWallet } from "./hooks/useWallet";
 import { useBudgets } from "./hooks/useBudgets";
 import { useCustomCategories } from "./hooks/useCustomCategories";
+import { useGoals } from "./hooks/useGoals";
 import HomeScreen from "./screens/HomeScreen";
 import TransactionsScreen from "./screens/TransactionsScreen";
 import AddTransactionScreen from "./screens/AddTransactionScreen";
@@ -15,8 +16,8 @@ type WalletScreen = "home" | "transactions" | "add" | "budgets" | "goals" | "sta
 export default function WalletApp() {
   const [screen, setScreen] = useState<WalletScreen>("home");
   const { transactions, addTransaction, deleteTransaction, balance, savings, setSavings } = useWallet();
-  const { deleteBudget } = useBudgets();
-  const { budgets, setBudget, updateSpent } = useBudgets();
+  const { budgets, setBudget, updateSpent, deleteBudget } = useBudgets();
+  const { goals, addGoal, addToGoal, deleteGoal } = useGoals();
   const { customCategories, addCategory, removeCategory, COLORS, ICONS } = useCustomCategories();
 
   const handleSave = (type: "expense" | "income", amount: number, category: string, description: string, isSavingsIncome?: boolean, isSavingsExpense?: boolean) => {
@@ -68,6 +69,8 @@ export default function WalletApp() {
           onGoals={() => setScreen("goals")}
           balance={balance}
           savings={savings}
+          goals={goals}
+          budgets={budgets}
           onStats={() => setScreen("stats")}
           onScanReceipt={() => setScreen("scan")}
         />

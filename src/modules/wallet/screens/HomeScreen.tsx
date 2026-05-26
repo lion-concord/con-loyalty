@@ -13,10 +13,58 @@ interface Props {
   customCategories?: CustomCategory[];
   balance: number;
   savings: number;
+  goals?: { id: string; name: string; targetAmount: number; currentAmount: number; deadline?: string }[];
+  budgets?: { category: string; limit: number; spent: number }[];
 }
 
-export default function HomeScreen({ onAdd, onTransactions, onBudgets, onGoals, onStats, onScanReceipt, customCategories = [], balance, savings }: Props) {
-  const { totalIncome, totalExpense, recent } = useWallet();
+export default function HomeScreen({ onAdd, onTransactions, onBudgets, onGoals, onStats, onScanReceipt, customCategories = [], balance, savings, goals = [], budgets = [] }: Props) {
+  const { transactions, totalIncome, totalExpense, recent } = useWallet();
+  const getTips = () => {
+    const tips: string[] = [];
+    const now = new Date();
+    const thisMonth = now.getMonth();
+    const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
+    const thisYear = now.getFullYear();
+    const lastYear = thisMonth === 0 ? thisYear - 1 : thisYear;
+
+    // Tip 1: Compare food spending month-over-month
+    const foodCats = ["food", "cafe", "groceries"];
+    const thisMonthFood = transactions
+      .filter((t) => t.type === "expense" && foodCats.includes(t.category) && new Date(t.date).getMonth() === thisMonth && new Date(t.date).getFullYear() === thisYear)
+      .reduce((s, t) => s + t.amount, 0);
+    const lastMonthFood = transactions
+      .filter((t) => t.type === "expense" && foodCats.includes(t.category) && new Date(t.date).getMonth() === lastMonth && new Date(t.date).getFullYear() === lastYear)
+      .reduce((s, t) => s + t.amount, 0);
+    if (lastMonthFood > 0 && thisMonthFood > lastMonthFood * 1.15) {
+      const pct = Math.round(((thisMonthFood - lastMonthFood) / lastMonthFood) * 100);
+      tips.push("🍽️ В этом месяце вы потратили на еду на " + pct + "% больше, чем в прошлом");
+    }
+
+    // Tip 2: Goal deadline advice
+    goals.forEach((g) => {
+      if (g.deadline && g.currentAmount < g.targetAmount) {
+        const daysLeft = Math.ceil((new Date(g.deadline).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        if (daysLeft > 0 && daysLeft <= 90) {
+          const needed = g.targetAmount - g.currentAmount;
+          const weekly = Math.ceil(needed / (daysLeft / 7));
+          tips.push("🎯 Чтобы накопить на «" + g.name + "» к " + g.deadline + ", откладывайте " + weekly.toLocaleString("ru-RU") + " ₽/неделю");
+        }
+      }
+    });
+
+    // Tip 3: Budget warning
+    budgets.forEach((b) => {
+      const pct = b.limit > 0 ? (b.spent / b.limit) * 100 : 0;
+      if (pct >= 80 && pct < 100) {
+        tips.push("⚠️ Бюджет «" + b.category + "» на " + pct.toFixed(0) + "% израсходован — осталось " + (b.limit - b.spent).toLocaleString("ru-RU") + " ₽");
+      } else if (pct >= 100) {
+        tips.push("🚨 Бюджет «" + b.category + "» исчерпан! Перерасход: " + (b.spent - b.limit).toLocaleString("ru-RU") + " ₽");
+      }
+    });
+
+    return tips;
+  };
+
   const quickActions = [
     { label: "📋 История", onClick: onTransactions },
     { label: "📊 Бюджеты", onClick: onBudgets },
@@ -54,6 +102,18 @@ export default function HomeScreen({ onAdd, onTransactions, onBudgets, onGoals, 
             </div>
           )}
         </div>
+        {getTips().length > 0 && (
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 13, color: "rgba(200,225,255,0.5)", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+              <span>💡</span> AI-советник
+            </div>
+            {getTips().map((tip, i) => (
+              <div key={i} style={{ background: "rgba(59,130,246,0.1)", borderRadius: 14, padding: "14px 16px", marginBottom: 8, border: "1px solid rgba(59,130,246,0.2)", fontSize: 14, color: "#bfdbfe", lineHeight: 1.5 }}>
+                {tip}
+              </div>
+            ))}
+          </div>
+        )}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 28 }}>
           {quickActions.map((item) => (
             <button key={item.label} onClick={item.onClick}
