@@ -5,11 +5,12 @@ import type { Budget, CustomCategory } from "../types";
 interface Props {
   budgets: Budget[];
   setBudget: (category: string, limit: number) => void;
+  deleteBudget?: (id: string) => void;
   customCategories?: CustomCategory[];
   onBack: () => void;
 }
 
-export default function BudgetsScreen({ budgets, setBudget, customCategories = [], onBack }: Props) {
+export default function BudgetsScreen({ budgets, setBudget, deleteBudget, customCategories = [], onBack }: Props) {
   const [editCat, setEditCat] = useState("");
   const [editVal, setEditVal] = useState("");
 
@@ -43,10 +44,16 @@ export default function BudgetsScreen({ budgets, setBudget, customCategories = [
                   <span style={{ fontSize: 22 }}>{cat.icon}</span>
                   <span style={{ fontSize: 15, fontWeight: 600, color: "#fff" }}>{cat.name}</span>
                 </div>
-                <button onClick={() => { setEditCat(cat.id); setEditVal(limit > 0 ? String(limit) : ""); }}
-                  style={{ background: "none", border: "none", color: "#7cc1ff", fontSize: 13, cursor: "pointer" }}>
-                  {limit > 0 ? "✏️" : "+ Лимит"}
-                </button>
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  {limit > 0 && deleteBudget && budget?.id && (
+                    <button onClick={() => deleteBudget(budget.id)}
+                      style={{ background: "none", border: "none", color: "#ef4444", fontSize: 13, cursor: "pointer" }}>🗑️</button>
+                  )}
+                  <button onClick={() => { setEditCat(cat.id); setEditVal(limit > 0 ? String(limit) : ""); }}
+                    style={{ background: "none", border: "none", color: "#7cc1ff", fontSize: 13, cursor: "pointer" }}>
+                    {limit > 0 ? "✏️" : "+ Лимит"}
+                  </button>
+                </div>
               </div>
               {limit > 0 && (
                 <>

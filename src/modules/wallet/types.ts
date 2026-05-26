@@ -8,9 +8,12 @@ export interface Transaction {
   description: string;
   date: string; // ISO
   createdAt: number;
+  isSavingsIncome?: boolean;
+  isSavingsExpense?: boolean;
 }
 
 export interface Budget {
+  id: string;
   category: string;
   limit: number;
   spent: number;

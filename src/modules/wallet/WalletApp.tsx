@@ -14,12 +14,13 @@ type WalletScreen = "home" | "transactions" | "add" | "budgets" | "goals" | "sta
 
 export default function WalletApp() {
   const [screen, setScreen] = useState<WalletScreen>("home");
-  const { transactions, addTransaction, deleteTransaction } = useWallet();
+  const { transactions, addTransaction, deleteTransaction, balance, savings, setSavings } = useWallet();
+  const { deleteBudget } = useBudgets();
   const { budgets, setBudget, updateSpent } = useBudgets();
   const { customCategories, addCategory, removeCategory, COLORS, ICONS } = useCustomCategories();
 
-  const handleSave = (type: "expense" | "income", amount: number, category: string, description: string) => {
-    addTransaction(type, amount, category, description);
+  const handleSave = (type: "expense" | "income", amount: number, category: string, description: string, isSavingsIncome?: boolean, isSavingsExpense?: boolean) => {
+    addTransaction(type, amount, category, description, isSavingsIncome, isSavingsExpense);
     updateSpent(category, amount);
     setScreen("home");
   };
@@ -45,10 +46,12 @@ export default function WalletApp() {
           onRemoveCategory={removeCategory}
           availableColors={COLORS}
           availableIcons={ICONS}
+          savings={savings}
+          setSavings={setSavings}
         />
       );
     case "budgets":
-      return <BudgetsScreen budgets={budgets} setBudget={setBudget} customCategories={customCategories} onBack={() => setScreen("home")} />;
+      return <BudgetsScreen budgets={budgets} setBudget={setBudget} deleteBudget={deleteBudget} customCategories={customCategories} onBack={() => setScreen("home")} />;
     case "goals":
       return <GoalsScreen onBack={() => setScreen("home")} />;
     case "stats":
@@ -63,6 +66,8 @@ export default function WalletApp() {
           onTransactions={() => setScreen("transactions")}
           onBudgets={() => setScreen("budgets")}
           onGoals={() => setScreen("goals")}
+          balance={balance}
+          savings={savings}
           onStats={() => setScreen("stats")}
           onScanReceipt={() => setScreen("scan")}
         />

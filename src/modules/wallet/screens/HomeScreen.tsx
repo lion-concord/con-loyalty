@@ -11,10 +11,12 @@ interface Props {
   onStats: () => void;
   onScanReceipt: () => void;
   customCategories?: CustomCategory[];
+  balance: number;
+  savings: number;
 }
 
-export default function HomeScreen({ onAdd, onTransactions, onBudgets, onGoals, onStats, onScanReceipt, customCategories = [] }: Props) {
-  const { balance, totalIncome, totalExpense, recent } = useWallet();
+export default function HomeScreen({ onAdd, onTransactions, onBudgets, onGoals, onStats, onScanReceipt, customCategories = [], balance, savings }: Props) {
+  const { totalIncome, totalExpense, recent } = useWallet();
   const quickActions = [
     { label: "📋 История", onClick: onTransactions },
     { label: "📊 Бюджеты", onClick: onBudgets },
@@ -41,6 +43,16 @@ export default function HomeScreen({ onAdd, onTransactions, onBudgets, onGoals, 
               <div style={{ fontSize: 18, fontWeight: 700, color: "#f87171" }}>-{totalExpense.toLocaleString("ru-RU")} ₽</div>
             </div>
           </div>
+          {savings > 0 && (
+            <div style={{ marginTop: 12, background: "rgba(251,191,36,0.15)", borderRadius: 14, padding: "14px 16px", border: "1px solid rgba(251,191,36,0.2)" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div>
+                  <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 4, color: "#fbbf24" }}>💰 Накопления</div>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: "#fbbf24" }}>{savings.toLocaleString("ru-RU")} ₽</div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 28 }}>
           {quickActions.map((item) => (

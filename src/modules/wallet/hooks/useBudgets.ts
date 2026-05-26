@@ -27,7 +27,7 @@ export function useBudgets() {
     if (existing) {
       save(budgets.map((b) => (b.category === category && b.month === month ? { ...b, limit } : b)));
     } else {
-      save([...budgets, { category, limit, spent: 0, month }]);
+      save([...budgets, { id: Date.now().toString(), category, limit, spent: 0, month }]);
     }
   }, [budgets, save]);
 
@@ -41,7 +41,15 @@ export function useBudgets() {
     }));
   }, [budgets, save]);
 
+  const deleteBudget = useCallback((id: string) => {
+    setBudgets((prev) => {
+      const next = prev.filter((b) => b.id !== id);
+      save(next);
+      return next;
+    });
+  }, [save]);
+
   const currentMonthBudgets = budgets.filter((b) => b.month === getCurrentMonth());
 
-  return { budgets: currentMonthBudgets, setBudget, updateSpent };
+  return { budgets: currentMonthBudgets, setBudget, updateSpent, deleteBudget };
 }

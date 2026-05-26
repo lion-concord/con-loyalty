@@ -5,7 +5,9 @@ import type { TransactionType } from "../types";
 
 interface Props {
   onBack: () => void;
-  onSave: (type: TransactionType, amount: number, category: string, description: string) => void;
+  onSave: (type: TransactionType, amount: number, category: string, description: string, isSavingsIncome?: boolean, isSavingsExpense?: boolean) => void;
+  savings?: number;
+  setSavings?: (val: number) => void;
   customCategories?: CustomCategory[];
   onAddCategory?: (name: string, icon: string, type: TransactionType) => void;
   onRemoveCategory?: (id: string) => void;
@@ -13,7 +15,7 @@ interface Props {
   availableIcons?: string[];
 }
 
-export default function AddTransactionScreen({ onBack, onSave, customCategories = [], onAddCategory, availableIcons = [] }: Props) {
+export default function AddTransactionScreen({ onBack, onSave, customCategories = [], onAddCategory, availableIcons = [], savings = 0 }: Props) {
   const [type, setType] = useState<TransactionType>("expense");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
@@ -21,12 +23,15 @@ export default function AddTransactionScreen({ onBack, onSave, customCategories 
   const [showAddCat, setShowAddCat] = useState(false);
   const [newCatName, setNewCatName] = useState("");
   const [newCatIcon, setNewCatIcon] = useState("⭐");
+  const [isSavings, setIsSavings] = useState(false);
   const categories = getCategoriesByType(type, customCategories);
 
   const handleSubmit = () => {
     const num = parseFloat(amount);
     if (!num || num <= 0 || !category) return;
-    onSave(type, num, category, description);
+    const isSavingsIncome = type === "income" && isSavings;
+    const isSavingsExpense = type === "expense" && isSavings;
+    onSave(type, num, category, description, isSavingsIncome, isSavingsExpense);
     onBack();
   };
 
@@ -100,8 +105,16 @@ export default function AddTransactionScreen({ onBack, onSave, customCategories 
             style={{ width: "100%", padding: "14px 16px", borderRadius: 14, border: "1px solid rgba(120,170,255,0.15)",
               background: "rgba(255,255,255,0.04)", color: "#fff", fontSize: 15, outline: "none", boxSizing: "border-box" }} />
         </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, padding: "14px 16px", borderRadius: 14, background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.15)" }}>
+          <input type="checkbox" id="savings" checked={isSavings} onChange={(e) => setIsSavings(e.target.checked)}
+            style={{ width: 20, height: 20, accentColor: "#fbbf24", cursor: "pointer" }} />
+          <label htmlFor="savings" style={{ color: "#fbbf24", fontSize: 14, cursor: "pointer", flex: 1 }}>
+            {type === "income" ? "Зачислить на накопления" : "Списать с накоплений"}
+            {savings > 0 && <span style={{ opacity: 0.6, marginLeft: 8 }}>(доступно: {savings.toLocaleString("ru-RU")} ₽)</span>}
+          </label>
+        </div>
         <button onClick={handleSubmit}
-          disabled={!amount || !category}
+          disabled={!amount || !category || (isSavings && type === "expense" && savings < parseFloat(amount))}
           style={{ width: "100%", padding: "16px", borderRadius: 16, border: "none", fontSize: 16, fontWeight: 700, cursor: "pointer",
             background: !amount || !category ? "rgba(255,255,255,0.1)" : type === "expense" ? "linear-gradient(135deg,#ef4444,#dc2626)" : "linear-gradient(135deg,#10b981,#059669)",
             color: !amount || !category ? "rgba(255,255,255,0.3)" : "#fff" }}>
