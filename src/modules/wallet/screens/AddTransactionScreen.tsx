@@ -15,7 +15,7 @@ interface Props {
   availableIcons?: string[];
 }
 
-export default function AddTransactionScreen({ onBack, onSave, customCategories = [], onAddCategory, availableIcons = [], savings = 0 }: Props) {
+export default function AddTransactionScreen({ onBack, onSave, customCategories = [], onAddCategory, onRemoveCategory, availableIcons = [], savings = 0 }: Props) {
   const [type, setType] = useState<TransactionType>("expense");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
@@ -62,13 +62,21 @@ export default function AddTransactionScreen({ onBack, onSave, customCategories 
           <label style={{ fontSize: 13, color: "rgba(200,225,255,0.5)", marginBottom: 10, display: "block" }}>Категория</label>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
             {categories.map((cat) => (
-              <button key={cat.id} onClick={() => setCategory(cat.id)}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "12px 4px", borderRadius: 14, border: "none", cursor: "pointer",
-                  background: category === cat.id ? cat.color + "30" : "rgba(255,255,255,0.04)",
-                  outline: category === cat.id ? "2px solid " + cat.color : "none" }}>
-                <span style={{ fontSize: 24 }}>{cat.icon}</span>
-                <span style={{ fontSize: 10, color: "#fff", fontWeight: 500 }}>{cat.name}</span>
-              </button>
+              <div key={cat.id} style={{ position: "relative" }}>
+                <button onClick={() => setCategory(cat.id)}
+                  style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "12px 4px", borderRadius: 14, border: "none", cursor: "pointer", width: "100%",
+                    background: category === cat.id ? cat.color + "30" : "rgba(255,255,255,0.04)",
+                    outline: category === cat.id ? "2px solid " + cat.color : "none" }}>
+                  <span style={{ fontSize: 24 }}>{cat.icon}</span>
+                  <span style={{ fontSize: 10, color: "#fff", fontWeight: 500 }}>{cat.name}</span>
+                </button>
+                {onRemoveCategory && customCategories.some((c) => c.id === cat.id) && (
+                  <button onClick={(e) => { e.stopPropagation(); onRemoveCategory(cat.id); if (category === cat.id) setCategory(""); }}
+                    style={{ position: "absolute", top: -6, right: -6, width: 22, height: 22, borderRadius: "50%", border: "none", background: "#ef4444", color: "#fff", fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    ✕
+                  </button>
+                )}
+              </div>
             ))}
           </div>
         </div>
