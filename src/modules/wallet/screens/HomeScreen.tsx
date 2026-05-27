@@ -19,6 +19,18 @@ interface Props {
 
 export default function HomeScreen({ onAdd, onTransactions, onBudgets, onGoals, onStats, onScanReceipt, customCategories = [], balance, savings, goals = [], budgets = [] }: Props) {
   const { transactions, totalIncome, totalExpense, recent } = useWallet();
+  const CAT_NAMES: Record<string, string> = {
+    food: "Еда", cafe: "Кафе", groceries: "Продукты",
+    transport: "Транспорт", housing: "Жильё", health: "Здоровье",
+    entertainment: "Развлечения", education: "Образование",
+    clothing: "Одежда", sport: "Спорт", travel: "Путешествия",
+    subscriptions: "Подписки", pets: "Питомцы", gifts: "Подарки",
+    beauty: "Красота", electronics: "Техника", other: "Другое",
+    salary: "Зарплата", freelance: "Фриланс", business: "Бизнес",
+    investments: "Инвестиции", rental: "Аренда", pension: "Пенсия",
+  };
+  const catName = (key: string) => CAT_NAMES[key] || key;
+
   const getTips = () => {
     const tips: string[] = [];
     const now = new Date();
@@ -56,9 +68,9 @@ export default function HomeScreen({ onAdd, onTransactions, onBudgets, onGoals, 
     budgets.forEach((b) => {
       const pct = b.limit > 0 ? (b.spent / b.limit) * 100 : 0;
       if (pct >= 80 && pct < 100) {
-        tips.push("⚠️ Бюджет «" + b.category + "» на " + pct.toFixed(0) + "% израсходован — осталось " + (b.limit - b.spent).toLocaleString("ru-RU") + " ₽");
+        tips.push("⚠️ Бюджет «" + catName(b.category) + "» на " + pct.toFixed(0) + "% израсходован — осталось " + (b.limit - b.spent).toLocaleString("ru-RU") + " ₽");
       } else if (pct >= 100) {
-        tips.push("🚨 Бюджет «" + b.category + "» исчерпан! Перерасход: " + (b.spent - b.limit).toLocaleString("ru-RU") + " ₽");
+        tips.push("🚨 Бюджет «" + catName(b.category) + "» исчерпан! Перерасход: " + (b.spent - b.limit).toLocaleString("ru-RU") + " ₽");
       }
     });
 

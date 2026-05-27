@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useWallet } from "../hooks/useWallet";
 import { getCategoryById, EXPENSE_CATEGORIES } from "../types";
+import type { Budget } from "../types";
 
-interface Props { onBack: () => void; }
+interface Props { onBack: () => void; budgets: Budget[]; }
 
-export default function StatsScreen({ onBack }: Props) {
+export default function StatsScreen({ onBack, budgets }: Props) {
   const { transactions, totalIncome, totalExpense } = useWallet();
   const [period, setPeriod] = useState<"week" | "month" | "year" | "all">("month");
 
@@ -77,7 +78,9 @@ export default function StatsScreen({ onBack }: Props) {
           <div style={{ textAlign: "center", padding: "40px", color: "rgba(200,225,255,0.4)" }}>Нет данных</div>
         ) : (
           byCategory.map((cat) => {
-            const pct = totalExpense > 0 ? (cat.sum / totalExpense) * 100 : 0;
+            const budget = budgets.find((b) => b.category === cat.id);
+            const limit = budget?.limit || 0;
+            const pct = limit > 0 ? Math.min((cat.sum / limit) * 100, 100) : (totalExpense > 0 ? (cat.sum / totalExpense) * 100 : 0);
             return (
               <div key={cat.id} style={{ marginBottom: 14 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>

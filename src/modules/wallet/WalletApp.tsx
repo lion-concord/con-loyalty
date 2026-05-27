@@ -56,7 +56,7 @@ export default function WalletApp() {
     case "goals":
       return <GoalsScreen onBack={() => setScreen("home")} />;
     case "stats":
-      return <StatsScreen onBack={() => setScreen("home")} />;
+      return <StatsScreen onBack={() => setScreen("home")} budgets={budgets} />;
     case "scan":
       return <ScanReceiptScreen customCategories={customCategories} onAddTransaction={handleSave} onBack={() => setScreen("home")} />;
     default:
