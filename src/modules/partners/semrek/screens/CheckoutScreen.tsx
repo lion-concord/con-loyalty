@@ -6,6 +6,7 @@ interface Props {
   items: CartItem[];
   onBack: () => void;
   onSubmit: (data: OrderData) => void;
+  isSubmitting?: boolean;
 }
 
 export interface OrderData {
@@ -18,7 +19,7 @@ export interface OrderData {
   cashbackUsed: number;
 }
 
-export default function CheckoutScreen({ items, onBack, onSubmit }: Props) {
+export default function CheckoutScreen({ items, onBack, onSubmit, isSubmitting }: Props) {
   const { card, spendCashback } = usePartnerCard("semrek");
   const [form, setForm] = useState<OrderData>({
     name: "",
@@ -323,6 +324,7 @@ fontWeight: 700,
 
           <button
             type="submit"
+            disabled={isSubmitting}
             className="sr-btn sr-btn--primary"
             style={{
               width: "100%",
@@ -332,7 +334,7 @@ fontWeight: 700,
               boxShadow: "0 4px 20px rgba(42,111,214,0.3)",
             }}
           >
-            Подтвердить заказ
+            {isSubmitting ? "Отправка..." : "Подтвердить заказ"}
           </button>
 
           <div style={{

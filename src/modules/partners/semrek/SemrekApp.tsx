@@ -13,11 +13,13 @@ import AboutScreen from "./screens/AboutScreen";
 import ServicesScreen from "./screens/ServicesScreen";
 import PartnerCardScreen from "./screens/PartnerCardScreen";
 import { products } from "./data/store";
+import { createOrder } from "./api/ordersApi";
 
 export default function SemrekApp({ onBack, konBalance = 0, onAddKon }: PartnerModuleProps) {
   const [screen, setScreen] = useState<"home"|"catalog"|"product"|"cart"|"checkout"|"success"|"about"|"services"|"card">("home");
   const [selId, setSelId] = useState<string|null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastOrder, setLastOrder] = useState<{orderId:string;data:OrderData;items:CartItem[];total:number}|null>(null);
 
   const addToCart = (id:string, name:string, price:number, image:string) => {
@@ -39,12 +41,31 @@ export default function SemrekApp({ onBack, konBalance = 0, onAddKon }: PartnerM
   const cartTotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const selProduct = products.find(p => p.id === selId) || null;
 
-  const handleCheckoutSubmit = (data: OrderData) => {
+  const handleCheckoutSubmit = async (data: OrderData) => {
+    setIsSubmitting(true);
     const orderId = `SR${Date.now()}`;
     const total = cartTotal - data.cashbackUsed;
-    setLastOrder({ orderId, data, items: [...cart], total });
-    setCart([]);
-    setScreen("success");
+    try {
+      const res = await createOrder({
+        orderNumber: orderId,
+        userId: 1,
+        partner: "semrek",
+        amount: total,
+        items: JSON.stringify(cart.map(i => ({ name: i.name, qty: i.qty, price: i.price }))),
+        konSpent: data.cashbackUsed,
+      });
+      if (res.success) {
+        setLastOrder({ orderId: res.order.order_number, data, items: [...cart], total });
+        setCart([]);
+        setScreen("success");
+      } else {
+        alert("Ошибка при создании заказа");
+      }
+    } catch (err) {
+        alert("Сервер недоступен. Попробуйте позже...");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -64,12 +85,12 @@ export default function SemrekApp({ onBack, konBalance = 0, onAddKon }: PartnerM
       {screen === "catalog" && <CatalogScreen initialCategory="all" onBack={() => setScreen("home")} onOpenProduct={(id) => { setSelId(id); setScreen("product"); }} />}
       {screen === "product" && selProduct && <ProductScreen productId={selProduct.id} onBack={() => setScreen("catalog")} onAddToCart={() => addToCart(selProduct.id, selProduct.name, selProduct.price, selProduct.image)} />}
       {screen === "cart" && <CartScreen items={cart} onBack={() => setScreen("home")} onUpdateQty={updateQty} onRemove={removeItem} onCheckout={() => setScreen("checkout")} />}
-      {screen === "checkout" && <CheckoutScreen items={cart} onBack={() => setScreen("cart")} onSubmit={handleCheckoutSubmit} />}
+      {screen === "checkout" && <CheckoutScreen items={cart} onBack={() => setScreen("cart")} onSubmit={handleCheckoutSubmit} isSubmitting={isSubmitting} />}
       {screen === "success" && lastOrder && (
         <SuccessScreen
           orderData={{
             orderId: lastOrder.orderId,
-total: lastOrder.total,
+            total: lastOrder.total,
             items: lastOrder.items.map(i => ({
               name: i.name,
               qty: i.qty,
