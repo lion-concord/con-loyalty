@@ -13,7 +13,8 @@
     "build:rustore": "tsc -b && vite build --mode rustore",
     "preview:rustore": "vite preview --mode rustore",
     "dev:telegram": "vite --mode telegram",
-    "build:telegram": "tsc -b && vite build --mode telegram"
+    "build:telegram": "tsc -b && vite build --mode telegram",
+    "start": "node src/server/index.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.1",
@@ -29,7 +30,9 @@
     "express": "^5.2.1",
     "firebase": "^12.12.1",
     "framer-motion": "^12.38.0",
+    "grammy": "^1.43.0",
     "jsqr": "^1.4.0",
+    "lowdb": "^7.0.1",
     "node-telegram-bot-api": "^0.67.0",
     "pg": "^8.20.0",
     "qrcode.react": "^4.2.0",

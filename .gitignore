@@ -68,3 +68,6 @@ android/capacitor-cordova-android-plugins/
 *.jks
 keystore.properties
 _.bak_
+
+# Env files
+.env.*

@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import ordersRouter from './api/orders.js';
+import { startBot } from './bot/index.js';
 import { initDb } from './db/init.js';
 
 dotenv.config();
@@ -19,6 +20,7 @@ app.get('/health', (_req, res) => {
 app.use('/api/orders', ordersRouter);
 
 initDb();
+startBot();
 
 app.listen(PORT, () => {
   console.log('Server running on port ' + PORT);
