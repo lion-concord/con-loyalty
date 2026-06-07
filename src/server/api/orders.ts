@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { createOrder, getOrder, markOrderPaid, getPendingOrders } from "../db/queries.js";
+import { sendOrderNotification } from "../bot/notify.js";
 
 const router = Router();
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const { orderNumber, userId, partner, amount, items, konSpent } = req.body;
 
   if (!orderNumber || !userId || !partner || !amount) {
@@ -21,6 +22,17 @@ router.post("/", (req, res) => {
     });
 
     const order = getOrder(Number(orderId));
+
+    // Отправляем уведомление менеджеру
+    await sendOrderNotification({
+      id: Number(orderId),
+      orderNumber,
+      userId: Number(userId),
+      partner,
+      amount: Number(amount),
+      konSpent: Number(konSpent || 0),
+    });
+
     res.json({ success: true, order });
   } catch (e) {
     console.error("Create order error:", e);
