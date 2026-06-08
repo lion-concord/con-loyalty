@@ -10,7 +10,9 @@ export async function sendOrderNotification(order: {
   amount: number;
   konSpent: number;
 }) {
-  if (!bot || !MANAGER_CHAT_ID) return;
+  console.log('sendOrderNotification called, bot:', !!bot, 'MANAGER_CHAT_ID:', MANAGER_CHAT_ID);
+  if (!bot) { console.error('Bot is null!'); return; }
+  if (!MANAGER_CHAT_ID) { console.error('MANAGER_CHAT_ID is 0!'); return; }
   const konEarned = 10;
   const cashback = Math.round(order.amount * 0.03);
   try {
@@ -23,6 +25,7 @@ export async function sendOrderNotification(order: {
       'Начислить ' + konEarned + ' баллов КОН и ' + cashback + ' ₽ кешбэка?\n' +
       'Ответьте: /pay_' + order.id
     );
+    console.log('Notification sent!');
   } catch (e) {
     console.error('Notify error:', e);
   }
