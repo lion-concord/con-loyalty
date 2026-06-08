@@ -23,7 +23,8 @@ initDb();
 startBot();
 
 app.listen(PORT, () => {
-  console.log('Server running on port ' + PORT);
+  console.log("MANAGER_CHAT_ID at start:", process.env.MANAGER_CHAT_ID);
+  console.log("Server running on port ' + PORT);
 });
 
 export default app;
