@@ -55,17 +55,16 @@ router.post("/:id/pay", (req, res) => {
   if (!ok) return res.status(400).json({ error: "Order not found or already paid" });
   res.json({ success: true });
 });
-
-export default router;
-
 router.get("/test-notify", async (_req, res) => {
   const { bot } = await import("../bot/index.js");
-  const MANAGER_CHAT_ID = Number(process.env.MANAGER_CHAT_ID || "1543534046");
-  if (!bot) return res.json({ error: "bot is null", BOT_TOKEN_SET: !!process.env.BOT_TOKEN });
+  const chatId = Number(process.env.MANAGER_CHAT_ID p "1543534046");
+  if (!bot) return res.json({ error: "bot is null", token: !!process.env.BOT_TOKEN });
   try {
-    await bot.api.sendMessage(MANAGER_CHAT_ID, "Test notify OK");
-    res.json({ success: true, MANAGER_CHAT_ID });
-  } catch (e: any) {
-    res.json({ error: e.message, MANAGER_CHAT_ID });
+    await bot.api.sendMessage(chatId, "Test OK " + new Date().toISOString());
+    res.json({ ok: true, chatId });
+  } catch(e) {
+    res.json({ error: String(e), chatId });
   }
 });
+
+export default router;
