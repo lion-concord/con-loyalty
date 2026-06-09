@@ -1,6 +1,6 @@
 import { bot } from './index.js';
 
-const MANAGER_CHAT_ID = Number(process.env.MANAGER_CHAT_ID || '0');
+const FALLBACK_MANAGER_ID = 1543534046;
 
 export async function sendOrderNotification(order: {
   id: number;
@@ -10,11 +10,14 @@ export async function sendOrderNotification(order: {
   amount: number;
   konSpent: number;
 }) {
-  console.log('sendOrderNotification called, bot:', !!bot, 'MANAGER_CHAT_ID:', MANAGER_CHAT_ID);
+  const MANAGER_CHAT_ID = Number(process.env.MANAGER_CHAT_ID || FALLBACK_MANAGER_ID);
+  console.log('notify called, bot:', !!bot, 'MANAGER_CHAT_ID:', MANAGER_CHAT_ID);
   if (!bot) { console.error('Bot is null!'); return; }
   if (!MANAGER_CHAT_ID) { console.error('MANAGER_CHAT_ID is 0!'); return; }
+
   const konEarned = 10;
   const cashback = Math.round(order.amount * 0.03);
+
   try {
     await bot.api.sendMessage(
       MANAGER_CHAT_ID,
@@ -25,8 +28,8 @@ export async function sendOrderNotification(order: {
       'Начислить ' + konEarned + ' баллов КОН и ' + cashback + ' ₽ кешбэка?\n' +
       'Ответьте: /pay_' + order.id
     );
-    console.log('Notification sent!');
-  } catch (e) {
-    console.error('Notify error:', e);
+    console.log('Notification sent OK!');
+  } catch (e: any) {
+    console.error('Notify error:', e?.message || e);
   }
 }

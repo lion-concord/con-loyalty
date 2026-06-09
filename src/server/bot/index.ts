@@ -2,7 +2,7 @@ import { Bot } from 'grammy';
 import { getPendingOrders, markOrderPaid, getUser } from '../db/queries.js';
 
 const BOT_TOKEN = process.env.BOT_TOKEN || '';
-const MANAGER_CHAT_ID = Number(process.env.MANAGER_CHAT_ID || '0');
+const MANAGER_CHAT_ID = Number(process.env.MANAGER_CHAT_ID || '1543534046');
 
 export let bot: Bot | null = null;
 
@@ -36,8 +36,8 @@ if (BOT_TOKEN) {
   bot.hears(/^\/pay_(\d+)$/, async (ctx) => {
     if (ctx.chat.id !== MANAGER_CHAT_ID) return;
     const orderId = Number(ctx.match[1]);
-    const order = getPendingOrders() as any[];
-    const o = order.find((x: any) => x.id === orderId);
+    const orders = getPendingOrders() as any[];
+    const o = orders.find((x: any) => x.id === orderId);
     if (!o) {
       await ctx.reply('Заказ не найден или уже оплачен.');
       return;
@@ -59,5 +59,5 @@ export function startBot() {
     return;
   }
   bot.start();
-  console.log('Bot started');
+  console.log('Bot started, MANAGER_CHAT_ID:', MANAGER_CHAT_ID);
 }
