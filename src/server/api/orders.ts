@@ -57,7 +57,7 @@ router.post("/:id/pay", (req, res) => {
 });
 router.get("/test-notify", async (_req, res) => {
   const { bot } = await import("../bot/index.js");
-  const chatId = Number(process.env.MANAGER_CHAT_ID p "1543534046");
+  const chatId = Number(process.env.MANAGER_CHAT_ID || "1543534046");
   if (!bot) return res.json({ error: "bot is null", token: !!process.env.BOT_TOKEN });
   try {
     await bot.api.sendMessage(chatId, "Test OK " + new Date().toISOString());
