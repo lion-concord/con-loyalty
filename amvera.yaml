@@ -4,8 +4,10 @@ meta:
     name: npm
     version: 20
 build:
-  skip: true
+  skip: false
+  commands:
+    - npm install
 run:
   persistenceMount: /data
   containerPort: 80
-  scriptName: bot
+  scriptName: start
