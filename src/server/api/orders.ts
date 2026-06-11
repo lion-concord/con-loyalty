@@ -1,3 +1,4 @@
+// v2
 import { Router } from "express";
 import { createOrder, getOrder, markOrderPaid, getPendingOrders } from "../db/queries.js";
 import { sendOrderNotification } from "../bot/notify.js";
@@ -56,4 +57,5 @@ router.post("/:id/pay", (req, res) => {
   res.json({ success: true });
 });
 export default router;
+
 
