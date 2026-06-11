@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import ordersRouter from './api/orders.js';
+import ordersRouter from './api/orders_v2.js';
 import { startBot } from './bot/index.js';
 import { initDb } from './db/init.js';
 
@@ -14,7 +14,7 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.use('/api/orders', ordersRouter);
+app.use('/api/orders_v2', ordersRouter);
 
 initDb();
 startBot();
