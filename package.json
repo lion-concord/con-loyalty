@@ -14,7 +14,7 @@
     "preview:rustore": "vite preview --mode rustore",
     "dev:telegram": "vite --mode telegram",
     "build:telegram": "tsc -b && vite build --mode telegram",
-    "start": "tsx src/server/index.ts",
+    "start": "rm -rf node_modules/.cache && tsx src/server/index.ts",
     "server": "tsx src/server/index.ts"
   },
   "dependencies": {
