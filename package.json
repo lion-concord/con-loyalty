@@ -14,8 +14,9 @@
     "preview:rustore": "vite preview --mode rustore",
     "dev:telegram": "vite --mode telegram",
     "build:telegram": "tsc -b && vite build --mode telegram",
-    "start": "rm -rf node_modules/.cache && tsx src/server/index.ts",
-    "server": "tsx src/server/index.ts"
+    "start": "node dist/index.js",
+    "server": "tsx src/server/index.ts",
+    "build:server": "tsc -p tsconfig.server.json"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.1",

@@ -7,6 +7,7 @@ build:
   skip: false
   commands:
     - npm install
+    - npm run build:server
 run:
   persistenceMount: /data
   containerPort: 80
