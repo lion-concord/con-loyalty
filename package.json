@@ -14,7 +14,7 @@
     "preview:rustore": "vite preview --mode rustore",
     "dev:telegram": "vite --mode telegram",
     "build:telegram": "tsc -b && vite build --mode telegram",
-    "start": "node dist/index.js",
+    "start": "node dist-server/index.js",
     "server": "tsx src/server/index.ts",
     "build:server": "tsc -p tsconfig.server.json"
   },
