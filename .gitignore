@@ -73,3 +73,6 @@ _.bak_
 .env.*
 db.json
 dist-server/
+.env
+dist-server/
+.env
