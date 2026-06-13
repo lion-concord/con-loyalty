@@ -16,8 +16,7 @@
     "build:telegram": "tsc -b && vite build --mode telegram",
     "start": "node dist-server/index.js",
     "server": "tsx src/server/index.ts",
-    "build:server": "tsc -p tsconfig.server.json",
-    "postinstall": "npm run build:server"
+    "build:server": "tsc -p tsconfig.server.json"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.1",
