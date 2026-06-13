@@ -72,3 +72,4 @@ _.bak_
 # Env files
 .env.*
 db.json
+dist-server/
