@@ -7,5 +7,5 @@ build:
   skip: false
 run:
   persistenceMount: /data
-  containerPort: 80
+  containerPort: 3000
   scriptName: dist-server/index.js
