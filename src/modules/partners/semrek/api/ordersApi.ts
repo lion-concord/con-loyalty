@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'https://con-loyalty-lev1985.amvera.io';
+const API_URL = import.meta.env.VITE_API_URL || 'https://con-loyalty-v3-lev1985.amvera.io';
 
 export interface CreateOrderPayload {
   orderNumber: string;
@@ -19,7 +19,7 @@ export interface CreateOrderResponse {
 }
 
 export async function createOrder(payload: CreateOrderPayload): Promise<CreateOrderResponse> {
-  const res = await fetch(API_URL + '/api/orders', {
+  const res = await fetch(API_URL + '/api/orders_v2', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
