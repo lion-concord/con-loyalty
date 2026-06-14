@@ -51,6 +51,14 @@ if (BOT_TOKEN) {
       await ctx.reply('Ошибка подтверждения.');
     }
   });
+
+  bot.catch((err: any) => {
+    if (err?.error?.error_code === 409) {
+      console.warn('409 Conflict: another bot instance, ignoring...');
+    } else {
+      console.error('Bot error:', err);
+    }
+  });
 }
 
 export function startBot() {
