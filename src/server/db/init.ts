@@ -19,6 +19,11 @@ export type Order = {
   kon_earned: number;
   cashback_rubles: number;
   status: 'pending' | 'paid';
+  contact_name?: string;
+  contact_phone?: string;
+  delivery_region?: string;
+  delivery_method?: string;
+  delivery_address?: string;
   created_at: string;
   paid_at?: string;
 };

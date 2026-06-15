@@ -20,11 +20,17 @@ export default function DeliveryScreen({ onContinue, backLabel, onBack }: Props)
   const [regionId, setRegionId] = useState<string | null>(null);
   const [method, setMethod] = useState<Method>("courier");
   const [address, setAddress] = useState("");
+  const [contactName, setContactName] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
 
   const region = REGIONS.find((r) => r.id === regionId);
   const cost = region ? region[method] : 0;
 
-  const canContinue = regionId !== null && (method === "pickup" || address.trim().length > 3);
+  const canContinue =
+    regionId !== null &&
+    (method === "pickup" || address.trim().length > 3) &&
+    contactName.trim().length > 1 &&
+    contactPhone.trim().length > 5;
 
   const handleContinue = () => {
     if (!region) return;
@@ -33,6 +39,8 @@ export default function DeliveryScreen({ onContinue, backLabel, onBack }: Props)
       method,
       address: method === "pickup" ? undefined : address.trim(),
       cost,
+      contactName: contactName.trim(),
+      contactPhone: contactPhone.trim(),
     });
   };
 
@@ -62,15 +70,15 @@ export default function DeliveryScreen({ onContinue, backLabel, onBack }: Props)
         <div
           key={m}
           className={"sem-check " + (method === m ? "sem-check--active" : "")}
-          onClick={() => setMethod(m)}
+          onClick={() => setMethod(m as Method)}
         >
           <div className="sem-check__box">{method === m ? "✓" : ""}</div>
-          <div className="sem-check__label">{METHOD_LABELS[m]}</div>
+          <div className="sem-check__label">{METHOD_LABELS[m as Method]}</div>
           <div className="sem-check__price">
             {region
-              ? region[m] === 0
+              ? region[m as Method] === 0
                 ? "Бесплатно"
-                : region[m].toLocaleString("ru-RU") + " ₽"
+                : region[m as Method].toLocaleString("ru-RU") + " ₽"
               : "—"}
           </div>
         </div>
@@ -91,6 +99,25 @@ export default function DeliveryScreen({ onContinue, backLabel, onBack }: Props)
         </>
       )}
 
+      <div style={{ fontSize: 15, fontWeight: 700, margin: "20px 0 8px" }}>
+        Контактные данные
+      </div>
+      <input
+        className="sem-input"
+        type="text"
+        value={contactName}
+        onChange={(e) => setContactName(e.target.value)}
+        placeholder="Ваше имя и фамилия"
+        style={{ marginBottom: 10 }}
+      />
+      <input
+        className="sem-input"
+        type="tel"
+        value={contactPhone}
+        onChange={(e) => setContactPhone(e.target.value)}
+        placeholder="+7 (999) 123-45-67"
+      />
+
       {region && (
         <div className="sem-card" style={{ marginTop: 20 }}>
           <div className="sem-row">
@@ -109,7 +136,8 @@ export default function DeliveryScreen({ onContinue, backLabel, onBack }: Props)
           </div>
         </div>
       )}
-<div style={{ display: "flex", gap: 10, marginTop: 16 }}>
+
+      <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
         {onBack && (
           <button className="sem-btn sem-btn--ghost" onClick={onBack}>
             ← {backLabel || "Назад"}

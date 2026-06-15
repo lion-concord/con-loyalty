@@ -1,4 +1,4 @@
-import { Bot } from 'grammy';
+import { Bot, InlineKeyboard } from 'grammy';
 import { getPendingOrders, markOrderPaid, getUser } from '../db/queries.js';
 
 const BOT_TOKEN = process.env.BOT_TOKEN || '';
@@ -21,34 +21,46 @@ if (BOT_TOKEN) {
       const username = user?.username || String(o.user_id);
       const konEarned = 10;
       const cashback = Math.round(o.amount * 0.03);
+      const kb = new InlineKeyboard().text(
+        '\u2705 Подтвердить (+' + konEarned + ' КОН, +' + cashback + ' \u20BD)',
+        'pay_' + o.id
+      );
       await ctx.reply(
         'Заказ #' + o.order_number + '\n' +
         'Пользователь: @' + username + '\n' +
         'Партнёр: ' + o.partner + '\n' +
         'Сумма: ' + o.amount + '\n' +
-        'Баллы КОН: ' + o.kon_spent + ' списано\n\n' +
-        'Начислить ' + konEarned + ' баллов КОН и ' + cashback + ' руб кешбэка?\n' +
-        'Ответьте: /pay_' + o.id
+        'Баллы КОН: ' + o.kon_spent + ' списано',
+        { reply_markup: kb }
       );
     }
   });
 
-  bot.hears(/^\/pay_(\d+)$/, async (ctx) => {
-    if (ctx.chat.id !== MANAGER_CHAT_ID) return;
-    const orderId = Number(ctx.match[1]);
+  bot.on('callback_query:data', async (ctx) => {
+    const data = ctx.callbackQuery.data;
+    if (!data.startsWith('pay_')) return;
+    if (ctx.chat?.id !== MANAGER_CHAT_ID) {
+      await ctx.answerCallbackQuery({ text: 'Нет доступа', show_alert: true });
+      return;
+    }
+    const orderId = Number(data.slice(4));
     const orders = getPendingOrders() as any[];
     const o = orders.find((x: any) => x.id === orderId);
     if (!o) {
-      await ctx.reply('Заказ не найден или уже оплачен.');
+      await ctx.answerCallbackQuery({ text: 'Заказ не найден или уже оплачен', show_alert: true });
       return;
     }
     const konEarned = 10;
     const cashback = Math.round(o.amount * 0.03);
     const ok = markOrderPaid(orderId, konEarned, cashback);
     if (ok) {
-      await ctx.reply('Заказ #' + o.order_number + ' подтверждён! +' + konEarned + ' КОН, ' + cashback + ' руб кешбэка начислено.');
+      await ctx.editMessageText(
+        '\u2705 Заказ #' + o.order_number + ' подтверждён!\n' +
+        '+' + konEarned + ' КОН, +' + cashback + ' \u20BD кешбэка начислено клиенту.'
+      );
+      await ctx.answerCallbackQuery({ text: 'Заказ подтверждён' });
     } else {
-      await ctx.reply('Ошибка подтверждения.');
+      await ctx.answerCallbackQuery({ text: 'Ошибка подтверждения', show_alert: true });
     }
   });
 

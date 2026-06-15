@@ -29,6 +29,8 @@ export interface DeliveryInfo {
   method: "pickup" | "courier" | "transport";
   address?: string;
   cost: number;
+  contactName: string;
+  contactPhone: string;
 }
 
 export type OrderSource =
