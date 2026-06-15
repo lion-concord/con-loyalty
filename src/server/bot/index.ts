@@ -73,11 +73,28 @@ if (BOT_TOKEN) {
   });
 }
 
+let botStarted = false;
+
 export function startBot() {
   if (!bot) {
     console.warn('BOT_TOKEN not set, bot skipped');
     return;
   }
-  bot.start();
-  console.log('Bot started, MANAGER_CHAT_ID:', MANAGER_CHAT_ID);
+  if (botStarted) {
+    console.warn('Bot already started, skipping');
+    return;
+  }
+  botStarted = true;
+  bot.start({
+    onStart: (info) => console.log('Bot started as @' + info.username),
+  }).catch((err: any) => {
+    if (err?.error_code === 409 || err?.message?.includes('409')) {
+      console.warn('409 Conflict: another bot instance running, retrying in 10s...');
+      botStarted = false;
+      setTimeout(() => startBot(), 10000);
+    } else {
+      console.error('Bot start error:', err);
+    }
+  });
+  console.log('Bot starting, MANAGER_CHAT_ID:', MANAGER_CHAT_ID);
 }
