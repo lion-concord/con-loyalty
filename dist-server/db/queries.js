@@ -69,3 +69,14 @@ export function addKon(userId, amount, type, description, orderId) {
         user.kon_balance += amount;
     db.write();
 }
+export function getPartnerCashback(userId, partner) {
+    db.read();
+    const pc = db.data.partner_cashback.find((p) => p.user_id === userId && p.partner === partner);
+    return pc ? pc.balance : 0;
+}
+export function getAllPartnerCashbacks(userId) {
+    db.read();
+    return db.data.partner_cashback
+        .filter((p) => p.user_id === userId)
+        .map((p) => ({ partner: p.partner, balance: p.balance }));
+}

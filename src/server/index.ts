@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import ordersRouter from './api/orders_v2.js';
+import { cashbackRouter } from './api/cashbackApi.js';
 import { startBot } from './bot/index.js';
 import { initDb } from './db/init.js';
 
@@ -15,6 +16,7 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/api/orders_v2', ordersRouter);
+app.use('/api', cashbackRouter);
 
 initDb();
 startBot();

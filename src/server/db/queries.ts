@@ -78,3 +78,17 @@ db.data!.kon_history.push({ id, user_id: userId, amount, type, description, orde
   if (user) user.kon_balance += amount;
   db.write();
 }
+
+
+export function getPartnerCashback(userId: number, partner: string): number {
+  db.read();
+  const pc = db.data!.partner_cashback.find((p: PartnerCashback) => p.user_id === userId && p.partner === partner);
+  return pc ? pc.balance : 0;
+}
+
+export function getAllPartnerCashbacks(userId: number): Array<{ partner: string; balance: number }> {
+  db.read();
+  return db.data!.partner_cashback
+    .filter((p: PartnerCashback) => p.user_id === userId)
+    .map((p: PartnerCashback) => ({ partner: p.partner, balance: p.balance }));
+}
