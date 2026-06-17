@@ -23,7 +23,6 @@ router.post("/", async (req, res) => {
             deliveryAddress,
         });
         const order = getOrder(Number(orderId));
-        // Отправляем уведомление менеджеру
         await sendOrderNotification({
             id: Number(orderId),
             orderNumber,

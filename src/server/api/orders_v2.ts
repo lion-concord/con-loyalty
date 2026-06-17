@@ -29,7 +29,6 @@ router.post("/", async (req, res) => {
 
     const order = getOrder(Number(orderId));
 
-    // Отправляем уведомление менеджеру
     await sendOrderNotification({
       id: Number(orderId),
       orderNumber,
@@ -67,5 +66,3 @@ router.post("/:id/pay", (req, res) => {
   res.json({ success: true });
 });
 export default router;
-
-
