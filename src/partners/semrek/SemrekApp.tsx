@@ -69,6 +69,8 @@ export default function SemrekApp({
     const konEarned = 5;
     const partnerCashbackEarned = Math.round(finalPrice * 0.01);
 
+    console.log("SENDING ORDER:", { contactName: delivery.contactName, contactPhone: delivery.contactPhone, deliveryRegion: delivery.region, deliveryMethod: delivery.method, deliveryAddress: delivery.address });
+
     try {
       await createOrder({
         orderNumber: "SMR-" + Date.now().toString().slice(-6),
