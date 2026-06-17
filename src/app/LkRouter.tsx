@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import WalletApp from "../modules/wallet/WalletApp";
 import LoyaltyHomeScreen from "../modules/loyalty/screens/LoyaltyHomeScreen";
 import ProfileScreen from "../modules/profile/screens/ProfileScreen";
@@ -135,6 +135,13 @@ export default function LkRouter({ konBalance = 0, onOpenQr, onOpenHistory, onAd
   const [screen, setScreen] = useState<Screen>("loyalty");
   const [kon, setKon] = useState<number>(konBalance);
   const [semrekCardBalance, setSemrekCardBalance] = useState<number>(0);
+
+  useEffect(() => {
+    fetch('/api/partner-cashback/1/semrek')
+      .then(r => r.json())
+      .then(d => setSemrekCardBalance(d.balance || 0))
+      .catch(e => console.error('Failed to load cashback:', e));
+  }, []);
 
   const content = useMemo(() => {
     if (screen === "profile") {
