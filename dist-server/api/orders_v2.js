@@ -5,6 +5,7 @@ import { sendOrderNotification } from "../bot/notify.js";
 const router = Router();
 router.post("/", async (req, res) => {
     const { orderNumber, userId, partner, amount, items, konSpent, contactName, contactPhone, deliveryRegion, deliveryMethod, deliveryAddress } = req.body;
+    console.log("ORDER BODY:", JSON.stringify(req.body));
     if (!orderNumber || !userId || !partner || !amount) {
         return res.status(400).json({ error: "Missing required fields" });
     }
