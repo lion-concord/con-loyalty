@@ -24,6 +24,8 @@ export interface CreateOrderResponse {
 }
 
 export async function createOrder(payload: CreateOrderPayload): Promise<CreateOrderResponse> {
+  console.log("ORDERS API PAYLOAD:", JSON.stringify(payload));
+
   const res = await fetch(API_URL + '/api/orders_v2', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
