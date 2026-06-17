@@ -6,7 +6,7 @@ import { sendOrderNotification } from "../bot/notify.js";
 const router = Router();
 
 router.post("/", async (req, res) => {
-  const { orderNumber, userId, partner, amount, items, konSpent } = req.body;
+  const { orderNumber, userId, partner, amount, items, konSpent, contactName, contactPhone, deliveryRegion, deliveryMethod, deliveryAddress } = req.body;
 
   if (!orderNumber || !userId || !partner || !amount) {
     return res.status(400).json({ error: "Missing required fields" });
@@ -20,6 +20,11 @@ router.post("/", async (req, res) => {
       amount: Number(amount),
       items: JSON.stringify(items || []),
       konSpent: Number(konSpent || 0),
+      contactName,
+      contactPhone,
+      deliveryRegion,
+      deliveryMethod,
+      deliveryAddress,
     });
 
     const order = getOrder(Number(orderId));
@@ -32,6 +37,11 @@ router.post("/", async (req, res) => {
       partner,
       amount: Number(amount),
       konSpent: Number(konSpent || 0),
+      contactName,
+      contactPhone,
+      deliveryRegion,
+      deliveryMethod,
+      deliveryAddress,
     });
 
     res.json({ success: true, order });
